@@ -44,12 +44,28 @@ export const KnowledgeExplorer: React.FC<KnowledgeExplorerProps> = ({
   useEffect(() => {
     checkVaultConfiguration()
     loadFileTree()
+    
+    // Listen for vault configuration events from other components
+    const handleVaultConfigured = async (event: CustomEvent) => {
+      console.log('Vault configured event received:', event.detail)
+      setVaultConfigured(true)
+      await loadFileTree()
+    }
+    
+    window.addEventListener('vault-configured', handleVaultConfigured as EventListener)
+    
+    return () => {
+      window.removeEventListener('vault-configured', handleVaultConfigured as EventListener)
+    }
   }, [])
 
   const checkVaultConfiguration = async () => {
     try {
       const settings = await window.electronAPI.loadSettings()
-      setVaultConfigured(!!settings.vaultPath)
+      // Check if vaultPath exists and is not undefined/null
+      const hasVault = settings && settings.vaultPath !== undefined && settings.vaultPath !== null
+      setVaultConfigured(hasVault)
+      console.log('Vault configuration check:', { settings, hasVault })
     } catch (error) {
       console.error('Error checking vault configuration:', error)
       setVaultConfigured(false)
@@ -65,6 +81,9 @@ export const KnowledgeExplorer: React.FC<KnowledgeExplorerProps> = ({
     setVaultConfigured(true)
     // Reload the file tree to show the new vault
     await loadFileTree()
+    
+    // Also emit the event in case other components need to know
+    window.dispatchEvent(new CustomEvent('vault-configured', { detail: { path } }))
   }
 
   const handleVaultSetupCancel = () => {
@@ -389,16 +408,16 @@ export const KnowledgeExplorer: React.FC<KnowledgeExplorerProps> = ({
         ) : (
           // Show normal actions for configured users
           <>
-            <button className="action-button" onClick={loadFileTree}>
-              🔄 Refresh
+            <button className="action-button" onClick={loadFileTree} title="Refresh file tree">
+              <span>🔄</span> <span>Refresh</span>
             </button>
             {onCreateNew && (
-              <button className="action-button" onClick={onCreateNew}>
-                📝 New Document
+              <button className="action-button" onClick={onCreateNew} title="Create new document">
+                <span>📝</span> <span>New</span>
               </button>
             )}
-            <button className="action-button" onClick={() => window.electronAPI.openKnowledgeFolder('vault')} title="Open your personal vault folder">
-              🔐 My Vault
+            <button className="action-button" onClick={() => window.electronAPI.openKnowledgeFolder('vault')} title="Open vault folder">
+              <span>🔐</span> <span>Vault</span>
             </button>
           </>
         )}

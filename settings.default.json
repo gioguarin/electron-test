@@ -4,10 +4,10 @@
     "fontSize": 14,
     "fontFamily": "Consolas, 'Courier New', monospace",
     "showActivityBarLabels": true,
-    "compactMode": true
+    "compactMode": false
   },
   "editor": {
-    "wordWrap": "wordWrapColumn",
+    "wordWrap": "off",
     "tabSize": 2,
     "insertSpaces": true,
     "formatOnSave": false,
@@ -32,7 +32,7 @@
   },
   "network": {
     "defaultSubnetMask": "255.255.255.0",
-    "showBinaryNotation": true,
+    "showBinaryNotation": false,
     "copyFormat": "plain",
     "historyLimit": 50
   },
@@ -61,6 +61,5 @@
     "logLevel": "info",
     "enableTelemetry": false,
     "checkForUpdates": true
-  },
-  "vaultPath": "/Users/gguarin/Documents/KnowledgeVault"
+  }
 }

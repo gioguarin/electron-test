@@ -12,16 +12,21 @@ class TerminalManager {
   createTerminal(cols = 80, rows = 24) {
     // Determine the shell based on platform
     let shell
+    let shellArgs = []
     const platform = os.platform()
     
     if (platform === 'win32') {
       shell = 'powershell.exe'
     } else if (platform === 'darwin') {
       // macOS - use zsh by default (macOS Catalina+) or bash
-      shell = process.env.SHELL || '/bin/zsh' || '/bin/bash'
+      // In packaged apps, SHELL might not be set, so check multiple sources
+      shell = process.env.SHELL || '/bin/zsh'
+      // Force interactive login shell to load user's profile
+      shellArgs = ['-l', '-i']
     } else {
       // Linux
       shell = process.env.SHELL || '/bin/bash'
+      shellArgs = ['-l', '-i']
     }
     
     const id = `terminal-${this.nextId++}`
@@ -40,16 +45,25 @@ class TerminalManager {
           '/usr/bin',
           '/bin',
           '/usr/sbin',
-          '/sbin'
+          '/sbin',
+          `${process.env.HOME}/.local/bin`,
+          `${process.env.HOME}/bin`
         ]
         const currentPath = env.PATH || ''
         const pathSet = new Set(currentPath.split(':'))
         additionalPaths.forEach(p => pathSet.add(p))
         env.PATH = Array.from(pathSet).filter(Boolean).join(':')
+        
+        // Ensure TERM is set for proper terminal emulation
+        env.TERM = 'xterm-256color'
+        // Set LANG for proper character encoding
+        if (!env.LANG) {
+          env.LANG = 'en_US.UTF-8'
+        }
       }
       
       // Create terminal with proper options
-      const terminal = pty.spawn(shell, [], {
+      const terminal = pty.spawn(shell, shellArgs, {
         name: 'xterm-256color',
         cols,
         rows,

@@ -8,6 +8,7 @@
   background-color: var(--sidebar-bg, #252526);
   color: var(--text-primary, #cccccc);
   overflow: hidden;
+  container-type: inline-size;
 }
 
 .explorer-header {
@@ -234,12 +235,14 @@
   padding: 8px;
   border-top: 1px solid #1e1e1e;
   display: flex;
-  gap: 8px;
+  gap: 4px;
+  flex-wrap: wrap;
 }
 
 .action-button {
-  flex: 1;
-  padding: 6px 12px;
+  flex: 1 1 calc(33.33% - 3px);
+  min-width: 50px;
+  padding: 6px 4px;
   background-color: #3c3c3c;
   border: 1px solid #3c3c3c;
   border-radius: 2px;
@@ -249,10 +252,62 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 3px;
   transition: background-color 0.1s;
+  white-space: nowrap;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Hide text on narrow panels, show only icons */
+.action-button span:first-child {
+  flex-shrink: 0;
+}
+
+.action-button span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* When panel is very narrow */
+@media (max-width: 280px) {
+  .knowledge-explorer .action-button span:last-child {
+    display: none;
+  }
+  
+  .knowledge-explorer .action-button {
+    min-width: 40px;
+    padding: 6px;
+  }
+}
+
+/* Container size based hiding */
+.knowledge-explorer:has(.explorer-actions) {
+  container-type: inline-size;
+}
+
+@container (max-width: 180px) {
+  .action-button span:last-child {
+    display: none;
+  }
+  
+  .action-button {
+    flex: 1 1 30px;
+    min-width: 36px;
+    padding: 6px;
+  }
 }
 
 .action-button:hover {
   background-color: #4a4a4a;
+}
+
+.action-button:active {
+  background-color: #007acc;
+}
+
+/* Full-width button for vault setup */
+.setup-vault-button {
+  flex: 1 1 100%;
+  min-width: 100%;
 }

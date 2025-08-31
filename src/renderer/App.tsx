@@ -293,11 +293,20 @@ const AppContent: React.FC = () => {
                             }
                           }}
                           onNavigateToKnowledge={(file) => {
+                            // Navigate to knowledge section
                             setSelectedActivity('knowledge')
                             setShowHome(false)
+                            
+                            // Set the file path properly for public docs
                             if (file) {
-                              setSelectedKnowledgeFile(file)
+                              if (file === 'START_HERE.md' || file === 'README.md') {
+                                // These are public docs in the docs folder
+                                setSelectedKnowledgeFile(`docs/${file}`)
+                              } else {
+                                setSelectedKnowledgeFile(file)
+                              }
                             }
+                            
                             if (!visibility.sidePanel) {
                               showPanel('sidePanel')
                             }
@@ -326,11 +335,20 @@ const AppContent: React.FC = () => {
                             }
                           }}
                           onNavigateToKnowledge={(file) => {
+                            // Navigate to knowledge section
                             setSelectedActivity('knowledge')
                             setShowHome(false)
+                            
+                            // Set the file path properly for public docs
                             if (file) {
-                              setSelectedKnowledgeFile(file)
+                              if (file === 'START_HERE.md' || file === 'README.md') {
+                                // These are public docs in the docs folder
+                                setSelectedKnowledgeFile(`docs/${file}`)
+                              } else {
+                                setSelectedKnowledgeFile(file)
+                              }
                             }
+                            
                             if (!visibility.sidePanel) {
                               showPanel('sidePanel')
                             }

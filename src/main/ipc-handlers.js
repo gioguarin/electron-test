@@ -1,4 +1,4 @@
-const { ipcMain, BrowserWindow, shell, dialog } = require('electron')
+const { ipcMain, BrowserWindow, shell, dialog, app } = require('electron')
 const path = require('path')
 const fs = require('fs').promises
 const log = require('electron-log/main')
@@ -10,6 +10,13 @@ const networkTools = require('./network-tools')
  * Register all IPC handlers
  */
 function registerIpcHandlers() {
+  // Log app paths for debugging
+  log.info('App paths:', {
+    userData: app.getPath('userData'),
+    appData: app.getPath('appData'),
+    temp: app.getPath('temp')
+  })
+  
   // IPC Handler for subnet calculations
   ipcMain.handle('calculate-subnet', async (event, ipAddress, cidr) => {
     try {
@@ -71,8 +78,28 @@ function registerIpcHandlers() {
 
   // Knowledge Base IPC Handlers
   
-  // Define settings path for use in multiple handlers
-  const settingsPath = path.join(__dirname, '..', '..', 'settings.json')
+  // Define settings paths for use in multiple handlers
+  // Use app.getPath('userData') for user-specific writable directory
+  const userDataPath = app.getPath('userData')
+  const settingsPath = path.join(userDataPath, 'settings.json')
+  
+  // Default settings path - handle unpacked resources
+  const appPath = app.getAppPath()
+  let defaultSettingsPath
+  if (appPath.includes('app.asar')) {
+    defaultSettingsPath = path.join(appPath.replace('app.asar', 'app.asar.unpacked'), 'settings.default.json')
+  } else {
+    defaultSettingsPath = path.join(appPath, 'settings.default.json')
+  }
+  
+  // Ensure user data directory exists
+  const ensureUserDataDir = async () => {
+    try {
+      await fs.mkdir(userDataPath, { recursive: true })
+    } catch (error) {
+      log.error('Error creating user data directory:', error)
+    }
+  }
   
   // Helper to get user's vault path from settings
   async function getUserVaultPath() {
@@ -110,7 +137,16 @@ function registerIpcHandlers() {
       const trees = []
       
       // Add public docs
-      const publicDocsPath = path.join(__dirname, '..', '..', 'docs')
+      // In packaged app with asar unpack, docs are in app.asar.unpacked/docs
+      const appPath = app.getAppPath()
+      let publicDocsPath = path.join(appPath, 'docs')
+      
+      // Check if we're in a packaged app with unpacked resources
+      if (appPath.includes('app.asar')) {
+        // Replace app.asar with app.asar.unpacked for unpacked resources
+        publicDocsPath = path.join(appPath.replace('app.asar', 'app.asar.unpacked'), 'docs')
+      }
+      
       try {
         await fs.access(publicDocsPath)
         const publicTree = await buildFileTree(publicDocsPath, publicDocsPath)
@@ -121,26 +157,49 @@ function registerIpcHandlers() {
           isPublic: true,
           children: publicTree
         })
+        log.info('Public docs loaded from:', publicDocsPath)
       } catch (error) {
         // Public docs folder doesn't exist
         log.warn('Public docs folder not found:', publicDocsPath)
+        log.warn('App path:', appPath)
+        log.warn('Looking for docs at:', publicDocsPath)
       }
       
-      // Add user vault
-      const userVaultPath = await getUserVaultPath()
+      // Add user vault only if configured
       try {
-        await fs.access(userVaultPath)
-        const userTree = await buildFileTree(userVaultPath, userVaultPath)
-        trees.push({
-          name: '🔒 My Vault',
-          path: 'vault',
-          type: 'directory',
-          isUserVault: true,
-          children: userTree
-        })
+        const settingsData = await fs.readFile(settingsPath, 'utf-8')
+        const parsedSettings = JSON.parse(settingsData)
+        
+        if (parsedSettings.vaultPath) {
+          // Vault is configured, add it to the tree
+          const userVaultPath = parsedSettings.vaultPath
+          try {
+            await fs.access(userVaultPath)
+            const userTree = await buildFileTree(userVaultPath, userVaultPath)
+            trees.push({
+              name: '🔒 My Vault',
+              path: 'vault',
+              type: 'directory',
+              isUserVault: true,
+              children: userTree
+            })
+          } catch (error) {
+            // User vault folder doesn't exist or not accessible
+            log.warn('User vault folder not accessible:', userVaultPath)
+            // Still add the vault node but empty since it's configured
+            trees.push({
+              name: '🔒 My Vault',
+              path: 'vault',
+              type: 'directory',
+              isUserVault: true,
+              children: []
+            })
+          }
+        }
+        // If no vaultPath in settings, don't add vault to tree
       } catch (error) {
-        // User vault doesn't exist yet - will be created on first save
-        log.info('User vault not found (will be created on first save):', userVaultPath)
+        // Settings file doesn't exist, vault not configured
+        log.info('No vault configured yet - settings file not found')
       }
       
       return trees
@@ -157,9 +216,16 @@ function registerIpcHandlers() {
       
       // Determine if it's a public doc or user vault file
       if (filePath.startsWith('docs/')) {
-        // Public docs
+        // Public docs - handle unpacked resources
         const relativePath = filePath.substring(5) // Remove 'docs/' prefix
-        fullPath = path.join(__dirname, '..', '..', 'docs', relativePath)
+        const appPath = app.getAppPath()
+        
+        // Check if we're in a packaged app with unpacked resources
+        if (appPath.includes('app.asar')) {
+          fullPath = path.join(appPath.replace('app.asar', 'app.asar.unpacked'), 'docs', relativePath)
+        } else {
+          fullPath = path.join(appPath, 'docs', relativePath)
+        }
       } else if (filePath.startsWith('vault/')) {
         // User vault
         const relativePath = filePath.substring(6) // Remove 'vault/' prefix
@@ -291,17 +357,32 @@ function registerIpcHandlers() {
       const data = await fs.readFile(settingsPath, 'utf-8')
       return JSON.parse(data)
     } catch (error) {
-      log.error('Error loading settings:', error)
-      // Return default settings if file doesn't exist
-      const defaultSettings = require('../../settings.json')
-      return defaultSettings
+      log.info('Settings file not found, loading defaults')
+      try {
+        const defaultData = await fs.readFile(defaultSettingsPath, 'utf-8')
+        return JSON.parse(defaultData)
+      } catch (defaultError) {
+        log.error('Error loading default settings:', defaultError)
+        // Return hardcoded defaults as fallback
+        return {
+          appearance: { theme: 'dark', fontSize: 14, fontFamily: "Consolas, 'Courier New', monospace" },
+          editor: { tabSize: 2, insertSpaces: true },
+          terminal: { fontSize: 12, scrollback: 1000 },
+          panels: { sidebarWidth: 240, terminalHeight: 200, assistantWidth: 300 },
+          network: { defaultSubnetMask: '255.255.255.0', showBinaryNotation: false },
+          knowledge: { defaultView: 'tree', showHiddenFiles: false },
+          keyboard: { shortcuts: {} },
+          advanced: { developerMode: false, showDevTools: false, logLevel: 'info' }
+        }
+      }
     }
   })
 
   ipcMain.handle('save-settings', async (event, settings) => {
     try {
+      await ensureUserDataDir()
       await fs.writeFile(settingsPath, JSON.stringify(settings, null, 2), 'utf-8')
-      log.info('Settings saved successfully')
+      log.info('Settings saved successfully to:', settingsPath)
       return true
     } catch (error) {
       log.error('Error saving settings:', error)
@@ -311,7 +392,9 @@ function registerIpcHandlers() {
 
   ipcMain.handle('reset-settings', async () => {
     try {
-      const defaultSettings = require('../../settings.json')
+      await ensureUserDataDir()
+      const defaultData = await fs.readFile(defaultSettingsPath, 'utf-8')
+      const defaultSettings = JSON.parse(defaultData)
       await fs.writeFile(settingsPath, JSON.stringify(defaultSettings, null, 2), 'utf-8')
       log.info('Settings reset to defaults')
       return defaultSettings
@@ -420,23 +503,33 @@ function registerIpcHandlers() {
     try {
       log.info('Setting vault path to:', newPath)
       
-      // Load current settings
+      // Ensure user data directory exists first
+      await ensureUserDataDir()
+      
+      // Load current settings or use defaults
       let settings = {}
       try {
         const data = await fs.readFile(settingsPath, 'utf-8')
         settings = JSON.parse(data)
-        log.info('Loaded existing settings')
+        log.info('Loaded existing settings from:', settingsPath)
       } catch (err) {
-        // Settings file doesn't exist yet
-        log.info('No existing settings file, creating new one')
+        // Settings file doesn't exist yet, try to load defaults
+        try {
+          const defaultData = await fs.readFile(defaultSettingsPath, 'utf-8')
+          settings = JSON.parse(defaultData)
+          log.info('Loaded default settings')
+        } catch (defaultErr) {
+          log.info('No defaults found, using empty settings')
+          settings = {}
+        }
       }
       
       // Update vault path
       settings.vaultPath = newPath
       
-      // Save settings
+      // Save settings to user data directory
       await fs.writeFile(settingsPath, JSON.stringify(settings, null, 2), 'utf-8')
-      log.info('Settings saved successfully')
+      log.info('Settings saved successfully to:', settingsPath)
       
       // Create the vault folder if it doesn't exist
       await fs.mkdir(newPath, { recursive: true })

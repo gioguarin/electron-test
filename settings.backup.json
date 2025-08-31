@@ -61,5 +61,6 @@
     "logLevel": "info",
     "enableTelemetry": false,
     "checkForUpdates": true
-  }
+  },
+  "vaultPath": "/Users/gguarin/Documents/KnowledgeVault"
 }

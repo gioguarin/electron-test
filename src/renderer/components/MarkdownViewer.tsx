@@ -33,12 +33,36 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
   const [error, setError] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<ViewMode>(isNewDocument ? 'split' : 'preview')
   const [newFileName, setNewFileName] = useState('')
+  const [vaultConfigured, setVaultConfigured] = useState<boolean | null>(null)
+  const [showVaultNotice, setShowVaultNotice] = useState(false)
 
   useEffect(() => {
     if (!isNewDocument && filePath) {
       loadFile()
     }
   }, [filePath, isNewDocument])
+  
+  // Check vault configuration when viewing public docs
+  useEffect(() => {
+    const checkVaultConfig = async () => {
+      if (filePath && filePath.startsWith('docs/')) {
+        try {
+          const settings = await window.electronAPI.loadSettings()
+          const hasVault = settings && settings.vaultPath !== undefined && settings.vaultPath !== null
+          setVaultConfigured(hasVault)
+          // Show notice for first-time users viewing public docs
+          if (!hasVault) {
+            setShowVaultNotice(true)
+            // Auto-hide after 10 seconds
+            setTimeout(() => setShowVaultNotice(false), 10000)
+          }
+        } catch (error) {
+          console.error('Error checking vault configuration:', error)
+        }
+      }
+    }
+    checkVaultConfig()
+  }, [filePath])
 
   // Auto-focus the filename input when creating a new document
   useEffect(() => {
@@ -125,6 +149,43 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
 
   return (
     <div className="markdown-viewer">
+      {showVaultNotice && vaultConfigured === false && (
+        <div className="vault-notice" style={{
+          backgroundColor: 'var(--accent-color)',
+          color: 'white',
+          padding: '10px 16px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          fontSize: '13px',
+          borderBottom: '1px solid rgba(0,0,0,0.2)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span>💡</span>
+            <span>
+              <strong>Welcome!</strong> Set up your personal vault to create and save your own documents.
+            </span>
+          </div>
+          <button 
+            onClick={() => {
+              setShowVaultNotice(false)
+              window.dispatchEvent(new CustomEvent('show-vault-setup'))
+            }}
+            style={{
+              backgroundColor: 'white',
+              color: 'var(--accent-color)',
+              border: 'none',
+              padding: '4px 12px',
+              borderRadius: '3px',
+              cursor: 'pointer',
+              fontSize: '12px',
+              fontWeight: 'bold'
+            }}
+          >
+            Set up Vault
+          </button>
+        </div>
+      )}
       <div className="viewer-header">
         {isNewDocument && isEditing ? (
           <input

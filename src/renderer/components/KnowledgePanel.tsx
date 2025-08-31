@@ -46,7 +46,8 @@ export const KnowledgePanel: React.FC<KnowledgePanelProps> = ({ selectedFile, on
     const checkVaultConfiguration = async () => {
       try {
         const settings = await window.electronAPI.loadSettings()
-        const isConfigured = !!settings.vaultPath
+        // Check if vaultPath exists and is not undefined/null
+        const isConfigured = settings && settings.vaultPath !== undefined && settings.vaultPath !== null
         setVaultConfigured(isConfigured)
         
         // Show setup dialog when trying to create new document without vault
@@ -60,11 +61,26 @@ export const KnowledgePanel: React.FC<KnowledgePanelProps> = ({ selectedFile, on
       }
     }
     checkVaultConfiguration()
+    
+    // Listen for vault setup request from MarkdownViewer
+    const handleShowVaultSetup = () => {
+      setShowVaultSetup(true)
+    }
+    
+    window.addEventListener('show-vault-setup', handleShowVaultSetup)
+    
+    return () => {
+      window.removeEventListener('show-vault-setup', handleShowVaultSetup)
+    }
   }, [isCreatingNew, selectedFile, vaultChecked])
 
   const handleVaultSetupComplete = (path: string) => {
     setShowVaultSetup(false)
     setVaultConfigured(true)
+    
+    // Trigger a custom event to refresh the knowledge explorer
+    window.dispatchEvent(new CustomEvent('vault-configured', { detail: { path } }))
+    
     // Continue with document creation if that's what triggered the setup
     if (isCreatingNew || selectedFile === '__new__') {
       // Keep the new document state active

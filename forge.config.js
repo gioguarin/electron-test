@@ -3,14 +3,19 @@ const { FuseV1Options, FuseVersion } = require('@electron/fuses')
 
 module.exports = {
   packagerConfig: {
-    asar: true,
+    asar: {
+      unpack: '{docs/**/*,settings.default.json}'
+    },
     name: 'Network Tools Hub',
     executableName: 'network-tools-hub',
     icon: './assets/icon.png', // Use PNG for now
     appBundleId: 'com.gioguarin.networktoolshub',
     appCategoryType: 'public.app-category.developer-tools',
   },
-  rebuildConfig: {},
+  rebuildConfig: {
+    force: true,
+    modules: ['node-pty']
+  },
   makers: [
     {
       name: '@electron-forge/maker-squirrel',
