@@ -1,0 +1,73 @@
+/* Knowledge Panel Styles */
+
+.knowledge-panel {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  background-color: #1e1e1e;
+}
+
+.no-file-selected {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #1e1e1e;
+  color: #cccccc;
+}
+
+.empty-state {
+  text-align: center;
+  max-width: 500px;
+  padding: 40px;
+}
+
+.empty-state h2 {
+  font-size: 32px;
+  font-weight: 300;
+  margin-bottom: 16px;
+  color: #cccccc;
+}
+
+.empty-state p {
+  font-size: 14px;
+  color: #8b8b8b;
+  margin-bottom: 32px;
+}
+
+.quick-tips {
+  text-align: left;
+  background-color: #252526;
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid #3c3c3c;
+}
+
+.quick-tips h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 0;
+  margin-bottom: 16px;
+  color: #cccccc;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.quick-tips ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.quick-tips li {
+  padding: 8px 0;
+  font-size: 13px;
+  color: #8b8b8b;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.quick-tips li:not(:last-child) {
+  border-bottom: 1px solid #1e1e1e;
+}

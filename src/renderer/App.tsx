@@ -7,6 +7,7 @@ import { ActivityBar } from './components/ActivityBar'
 import { SidePanel } from './components/SidePanel'
 import { TerminalPanel } from './components/TerminalPanel'
 import { AssistantPanel } from './components/AssistantPanel'
+import { KnowledgePanel } from './components/KnowledgePanel'
 import { PanelProvider, usePanelContext } from './contexts/PanelContext'
 import './styles/App.css'
 import './styles/Allotment.css'
@@ -175,7 +176,9 @@ const AppContent: React.FC = () => {
                 >
                   <Allotment.Pane>
                     <div className="editor-area">
-                      {activeTool ? (
+                      {selectedActivity === 'knowledge' ? (
+                        <KnowledgePanel />
+                      ) : activeTool ? (
                         <ToolPanel toolId={activeTool} />
                       ) : (
                         <div className="welcome-screen">

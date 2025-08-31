@@ -137,8 +137,50 @@
   font-size: 13px;
 }
 
+/* Knowledge info styles */
+.knowledge-info {
+  padding: 16px;
+  color: #cccccc;
+}
+
+.info-section p {
+  font-size: 13px;
+  color: #8b8b8b;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.folder-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.folder-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  background-color: #2a2d2e;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.folder-icon {
+  font-size: 16px;
+}
+
+.folder-item strong {
+  flex: 1;
+  color: #cccccc;
+}
+
+.folder-desc {
+  font-size: 11px;
+  color: #6b6b6b;
+}
+
 /* Other panels placeholder styles */
-.knowledge-tree,
 .terminal-list,
 .assistant-chat,
 .settings-list {

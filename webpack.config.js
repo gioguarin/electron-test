@@ -66,7 +66,7 @@ module.exports = [
   {
     mode: isDevelopment ? 'development' : 'production',
     entry: './src/renderer/index.tsx',
-    target: 'electron-renderer',
+    target: 'web', // Changed to 'web' to avoid Node.js dependencies
     devtool: isDevelopment ? 'source-map' : false,
     module: {
       rules: [
@@ -97,6 +97,23 @@ module.exports = [
         '@components': path.resolve(__dirname, 'src/components'),
         '@utils': path.resolve(__dirname, 'src/utils'),
         '@styles': path.resolve(__dirname, 'src/styles')
+      },
+      fallback: {
+        // Provide empty modules for Node.js core modules used by react-markdown
+        "path": false,
+        "fs": false,
+        "stream": false,
+        "util": false,
+        "buffer": false,
+        "process": false,
+        "events": false,
+        "url": false,
+        "assert": false,
+        "crypto": false,
+        "http": false,
+        "https": false,
+        "os": false,
+        "zlib": false
       }
     },
     output: {

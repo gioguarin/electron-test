@@ -1,5 +1,6 @@
-const { ipcMain, BrowserWindow } = require('electron')
+const { ipcMain, BrowserWindow, shell } = require('electron')
 const path = require('path')
+const fs = require('fs').promises
 const log = require('electron-log/main')
 const { calculateSubnetInfo } = require('../utils/subnet-calculator')
 
@@ -66,7 +67,105 @@ function registerIpcHandlers() {
     }
   })
 
+  // Knowledge Base IPC Handlers
+  
+  // Get knowledge tree structure
+  ipcMain.handle('get-knowledge-tree', async () => {
+    try {
+      const knowledgeBasePath = path.join(__dirname, '..', '..', 'knowledge-base')
+      const tree = await buildFileTree(knowledgeBasePath, knowledgeBasePath)
+      return tree
+    } catch (error) {
+      log.error('Error getting knowledge tree:', error)
+      throw error
+    }
+  })
+
+  // Read knowledge file
+  ipcMain.handle('read-knowledge-file', async (event, filePath) => {
+    try {
+      const fullPath = path.join(__dirname, '..', '..', 'knowledge-base', filePath)
+      const content = await fs.readFile(fullPath, 'utf-8')
+      return content
+    } catch (error) {
+      log.error('Error reading knowledge file:', error)
+      throw error
+    }
+  })
+
+  // Save knowledge file
+  ipcMain.handle('save-knowledge-file', async (event, filePath, content) => {
+    try {
+      const fullPath = path.join(__dirname, '..', '..', 'knowledge-base', filePath)
+      await fs.writeFile(fullPath, content, 'utf-8')
+      log.info('Knowledge file saved:', filePath)
+      return true
+    } catch (error) {
+      log.error('Error saving knowledge file:', error)
+      throw error
+    }
+  })
+
+  // Open knowledge folder in system file explorer
+  ipcMain.handle('open-knowledge-folder', async () => {
+    try {
+      const knowledgeBasePath = path.join(__dirname, '..', '..', 'knowledge-base')
+      await shell.openPath(knowledgeBasePath)
+      return true
+    } catch (error) {
+      log.error('Error opening knowledge folder:', error)
+      throw error
+    }
+  })
+
+  // Open external link
+  ipcMain.handle('open-external', async (event, url) => {
+    try {
+      await shell.openExternal(url)
+      return true
+    } catch (error) {
+      log.error('Error opening external link:', error)
+      throw error
+    }
+  })
+
   log.info('IPC handlers registered')
+}
+
+// Helper function to build file tree
+async function buildFileTree(dir, baseDir) {
+  const items = []
+  const files = await fs.readdir(dir)
+  
+  for (const file of files) {
+    const filePath = path.join(dir, file)
+    const stat = await fs.stat(filePath)
+    const relativePath = path.relative(baseDir, filePath)
+    
+    if (stat.isDirectory()) {
+      const children = await buildFileTree(filePath, baseDir)
+      items.push({
+        name: file,
+        path: relativePath,
+        type: 'directory',
+        children
+      })
+    } else if (file.endsWith('.md')) {
+      items.push({
+        name: file,
+        path: relativePath,
+        type: 'file'
+      })
+    }
+  }
+  
+  return items.sort((a, b) => {
+    // Directories first, then files
+    if (a.type !== b.type) {
+      return a.type === 'directory' ? -1 : 1
+    }
+    return a.name.localeCompare(b.name)
+  })
 }
 
 module.exports = { registerIpcHandlers }

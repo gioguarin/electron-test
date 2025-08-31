@@ -120,10 +120,34 @@ export const SidePanel: React.FC<SidePanelProps> = ({
   const renderKnowledgePanel = () => (
     <>
       <div className="side-panel-header">
-        <h3>Knowledge Base</h3>
+        <h3>📚 Knowledge Base</h3>
       </div>
-      <div className="knowledge-tree">
-        <p>Knowledge base coming soon...</p>
+      <div className="knowledge-info">
+        <div className="info-section">
+          <p>Your project documentation is now available in the main view.</p>
+          <div className="folder-list">
+            <div className="folder-item">
+              <span className="folder-icon">📁</span>
+              <strong>project/</strong>
+              <span className="folder-desc">Project docs</span>
+            </div>
+            <div className="folder-item">
+              <span className="folder-icon">📁</span>
+              <strong>documentation/</strong>
+              <span className="folder-desc">General docs</span>
+            </div>
+            <div className="folder-item">
+              <span className="folder-icon">📁</span>
+              <strong>guides/</strong>
+              <span className="folder-desc">How-to guides</span>
+            </div>
+            <div className="folder-item">
+              <span className="folder-icon">📁</span>
+              <strong>notes/</strong>
+              <span className="folder-desc">Personal notes</span>
+            </div>
+          </div>
+        </div>
       </div>
     </>
   )

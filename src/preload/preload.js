@@ -34,6 +34,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
     readText: () => clipboard.readText()
   },
   
+  // Knowledge Base API
+  getKnowledgeTree: () => ipcRenderer.invoke('get-knowledge-tree'),
+  readKnowledgeFile: (filePath) => ipcRenderer.invoke('read-knowledge-file', filePath),
+  saveKnowledgeFile: (filePath, content) => ipcRenderer.invoke('save-knowledge-file', filePath, content),
+  openKnowledgeFolder: () => ipcRenderer.invoke('open-knowledge-folder'),
+  openExternal: (url) => ipcRenderer.invoke('open-external', url),
+  
   // Storage API for calculation history
   storage: {
     getHistory: () => {
