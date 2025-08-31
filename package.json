@@ -15,8 +15,14 @@
     "type": "git",
     "url": "git+https://github.com/gioguarin/electron-test.git"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "network",
+    "tools",
+    "subnet",
+    "calculator",
+    "electron"
+  ],
+  "author": "gioguarin",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/gioguarin/electron-test/issues"
@@ -36,7 +42,6 @@
   },
   "dependencies": {
     "electron-log": "^5.4.3",
-    "electron-squirrel-startup": "^1.0.1",
-    "rpmbuild": "^0.0.23"
+    "electron-squirrel-startup": "^1.0.1"
   }
 }
