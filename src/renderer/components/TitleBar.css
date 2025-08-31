@@ -12,23 +12,42 @@
   right: 0;
   z-index: 1000;
   border-bottom: 1px solid #1e1e1e;
-  -webkit-app-region: drag;
   user-select: none;
 }
 
+/* macOS specific styles */
+.title-bar.macos {
+  background-color: transparent; /* Transparent to use native title bar */
+  border-bottom: none;
+  padding-left: 80px; /* Space for traffic lights */
+  padding-right: 12px;
+}
+
 .title-bar-drag-region {
-  flex: 1;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  padding-left: 8px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  -webkit-app-region: drag;
+  z-index: -1; /* Behind other elements */
 }
 
 .title-bar-title {
-  font-size: 12px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 13px;
   color: #cccccc;
   font-weight: 400;
   pointer-events: none;
+  -webkit-app-region: no-drag;
+}
+
+/* macOS specific title styling */
+.title-bar.macos .title-bar-title {
+  font-weight: 500;
+  color: #e0e0e0;
 }
 
 .title-bar-controls {
@@ -36,6 +55,9 @@
   align-items: center;
   height: 100%;
   -webkit-app-region: no-drag;
+  margin-left: auto; /* Push to the right */
+  position: relative;
+  z-index: 1;
 }
 
 .layout-controls {
@@ -43,6 +65,11 @@
   align-items: center;
   padding: 0 8px;
   gap: 2px;
+}
+
+/* On macOS, ensure layout controls don't interfere with title */
+.title-bar.macos .layout-controls {
+  margin-right: 0;
 }
 
 .window-controls-separator {

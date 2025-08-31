@@ -15,7 +15,7 @@ interface FileNode {
 interface SearchResult {
   item: FileNode
   score?: number
-  matches?: any[]
+  matches?: readonly any[]
 }
 
 interface KnowledgeExplorerProps {
@@ -64,7 +64,7 @@ export const KnowledgeExplorer: React.FC<KnowledgeExplorerProps> = ({
       
       // Auto-expand first level
       const firstLevel = new Set<string>()
-      tree.forEach(node => {
+      tree.forEach((node: FileNode) => {
         if (node.type === 'directory') {
           firstLevel.add(node.path)
         }

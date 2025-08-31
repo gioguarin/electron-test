@@ -12,8 +12,12 @@
     "build:watch": "webpack --mode development --watch",
     "compile": "tsc",
     "compile:watch": "tsc --watch",
-    "package": "electron-forge package",
-    "make": "electron-forge make",
+    "package": "npm run build && electron-forge package",
+    "make": "npm run build && electron-forge make",
+    "make:mac": "npm run build && electron-forge make --platform=darwin",
+    "make:win": "npm run build && electron-forge make --platform=win32",
+    "make:linux": "npm run build && electron-forge make --platform=linux",
+    "dist": "npm run build && electron-forge make",
     "lint": "eslint . --ext .js",
     "lint:fix": "eslint . --ext .js --fix",
     "test": "echo \"No tests configured yet\""
@@ -38,6 +42,7 @@
   "devDependencies": {
     "@electron-forge/cli": "^7.8.3",
     "@electron-forge/maker-deb": "^7.8.3",
+    "@electron-forge/maker-dmg": "^7.8.3",
     "@electron-forge/maker-rpm": "^7.8.3",
     "@electron-forge/maker-squirrel": "^7.8.3",
     "@electron-forge/maker-zip": "^7.8.3",

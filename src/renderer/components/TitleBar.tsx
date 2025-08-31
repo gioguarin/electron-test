@@ -1,9 +1,15 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { usePanelContext } from '../contexts/PanelContext'
 import './TitleBar.css'
 
 export const TitleBar: React.FC = () => {
   const { visibility, togglePanel } = usePanelContext()
+  const [isMacOS, setIsMacOS] = useState(false)
+
+  useEffect(() => {
+    // Check if running on macOS
+    setIsMacOS(window.electronAPI.platform === 'darwin')
+  }, [])
 
   const handleMinimize = () => {
     window.electronAPI.minimizeWindow()
@@ -18,10 +24,12 @@ export const TitleBar: React.FC = () => {
   }
 
   return (
-    <div className="title-bar">
-      <div className="title-bar-drag-region">
-        <div className="title-bar-title">Network Tools Hub</div>
-      </div>
+    <div className={`title-bar ${isMacOS ? 'macos' : ''}`}>
+      {/* Title centered for all platforms */}
+      <div className="title-bar-title">Network Tools Hub</div>
+      
+      {/* Drag region that respects traffic lights on macOS */}
+      <div className="title-bar-drag-region" />
       
       <div className="title-bar-controls">
         {/* Layout Controls */}
@@ -60,40 +68,45 @@ export const TitleBar: React.FC = () => {
           </button>
         </div>
 
-        <div className="window-controls-separator" />
+        {/* Only show window controls on non-macOS platforms */}
+        {!isMacOS && (
+          <>
+            <div className="window-controls-separator" />
 
-        {/* Window Controls */}
-        <div className="window-controls">
-          <button 
-            className="title-bar-button minimize" 
-            onClick={handleMinimize}
-            title="Minimize"
-          >
-            <svg width="10" height="10" viewBox="0 0 10 10">
-              <path d="M 0 5 L 10 5" stroke="currentColor" strokeWidth="1" />
-            </svg>
-          </button>
-          
-          <button 
-            className="title-bar-button maximize" 
-            onClick={handleMaximize}
-            title="Maximize/Restore"
-          >
-            <svg width="10" height="10" viewBox="0 0 10 10">
-              <rect x="0" y="0" width="10" height="10" stroke="currentColor" strokeWidth="1" fill="none" />
-            </svg>
-          </button>
-          
-          <button 
-            className="title-bar-button close" 
-            onClick={handleClose}
-            title="Close"
-          >
-            <svg width="10" height="10" viewBox="0 0 10 10">
-              <path d="M 0 0 L 10 10 M 10 0 L 0 10" stroke="currentColor" strokeWidth="1" />
-            </svg>
-          </button>
-        </div>
+            {/* Window Controls */}
+            <div className="window-controls">
+              <button 
+                className="title-bar-button minimize" 
+                onClick={handleMinimize}
+                title="Minimize"
+              >
+                <svg width="10" height="10" viewBox="0 0 10 10">
+                  <path d="M 0 5 L 10 5" stroke="currentColor" strokeWidth="1" />
+                </svg>
+              </button>
+              
+              <button 
+                className="title-bar-button maximize" 
+                onClick={handleMaximize}
+                title="Maximize/Restore"
+              >
+                <svg width="10" height="10" viewBox="0 0 10 10">
+                  <rect x="0" y="0" width="10" height="10" stroke="currentColor" strokeWidth="1" fill="none" />
+                </svg>
+              </button>
+              
+              <button 
+                className="title-bar-button close" 
+                onClick={handleClose}
+                title="Close"
+              >
+                <svg width="10" height="10" viewBox="0 0 10 10">
+                  <path d="M 0 0 L 10 10 M 10 0 L 0 10" stroke="currentColor" strokeWidth="1" />
+                </svg>
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   )

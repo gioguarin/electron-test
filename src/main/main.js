@@ -20,13 +20,13 @@ app.on('web-contents-created', (event, contents) => {
 
 function createWindow () {
   log.info('Creating main window...')
-  const mainWindow = new BrowserWindow({
+  
+  // Platform-specific window options
+  const windowOptions = {
     width: 1000,
     height: 700,
     minWidth: 800,
     minHeight: 600,
-    frame: false,  // Remove default title bar
-    titleBarStyle: 'hidden',
     webPreferences: {
       contextIsolation: true,  // Security: Enable context isolation
       nodeIntegration: false,  // Security: Disable node integration
@@ -36,7 +36,20 @@ function createWindow () {
     },
     icon: path.join(__dirname, '..', '..', 'assets', 'icon.png'), // Add app icon
     show: false // Don't show until ready
-  })
+  }
+
+  // macOS specific options for native title bar
+  if (process.platform === 'darwin') {
+    windowOptions.titleBarStyle = 'hiddenInset'  // Native macOS traffic lights with inset position
+    windowOptions.frame = true  // Use native frame on macOS
+    windowOptions.trafficLightPosition = { x: 12, y: 10 }  // Position traffic lights
+  } else {
+    // Windows and Linux keep custom title bar
+    windowOptions.frame = false  // Remove default title bar
+    windowOptions.titleBarStyle = 'hidden'
+  }
+
+  const mainWindow = new BrowserWindow(windowOptions)
 
   // Show window when ready to prevent visual flash
   mainWindow.once('ready-to-show', () => {

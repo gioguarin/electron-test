@@ -17,6 +17,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     electron: process.versions.electron
   }),
   
+  // Platform information
+  platform: process.platform,
+  
   // Logging API for renderer (using console for now due to sandbox restrictions)
   log: {
     info: (...args) => console.log('[INFO]', ...args),
