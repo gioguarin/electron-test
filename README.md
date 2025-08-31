@@ -9,7 +9,8 @@ A sophisticated VS Code-inspired Electron desktop application for network admini
 - **Resizable Panels**: Drag to resize any panel with Allotment library
 - **Activity Bar Navigation**: Quick access to tools, knowledge base, terminal, and AI assistant
 - **Persistent Layout**: Panel sizes and visibility saved between sessions
-- **Dark Theme**: Consistent dark theme matching VS Code
+- **Theme Support**: Dark, Light, and High Contrast themes with real-time switching
+- **Custom Title Bar**: Integrated window controls and layout toggles
 
 ### Network Tools
 - **Subnet Calculator**: Calculate network addresses, broadcast addresses, and host ranges
@@ -32,6 +33,16 @@ A sophisticated VS Code-inspired Electron desktop application for network admini
   - `/knowledge-base/guides` - How-to guides
   - `/knowledge-base/notes` - Personal notes
 
+### Settings System
+- **VS Code-Style Settings**: Comprehensive settings management interface
+- **Dual Edit Modes**: Toggle between UI form and direct JSON editing
+- **Settings Categories**: 
+  - Appearance (theme, font size, font family)
+  - Editor (word wrap, tab size, auto-save)
+  - Terminal, Panels, Network Tools, Knowledge Base, Keyboard shortcuts
+- **Live Preview**: Settings apply immediately as you change them
+- **Import/Export**: Direct JSON editing for easy configuration sharing
+
 ### Additional Features
 - **Terminal Panel**: Integrated terminal interface (functionality coming soon)
 - **AI Assistant Panel**: Ready for LLM integration
@@ -43,6 +54,8 @@ A sophisticated VS Code-inspired Electron desktop application for network admini
 - `Ctrl+B` - Toggle sidebar
 - `Ctrl+\`` - Toggle terminal
 - `Ctrl+Shift+A` - Toggle AI assistant
+- `Ctrl+,` - Open settings
+- `Escape` - Close settings/dialogs
 
 ## Installation
 
