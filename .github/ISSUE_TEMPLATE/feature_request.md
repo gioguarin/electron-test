@@ -18,10 +18,9 @@ assignees: ''
 
 ## Which tool would this feature belong to?
 - [ ] Subnet Calculator
-- [ ] VLSM Calculator (Coming Soon)
-- [ ] Ping Tool (Coming Soon)
-- [ ] Port Scanner (Coming Soon)
-- [ ] DNS Lookup (Coming Soon)
+- [ ] BGP Route Server
+- [ ] Terminal
+- [ ] Knowledge Base
 - [ ] New Tool (please specify)
 - [ ] General Application Feature
 

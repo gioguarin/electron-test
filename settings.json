@@ -1,6 +1,6 @@
 {
   "appearance": {
-    "theme": "dark",
+    "theme": "high-contrast",
     "fontSize": 13,
     "fontFamily": "Consolas, 'Courier New', monospace",
     "showActivityBarLabels": false,

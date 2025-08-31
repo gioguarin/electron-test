@@ -3,9 +3,31 @@
   max-width: 1400px;
   margin: 0 auto;
   height: 100%;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(155, 155, 155, 0.5) transparent;
+}
+
+/* Custom scrollbar for webkit browsers */
+.home-page::-webkit-scrollbar {
+  width: 8px;
+}
+
+.home-page::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.home-page::-webkit-scrollbar-thumb {
+  background-color: rgba(155, 155, 155, 0.5);
+  border-radius: 4px;
+  border: transparent;
+}
+
+.home-page::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(155, 155, 155, 0.7);
 }
 
 .home-header {
@@ -31,7 +53,7 @@
 
 /* Getting Started Banner */
 .getting-started-banner {
-  background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%);
+  background: linear-gradient(135deg, var(--color-accent, var(--accent-color)) 0%, var(--color-primary, var(--accent-color)) 100%);
   border-radius: 6px;
   padding: 1.5rem;
   margin-bottom: 2rem;
@@ -57,7 +79,7 @@
 
 .primary-button {
   background: white;
-  color: #0066cc;
+  color: var(--color-accent, var(--accent-color));
   border: none;
   padding: 0.6rem 1.5rem;
   font-size: 0.95rem;
@@ -114,8 +136,8 @@
 .action-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  border-color: #0066cc;
-  background: var(--color-bg-tertiary);
+  border-color: var(--color-accent, var(--accent-color));
+  background: var(--color-bg-tertiary, var(--bg-tertiary));
 }
 
 .action-icon {
@@ -237,7 +259,7 @@
   text-align: center;
   padding: 1rem 0;
   border-top: 1px solid var(--color-border);
-  margin-top: auto;
+  margin-top: 2rem;
   flex-shrink: 0;
 }
 
@@ -250,36 +272,36 @@
 
 /* Theme specific styles */
 [data-theme="dark"] .action-card {
-  background: rgba(255, 255, 255, 0.03);
-  border-color: rgba(255, 255, 255, 0.1);
+  background: var(--color-bg-secondary, var(--bg-secondary));
+  border-color: var(--color-border, var(--border-color));
 }
 
 [data-theme="dark"] .action-card:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: #0066cc;
+  background: var(--color-bg-tertiary, var(--bg-tertiary));
+  border-color: var(--color-accent, var(--accent-color));
 }
 
 [data-theme="dark"] .feature-item {
-  background: rgba(255, 255, 255, 0.03);
-  border-color: rgba(255, 255, 255, 0.1);
+  background: var(--color-bg-secondary, var(--bg-secondary));
+  border-color: var(--color-border, var(--border-color));
 }
 
 [data-theme="dark"] .keyboard-shortcuts-preview {
-  background: rgba(255, 255, 255, 0.03);
-  border-color: rgba(255, 255, 255, 0.1);
+  background: var(--color-bg-secondary, var(--bg-secondary));
+  border-color: var(--color-border, var(--border-color));
 }
 
 [data-theme="light"] .action-card:hover {
-  background: #f8f9fa;
-  border-color: #0066cc;
+  background: var(--color-bg-tertiary, var(--bg-tertiary));
+  border-color: var(--color-accent, var(--accent-color));
 }
 
 [data-theme="light"] .feature-item {
-  background: #ffffff;
+  background: var(--color-bg-secondary, var(--bg-secondary));
 }
 
 [data-theme="light"] .keyboard-shortcuts-preview {
-  background: #ffffff;
+  background: var(--color-bg-secondary, var(--bg-secondary));
 }
 
 /* Responsive design */

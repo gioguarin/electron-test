@@ -4,8 +4,8 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  background-color: #1e1e1e;
-  color: #cccccc;
+  background-color: var(--terminal-bg, var(--bg-primary));
+  color: var(--color-text-primary, var(--text-primary));
   font-family: 'Consolas', 'Courier New', monospace;
   font-size: 13px;
 }
@@ -14,8 +14,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #252526;
-  border-bottom: 1px solid #3c3c3c;
+  background-color: var(--color-bg-elevated, var(--bg-secondary));
+  border-bottom: 1px solid var(--color-border, var(--border-color));
   height: 35px;
   padding: 0 8px;
   flex-shrink: 0;
@@ -34,7 +34,7 @@
   align-items: center;
   gap: 6px;
   padding: 6px 12px;
-  background-color: #2d2d30;
+  background-color: var(--color-bg-secondary, var(--bg-tertiary));
   border: 1px solid transparent;
   cursor: pointer;
   user-select: none;
@@ -43,12 +43,12 @@
 }
 
 .terminal-tab:hover {
-  background-color: #37373d;
+  background-color: var(--hover-bg, var(--bg-tertiary));
 }
 
 .terminal-tab.active {
-  background-color: #1e1e1e;
-  border-bottom-color: #1e1e1e;
+  background-color: var(--terminal-bg, var(--bg-primary));
+  border-bottom-color: var(--terminal-bg, var(--bg-primary));
 }
 
 .terminal-tab-icon {
@@ -63,7 +63,7 @@
 .terminal-tab-close {
   background: none;
   border: none;
-  color: #cccccc;
+  color: var(--color-text-primary, var(--text-primary));
   cursor: pointer;
   padding: 0 2px;
   font-size: 16px;
@@ -83,7 +83,7 @@
 .terminal-tab-add {
   background: none;
   border: none;
-  color: #cccccc;
+  color: var(--color-text-primary, var(--text-primary));
   cursor: pointer;
   padding: 4px 8px;
   font-size: 18px;
@@ -94,7 +94,7 @@
 
 .terminal-tab-add:hover {
   opacity: 1;
-  background-color: #37373d;
+  background-color: var(--hover-bg, var(--bg-tertiary));
 }
 
 .terminal-actions {
@@ -105,7 +105,7 @@
 .terminal-action {
   background: none;
   border: none;
-  color: #cccccc;
+  color: var(--color-text-primary, var(--text-primary));
   cursor: pointer;
   padding: 4px 8px;
   font-size: 11px;
@@ -115,12 +115,12 @@
 
 .terminal-action:hover {
   opacity: 1;
-  background-color: #37373d;
+  background-color: var(--hover-bg, var(--bg-tertiary));
 }
 
 .terminal-content {
   flex: 1;
-  background-color: #1a1a1a;
+  background-color: var(--terminal-bg, var(--bg-primary));
   overflow: hidden;
   position: relative;
   height: calc(100% - 35px);
@@ -148,14 +148,14 @@
 }
 
 .xterm .xterm-viewport::-webkit-scrollbar-track {
-  background: #1e1e1e;
+  background: var(--terminal-bg, var(--bg-primary));
 }
 
 .xterm .xterm-viewport::-webkit-scrollbar-thumb {
-  background: #424242;
+  background: var(--scrollbar-thumb, #424242);
   border-radius: 5px;
 }
 
 .xterm .xterm-viewport::-webkit-scrollbar-thumb:hover {
-  background: #4f4f4f;
+  background: var(--scrollbar-bg, #4f4f4f);
 }

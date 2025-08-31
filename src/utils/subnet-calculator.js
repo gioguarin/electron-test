@@ -25,46 +25,64 @@ function calculateSubnetInfo(ipAddress, cidr) {
     throw new Error('Invalid CIDR: must be between 0 and 32')
   }
   
-  // Convert IP to binary
-  const ipBinary = octets.map(octet => octet.toString(2).padStart(8, '0')).join('')
-  const ipDecimal = parseInt(ipBinary, 2)
+  // Convert IP to 32-bit unsigned integer (avoiding JavaScript's signed integer issues)
+  const ipDecimal = (octets[0] * 16777216) + (octets[1] * 65536) + (octets[2] * 256) + octets[3]
   
-  // Calculate subnet mask
-  const maskBinary = '1'.repeat(cidr) + '0'.repeat(32 - cidr)
-  const maskDecimal = parseInt(maskBinary, 2)
+  // Calculate subnet mask as unsigned 32-bit integer
+  const hostBits = 32 - cidr
+  const maskDecimal = cidr === 0 ? 0 : (0xFFFFFFFF << hostBits) >>> 0
   
-  // Calculate network address
-  const networkDecimal = ipDecimal & maskDecimal
-  const networkBinary = networkDecimal.toString(2).padStart(32, '0')
+  // Calculate network address (use >>> 0 to ensure unsigned)
+  const networkDecimal = (ipDecimal & maskDecimal) >>> 0
   const networkOctets = [
-    parseInt(networkBinary.substring(0, 8), 2),
-    parseInt(networkBinary.substring(8, 16), 2),
-    parseInt(networkBinary.substring(16, 24), 2),
-    parseInt(networkBinary.substring(24, 32), 2)
+    (networkDecimal >>> 24) & 0xFF,
+    (networkDecimal >>> 16) & 0xFF,
+    (networkDecimal >>> 8) & 0xFF,
+    networkDecimal & 0xFF
   ]
   
   // Calculate broadcast address
-  const hostBits = 32 - cidr
-  const broadcastDecimal = networkDecimal | ((1 << hostBits) - 1)
-  const broadcastBinary = broadcastDecimal.toString(2).padStart(32, '0')
+  const broadcastDecimal = cidr === 32 ? networkDecimal : (networkDecimal | (~maskDecimal >>> 0)) >>> 0
   const broadcastOctets = [
-    parseInt(broadcastBinary.substring(0, 8), 2),
-    parseInt(broadcastBinary.substring(8, 16), 2),
-    parseInt(broadcastBinary.substring(16, 24), 2),
-    parseInt(broadcastBinary.substring(24, 32), 2)
+    (broadcastDecimal >>> 24) & 0xFF,
+    (broadcastDecimal >>> 16) & 0xFF,
+    (broadcastDecimal >>> 8) & 0xFF,
+    broadcastDecimal & 0xFF
   ]
   
   // Calculate subnet mask octets
   const maskOctets = [
-    parseInt(maskBinary.substring(0, 8), 2),
-    parseInt(maskBinary.substring(8, 16), 2),
-    parseInt(maskBinary.substring(16, 24), 2),
-    parseInt(maskBinary.substring(24, 32), 2)
+    (maskDecimal >>> 24) & 0xFF,
+    (maskDecimal >>> 16) & 0xFF,
+    (maskDecimal >>> 8) & 0xFF,
+    maskDecimal & 0xFF
   ]
   
   // Calculate usable hosts
   const totalHosts = Math.pow(2, hostBits)
   const usableHosts = totalHosts > 2 ? totalHosts - 2 : 0
+  
+  // Calculate first and last host addresses
+  let firstHost = 'N/A'
+  let lastHost = 'N/A'
+  
+  if (usableHosts > 0) {
+    const firstHostDecimal = networkDecimal + 1
+    firstHost = [
+      (firstHostDecimal >>> 24) & 0xFF,
+      (firstHostDecimal >>> 16) & 0xFF,
+      (firstHostDecimal >>> 8) & 0xFF,
+      firstHostDecimal & 0xFF
+    ].join('.')
+    
+    const lastHostDecimal = broadcastDecimal - 1
+    lastHost = [
+      (lastHostDecimal >>> 24) & 0xFF,
+      (lastHostDecimal >>> 16) & 0xFF,
+      (lastHostDecimal >>> 8) & 0xFF,
+      lastHostDecimal & 0xFF
+    ].join('.')
+  }
   
   return {
     ipAddress: ipAddress,
@@ -72,10 +90,8 @@ function calculateSubnetInfo(ipAddress, cidr) {
     subnetMask: maskOctets.join('.'),
     networkAddress: networkOctets.join('.'),
     broadcastAddress: broadcastOctets.join('.'),
-    firstHost: usableHosts > 0 ? 
-      [networkOctets[0], networkOctets[1], networkOctets[2], networkOctets[3] + 1].join('.') : 'N/A',
-    lastHost: usableHosts > 0 ? 
-      [broadcastOctets[0], broadcastOctets[1], broadcastOctets[2], broadcastOctets[3] - 1].join('.') : 'N/A',
+    firstHost: firstHost,
+    lastHost: lastHost,
     totalHosts: totalHosts,
     usableHosts: usableHosts,
     ipClass: getIPClass(octets[0]),

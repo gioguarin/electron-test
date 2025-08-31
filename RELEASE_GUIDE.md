@@ -112,10 +112,7 @@ npm run make:linux  # Linux
 
 ### Features
 - ✅ Subnet Calculator
-- ✅ VLSM Calculator
-- ✅ Ping Tool
-- ✅ Traceroute Tool
-- ✅ ASN/BGP Lookup
+- ✅ BGP Route Server (Global network diagnostics)
 - ✅ Integrated Terminal
 - ✅ Knowledge Base with Markdown support
 - ✅ Dark/Light theme

@@ -5,14 +5,28 @@
 import { ToolComponent, ToolOptions } from '../../../components/base/ToolComponent'
 
 interface SubnetCalculatorState {
+  mode: 'checker' | 'calculator'
   ipAddress: string
   subnet: string
+  targetSubnet: string  // For checker mode - the subnet to check against
   results: SubnetResults | null
+  validationResult: ValidationResult | null
   history: SubnetHistoryItem[]
   errors: {
     ip: string | null
     subnet: string | null
+    targetSubnet: string | null
   }
+}
+
+interface ValidationResult {
+  isWithinSubnet: boolean
+  ipAddress: string
+  targetNetwork: string
+  targetCidr: number
+  targetNetworkAddress: string
+  targetBroadcastAddress: string
+  targetSubnetMask: string
 }
 
 interface SubnetResults {
@@ -35,13 +49,17 @@ interface SubnetHistoryItem extends SubnetResults {
 
 export class SubnetCalculatorComponent extends ToolComponent {
   protected state: SubnetCalculatorState = {
+    mode: 'checker',  // Default to Subnet Checker
     ipAddress: '',
     subnet: '',
+    targetSubnet: '',
     results: null,
+    validationResult: null,
     history: [],
     errors: {
       ip: null,
-      subnet: null
+      subnet: null,
+      targetSubnet: null
     }
   }
 
@@ -77,7 +95,9 @@ export class SubnetCalculatorComponent extends ToolComponent {
     const header = this.createElement('div', { className: 'tool-header' }, [
       this.createElement('h2', {}, 'Subnet Calculator'),
       this.createElement('p', { className: 'tool-description' }, 
-        'Calculate network addresses, broadcast addresses, and available host ranges')
+        this.state.mode === 'checker' 
+          ? 'Check if an IP address is within a specified subnet'
+          : 'Calculate network addresses, broadcast addresses, and available host ranges')
     ])
     wrapper.appendChild(header)
     
@@ -109,10 +129,49 @@ export class SubnetCalculatorComponent extends ToolComponent {
   private createInputSection(): HTMLElement {
     const section = this.createElement('div', { className: 'input-section card' })
     
+    // Mode selector dropdown
+    const modeGroup = this.createElement('div', { className: 'form-group' })
+    
+    const modeLabel = this.createElement('label', { htmlFor: 'mode-select' }, 'Mode')
+    modeGroup.appendChild(modeLabel)
+    
+    const modeSelect = this.createElement('select', {
+      id: 'mode-select',
+      className: 'form-input',
+      value: this.state.mode
+    })
+    
+    const checkerOption = this.createElement('option', { value: 'checker' }, 'Subnet Checker - Validate if IP is within subnet')
+    const calculatorOption = this.createElement('option', { value: 'calculator' }, 'Subnet Calculator - Calculate subnet details')
+    
+    if (this.state.mode === 'checker') {
+      checkerOption.setAttribute('selected', 'selected')
+    } else {
+      calculatorOption.setAttribute('selected', 'selected')
+    }
+    
+    modeSelect.appendChild(checkerOption)
+    modeSelect.appendChild(calculatorOption)
+    
+    this.addEventListener(modeSelect, 'change', (e) => {
+      const target = e.target as HTMLSelectElement
+      this.setState({ 
+        mode: target.value as 'checker' | 'calculator',
+        results: null,
+        validationResult: null,
+        errors: { ip: null, subnet: null, targetSubnet: null }
+      })
+      this.render()
+    })
+    
+    modeGroup.appendChild(modeSelect)
+    section.appendChild(modeGroup)
+    
     // IP Address input
     const ipGroup = this.createElement('div', { className: 'form-group' })
     
-    const ipLabel = this.createElement('label', { htmlFor: 'ip-input' }, 'IP Address')
+    const ipLabel = this.createElement('label', { htmlFor: 'ip-input' }, 
+      this.state.mode === 'checker' ? 'IP Address to Check' : 'IP Address')
     ipGroup.appendChild(ipLabel)
     
     const ipInputWrapper = this.createElement('div', { className: 'input-wrapper' })
@@ -120,7 +179,7 @@ export class SubnetCalculatorComponent extends ToolComponent {
       type: 'text',
       id: 'ip-input',
       className: 'form-input',
-      placeholder: 'e.g., 192.168.1.0',
+      placeholder: this.state.mode === 'checker' ? 'e.g., 192.168.1.50' : 'e.g., 192.168.1.0',
       value: this.state.ipAddress
     })
     
@@ -151,48 +210,95 @@ export class SubnetCalculatorComponent extends ToolComponent {
     ipGroup.appendChild(ipInputWrapper)
     section.appendChild(ipGroup)
     
-    // Subnet Mask input
-    const subnetGroup = this.createElement('div', { className: 'form-group' })
-    
-    const subnetLabel = this.createElement('label', { htmlFor: 'subnet-input' }, 
-      'Subnet Mask / CIDR')
-    subnetGroup.appendChild(subnetLabel)
-    
-    const subnetInputWrapper = this.createElement('div', { className: 'input-wrapper' })
-    const subnetInput = this.createElement('input', {
-      type: 'text',
-      id: 'subnet-input',
-      className: 'form-input',
-      placeholder: 'e.g., 255.255.255.0 or /24',
-      value: this.state.subnet
-    })
-    
-    this.addEventListener(subnetInput, 'input', (e) => {
-      const target = e.target as HTMLInputElement
-      this.setState({ 
-        subnet: target.value,
-        errors: { ...this.state.errors, subnet: null }
+    // For checker mode, add target subnet input
+    if (this.state.mode === 'checker') {
+      const targetSubnetGroup = this.createElement('div', { className: 'form-group' })
+      
+      const targetSubnetLabel = this.createElement('label', { htmlFor: 'target-subnet-input' }, 
+        'Target Subnet to Check Against')
+      targetSubnetGroup.appendChild(targetSubnetLabel)
+      
+      const targetSubnetInputWrapper = this.createElement('div', { className: 'input-wrapper' })
+      const targetSubnetInput = this.createElement('input', {
+        type: 'text',
+        id: 'target-subnet-input',
+        className: 'form-input',
+        placeholder: 'e.g., 192.168.1.0/24 or 192.168.1.0 255.255.255.0',
+        value: this.state.targetSubnet
       })
-      this.clearError('subnet')
-    })
+      
+      this.addEventListener(targetSubnetInput, 'input', (e) => {
+        const target = e.target as HTMLInputElement
+        this.setState({ 
+          targetSubnet: target.value,
+          errors: { ...this.state.errors, targetSubnet: null }
+        })
+        this.clearError('targetSubnet')
+      })
+      
+      this.addEventListener(targetSubnetInput, 'keypress', (e) => {
+        if ((e as KeyboardEvent).key === 'Enter') {
+          e.preventDefault()
+          this.state.mode === 'checker' ? this.checkSubnet() : this.calculateSubnet()
+        }
+      })
+      
+      targetSubnetInputWrapper.appendChild(targetSubnetInput)
+      
+      const targetSubnetError = this.createElement('span', {
+        id: 'targetSubnet-error',
+        className: 'error-message'
+      })
+      targetSubnetInputWrapper.appendChild(targetSubnetError)
+      
+      targetSubnetGroup.appendChild(targetSubnetInputWrapper)
+      section.appendChild(targetSubnetGroup)
+    }
     
-    this.addEventListener(subnetInput, 'keypress', (e) => {
-      if ((e as KeyboardEvent).key === 'Enter') {
-        e.preventDefault()
-        this.calculateSubnet()
-      }
-    })
-    
-    subnetInputWrapper.appendChild(subnetInput)
-    
-    const subnetError = this.createElement('span', {
-      id: 'subnet-error',
-      className: 'error-message'
-    })
-    subnetInputWrapper.appendChild(subnetError)
-    
-    subnetGroup.appendChild(subnetInputWrapper)
-    section.appendChild(subnetGroup)
+    // Subnet Mask input (only for calculator mode)
+    if (this.state.mode === 'calculator') {
+      const subnetGroup = this.createElement('div', { className: 'form-group' })
+      
+      const subnetLabel = this.createElement('label', { htmlFor: 'subnet-input' }, 
+        'Subnet Mask / CIDR')
+      subnetGroup.appendChild(subnetLabel)
+      
+      const subnetInputWrapper = this.createElement('div', { className: 'input-wrapper' })
+      const subnetInput = this.createElement('input', {
+        type: 'text',
+        id: 'subnet-input',
+        className: 'form-input',
+        placeholder: 'e.g., 255.255.255.0 or /24',
+        value: this.state.subnet
+      })
+      
+      this.addEventListener(subnetInput, 'input', (e) => {
+        const target = e.target as HTMLInputElement
+        this.setState({ 
+          subnet: target.value,
+          errors: { ...this.state.errors, subnet: null }
+        })
+        this.clearError('subnet')
+      })
+      
+      this.addEventListener(subnetInput, 'keypress', (e) => {
+        if ((e as KeyboardEvent).key === 'Enter') {
+          e.preventDefault()
+          this.calculateSubnet()
+        }
+      })
+      
+      subnetInputWrapper.appendChild(subnetInput)
+      
+      const subnetError = this.createElement('span', {
+        id: 'subnet-error',
+        className: 'error-message'
+      })
+      subnetInputWrapper.appendChild(subnetError)
+      
+      subnetGroup.appendChild(subnetInputWrapper)
+      section.appendChild(subnetGroup)
+    }
     
     // Calculate button
     const buttonGroup = this.createElement('div', { className: 'button-group' })
@@ -200,8 +306,14 @@ export class SubnetCalculatorComponent extends ToolComponent {
     const calculateBtn = this.createElement('button', {
       id: 'calculate-btn',
       className: 'btn btn-primary',
-      onClick: this.calculateSubnet
-    }, 'Calculate')
+      onClick: () => {
+        if (this.state.mode === 'checker') {
+          this.checkSubnet()
+        } else {
+          this.calculateSubnet()
+        }
+      }
+    }, this.state.mode === 'checker' ? 'Check IP' : 'Calculate')
     buttonGroup.appendChild(calculateBtn)
     
     const clearBtn = this.createElement('button', {
@@ -222,10 +334,66 @@ export class SubnetCalculatorComponent extends ToolComponent {
     const section = this.createElement('div', {
       id: 'results-section',
       className: 'results-section card',
-      style: { display: this.state.results ? 'block' : 'none' }
+      style: { display: (this.state.results || this.state.validationResult) ? 'block' : 'none' }
     })
     
-    if (this.state.results) {
+    // Show validation results for checker mode
+    if (this.state.mode === 'checker' && this.state.validationResult) {
+      const validation = this.state.validationResult
+      
+      // Validation result header
+      const resultHeader = this.createElement('div', { className: 'result-group' })
+      const statusClass = validation.isWithinSubnet ? 'status-success' : 'status-error'
+      const statusIcon = validation.isWithinSubnet ? '✓' : '✗'
+      const statusText = validation.isWithinSubnet 
+        ? `IP ${validation.ipAddress} IS within subnet ${validation.targetNetwork}/${validation.targetCidr}`
+        : `IP ${validation.ipAddress} is NOT within subnet ${validation.targetNetwork}/${validation.targetCidr}`
+      
+      resultHeader.appendChild(this.createElement('h3', { className: statusClass }, [
+        this.createElement('span', {}, statusIcon + ' '),
+        this.createElement('span', {}, statusText)
+      ]))
+      section.appendChild(resultHeader)
+      
+      // Subnet details
+      const detailsGroup = this.createElement('div', { className: 'result-group' })
+      detailsGroup.appendChild(this.createElement('h4', {}, 'Target Subnet Details'))
+      
+      const infoGrid = this.createElement('div', { className: 'info-grid' })
+      
+      const resultItems = [
+        { label: 'Network Address', value: validation.targetNetworkAddress, id: 'target-network' },
+        { label: 'Broadcast Address', value: validation.targetBroadcastAddress, id: 'target-broadcast' },
+        { label: 'Subnet Mask', value: validation.targetSubnetMask, id: 'target-mask' },
+        { label: 'CIDR', value: `/${validation.targetCidr}`, id: 'target-cidr' }
+      ]
+      
+      resultItems.forEach(item => {
+        const itemDiv = this.createElement('div', { className: 'result-item' })
+        itemDiv.appendChild(this.createElement('label', {}, item.label))
+        
+        const valueWrapper = this.createElement('div', { className: 'value-wrapper' })
+        valueWrapper.appendChild(this.createElement('span', { id: item.id }, item.value))
+        
+        const copyBtn = this.createElement('button', {
+          className: 'copy-btn',
+          title: 'Copy to clipboard',
+          onClick: () => this.copyToClipboard(item.value, copyBtn as HTMLButtonElement)
+        }, '📋')
+        valueWrapper.appendChild(copyBtn)
+        
+        itemDiv.appendChild(valueWrapper)
+        infoGrid.appendChild(itemDiv)
+      })
+      
+      detailsGroup.appendChild(infoGrid)
+      section.appendChild(detailsGroup)
+      
+      return section
+    }
+    
+    // Show calculation results for calculator mode
+    if (this.state.mode === 'calculator' && this.state.results) {
       const results = this.state.results
       
       // Network information
@@ -341,6 +509,124 @@ export class SubnetCalculatorComponent extends ToolComponent {
     
     section.appendChild(historyList)
     return section
+  }
+
+  /**
+   * Check if IP is within a subnet
+   */
+  private async checkSubnet(): Promise<void> {
+    // Clear previous errors
+    this.clearAllErrors()
+    
+    const { ipAddress, targetSubnet } = this.state
+    
+    // Validate inputs
+    if (!ipAddress) {
+      this.showError('ip', 'Please enter an IP address to check')
+      return
+    }
+    
+    if (!this.validateIPAddress(ipAddress)) {
+      this.showError('ip', 'Please enter a valid IP address')
+      return
+    }
+    
+    if (!targetSubnet) {
+      this.showError('targetSubnet', 'Please enter a target subnet')
+      return
+    }
+    
+    // Parse target subnet (support both formats: "192.168.1.0/24" or "192.168.1.0 255.255.255.0")
+    let targetNetwork = ''
+    let targetCidr = 0
+    
+    if (targetSubnet.includes('/')) {
+      // CIDR notation
+      const parts = targetSubnet.split('/')
+      targetNetwork = parts[0].trim()
+      targetCidr = parseInt(parts[1], 10)
+      
+      if (!this.validateIPAddress(targetNetwork)) {
+        this.showError('targetSubnet', 'Invalid network address in target subnet')
+        return
+      }
+      
+      if (isNaN(targetCidr) || targetCidr < 0 || targetCidr > 32) {
+        this.showError('targetSubnet', 'Invalid CIDR notation (must be 0-32)')
+        return
+      }
+    } else if (targetSubnet.includes(' ')) {
+      // IP + Subnet mask format
+      const parts = targetSubnet.split(' ')
+      targetNetwork = parts[0].trim()
+      const mask = parts[1].trim()
+      
+      if (!this.validateIPAddress(targetNetwork)) {
+        this.showError('targetSubnet', 'Invalid network address in target subnet')
+        return
+      }
+      
+      if (!this.validateSubnetMask(mask)) {
+        this.showError('targetSubnet', 'Invalid subnet mask')
+        return
+      }
+      
+      targetCidr = this.maskToCIDR(mask)
+    } else {
+      this.showError('targetSubnet', 'Please use format: 192.168.1.0/24 or 192.168.1.0 255.255.255.0')
+      return
+    }
+    
+    // Disable button during calculation
+    const calculateBtn = this.container.querySelector('#calculate-btn') as HTMLButtonElement
+    if (calculateBtn) {
+      calculateBtn.disabled = true
+      calculateBtn.textContent = 'Checking...'
+    }
+    
+    try {
+      // Calculate subnet details for the target
+      const targetResult = await (window as any).electronAPI.calculateSubnet(targetNetwork, targetCidr)
+      
+      if (targetResult.success) {
+        // Check if IP is within the subnet
+        const ipOctets = ipAddress.split('.').map((o: string) => parseInt(o, 10))
+        const networkOctets = targetResult.data.networkAddress.split('.').map((o: string) => parseInt(o, 10))
+        const broadcastOctets = targetResult.data.broadcastAddress.split('.').map((o: string) => parseInt(o, 10))
+        
+        // Convert to 32-bit unsigned integers for comparison (avoid JavaScript signed int issues)
+        const ipInt = (ipOctets[0] * 16777216) + (ipOctets[1] * 65536) + (ipOctets[2] * 256) + ipOctets[3]
+        const networkInt = (networkOctets[0] * 16777216) + (networkOctets[1] * 65536) + (networkOctets[2] * 256) + networkOctets[3]
+        const broadcastInt = (broadcastOctets[0] * 16777216) + (broadcastOctets[1] * 65536) + (broadcastOctets[2] * 256) + broadcastOctets[3]
+        
+        const isWithinSubnet = ipInt >= networkInt && ipInt <= broadcastInt
+        
+        const validationResult: ValidationResult = {
+          isWithinSubnet,
+          ipAddress,
+          targetNetwork,
+          targetCidr,
+          targetNetworkAddress: targetResult.data.networkAddress,
+          targetBroadcastAddress: targetResult.data.broadcastAddress,
+          targetSubnetMask: targetResult.data.subnetMask
+        }
+        
+        this.setState({ validationResult })
+        this.updateResultsDisplay()
+        this.log('info', `IP check completed: ${isWithinSubnet ? 'Within subnet' : 'Not in subnet'}`)
+      } else {
+        this.showError('targetSubnet', targetResult.error || 'Validation failed')
+        this.log('error', 'Validation error:', targetResult.error)
+      }
+    } catch (error) {
+      this.showError('targetSubnet', 'An error occurred during validation')
+      this.log('error', 'Error:', error)
+    } finally {
+      if (calculateBtn) {
+        calculateBtn.disabled = false
+        calculateBtn.textContent = 'Check IP'
+      }
+    }
   }
 
   /**
@@ -522,16 +808,20 @@ IP Class: ${results.ipClass}
     this.setState({
       ipAddress: '',
       subnet: '',
+      targetSubnet: '',
       results: null,
-      errors: { ip: null, subnet: null }
+      validationResult: null,
+      errors: { ip: null, subnet: null, targetSubnet: null }
     })
     
     // Update input values
     const ipInput = this.container.querySelector('#ip-input') as HTMLInputElement
     const subnetInput = this.container.querySelector('#subnet-input') as HTMLInputElement
+    const targetSubnetInput = this.container.querySelector('#target-subnet-input') as HTMLInputElement
     
     if (ipInput) ipInput.value = ''
     if (subnetInput) subnetInput.value = ''
+    if (targetSubnetInput) targetSubnetInput.value = ''
     
     // Hide results
     const resultsSection = this.container.querySelector('#results-section') as HTMLElement
@@ -590,6 +880,7 @@ IP Class: ${results.ipClass}
   private clearAllErrors(): void {
     this.clearError('ip')
     this.clearError('subnet')
+    this.clearError('targetSubnet')
   }
 
   /**

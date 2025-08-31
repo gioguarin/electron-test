@@ -7,6 +7,9 @@ interface HomePageProps {
 }
 
 export const HomePage: React.FC<HomePageProps> = ({ onNavigateToTool, onNavigateToKnowledge }) => {
+  const isMac = window.electronAPI.platform === 'darwin'
+  const modKey = isMac ? 'Cmd' : 'Ctrl'
+  
   const openTutorial = () => {
     // Navigate to Knowledge Base and open START_HERE.md
     if (onNavigateToKnowledge) {
@@ -28,16 +31,24 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigateToTool, onNavigate
       action: () => onNavigateToTool?.('subnet-calculator')
     },
     { 
-      title: 'VLSM Calculator', 
-      description: 'Variable Length Subnet Mask optimization',
-      icon: '📊',
-      action: () => onNavigateToTool?.('vlsm-calculator')
-    },
-    { 
       title: 'Knowledge Base', 
       description: 'Browse documentation and tutorials',
       icon: '📚',
       action: () => onNavigateToKnowledge?.()
+    },
+    { 
+      title: 'Terminal', 
+      description: 'Access integrated terminal',
+      icon: '💻',
+      action: () => {
+        // This will trigger the terminal panel
+        const event = new KeyboardEvent('keydown', {
+          key: 't',
+          metaKey: window.electronAPI.platform === 'darwin',
+          ctrlKey: window.electronAPI.platform !== 'darwin'
+        })
+        window.dispatchEvent(event)
+      }
     }
   ]
 
@@ -80,7 +91,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigateToTool, onNavigate
           </div>
           <div className="feature-item">
             <h3>🛠️ Network Planning Tools</h3>
-            <p>Subnet calculator for CIDR planning and VLSM calculator for efficient IP address allocation</p>
+            <p>Subnet calculator for comprehensive CIDR planning and IP address management</p>
           </div>
           <div className="feature-item">
             <h3>💻 Integrated Terminal</h3>
@@ -97,27 +108,27 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigateToTool, onNavigate
         <h2>Essential Keyboard Shortcuts</h2>
         <div className="shortcuts-grid">
           <div className="shortcut-item">
-            <kbd>Ctrl</kbd> + <kbd>B</kbd>
+            <kbd>{modKey}</kbd> + <kbd>B</kbd>
             <span>Toggle Sidebar</span>
           </div>
           <div className="shortcut-item">
-            <kbd>Ctrl</kbd> + <kbd>`</kbd>
+            <kbd>{modKey}</kbd> + <kbd>T</kbd>
             <span>Toggle Terminal</span>
           </div>
           <div className="shortcut-item">
-            <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>A</kbd>
+            <kbd>{modKey}</kbd> + <kbd>Shift</kbd> + <kbd>A</kbd>
             <span>Toggle AI Assistant</span>
           </div>
           <div className="shortcut-item">
-            <kbd>Ctrl</kbd> + <kbd>,</kbd>
-            <span>Open Settings</span>
+            <kbd>{modKey}</kbd> + <kbd>,</kbd>
+            <span>Toggle Settings</span>
           </div>
         </div>
       </div>
 
       <div className="footer-info">
         <p>Version 1.0.0 | Built with Electron & React</p>
-        <p>© 2024 Network Tools Hub by Giovanny Guarin</p>
+        <p>© 2025 Network Tools Hub by Giovanny Guarin</p>
       </div>
     </div>
   )

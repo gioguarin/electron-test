@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { ToolRegistry } from './ToolRegistry'
 import { BGPRouteServerTool } from './tools/BGPRouteServerTool'
+import { SubnetCalculatorTool } from './tools/SubnetCalculatorTool'
 import './ToolPanel.css'
 
 interface ToolPanelProps {
@@ -35,7 +36,7 @@ export const ToolPanel: React.FC<ToolPanelProps> = ({ toolId }) => {
         containerRef.current.innerHTML = ''
 
         // Check if it's a React component first
-        if (toolId === 'bgp-route-server') {
+        if (toolId === 'bgp-route-server' || toolId === 'subnet-calculator') {
           setLoading(false)
           return // Let React render it below
         }
@@ -44,11 +45,6 @@ export const ToolPanel: React.FC<ToolPanelProps> = ({ toolId }) => {
         let toolComponent = null
 
         switch (toolId) {
-          case 'subnet-calculator':
-            // Dynamically import the subnet calculator component
-            const { SubnetCalculatorComponent } = await import('./tools/SubnetCalculatorComponent')
-            toolComponent = new SubnetCalculatorComponent(containerRef.current)
-            break
           
           default:
             // For other tools, show a placeholder
@@ -91,6 +87,10 @@ export const ToolPanel: React.FC<ToolPanelProps> = ({ toolId }) => {
   // Render React components directly
   if (toolId === 'bgp-route-server') {
     return <BGPRouteServerTool />
+  }
+  
+  if (toolId === 'subnet-calculator') {
+    return <SubnetCalculatorTool />
   }
 
   return (

@@ -63,15 +63,6 @@ const AppContent: React.FC = () => {
       })
     }
 
-    if (!registry.getTool('vlsm-calculator')) {
-      registry.register('vlsm-calculator', {
-        name: 'VLSM Calculator',
-        description: 'Variable Length Subnet Mask calculator for efficient IP allocation',
-        icon: '📊',
-        category: 'networking'
-      })
-    }
-
     if (!registry.getTool('bgp-route-server')) {
       registry.register('bgp-route-server', {
         name: 'BGP Route Server',
@@ -88,36 +79,70 @@ const AppContent: React.FC = () => {
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Ctrl+B or Cmd+B to toggle sidebar
-      if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
+      const isMac = window.electronAPI.platform === 'darwin'
+      const modKey = isMac ? e.metaKey : e.ctrlKey
+      
+      // Cmd+B (Mac) or Ctrl+B (Windows/Linux) to toggle tools sidebar
+      if (modKey && e.key === 'b') {
         e.preventDefault()
-        togglePanel('sidePanel')
+        if (selectedActivity === 'tools' && visibility.sidePanel) {
+          hidePanel('sidePanel')
+        } else {
+          setSelectedActivity('tools')
+          setShowHome(false)
+          showPanel('sidePanel')
+        }
       }
-      // Ctrl+` to toggle terminal
-      if (e.ctrlKey && e.key === '`') {
+      // Cmd+K (Mac) or Ctrl+K (Windows/Linux) to toggle knowledge base
+      if (modKey && e.key === 'k') {
+        e.preventDefault()
+        if (selectedActivity === 'knowledge' && visibility.sidePanel) {
+          hidePanel('sidePanel')
+        } else {
+          setSelectedActivity('knowledge')
+          setShowHome(false)
+          showPanel('sidePanel')
+        }
+      }
+      // Cmd+T (Mac) or Ctrl+T (Windows/Linux) to toggle terminal
+      // Also try Cmd+` as a fallback
+      if (modKey && e.key === 't') {
         e.preventDefault()
         togglePanel('terminal')
       }
-      // Ctrl+Shift+A to toggle AI assistant
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'A') {
+      // Alternative: Cmd+` (Mac) or Ctrl+` (Windows/Linux) 
+      if ((modKey && e.code === 'Backquote') || 
+          (modKey && e.key === '`')) {
+        e.preventDefault()
+        togglePanel('terminal')
+      }
+      // Cmd+Shift+A (Mac) or Ctrl+Shift+A (Windows/Linux) to toggle AI assistant
+      if (modKey && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
         e.preventDefault()
         togglePanel('assistant')
       }
-      // Ctrl+, to open settings
-      if ((e.ctrlKey || e.metaKey) && e.key === ',') {
+      // Cmd+, (Mac) or Ctrl+, (Windows/Linux) to toggle settings
+      if (modKey && e.key === ',') {
         e.preventDefault()
-        setShowSettings(true)
+        if (showSettings) {
+          setShowSettings(false)
+          setShowHome(true)
+        } else {
+          setShowSettings(true)
+          setShowHome(false)
+        }
       }
       // Escape to close settings
       if (e.key === 'Escape' && showSettings) {
         e.preventDefault()
         setShowSettings(false)
+        setShowHome(true)
       }
     }
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [togglePanel, showSettings])
+  }, [togglePanel, showSettings, selectedActivity, visibility.sidePanel, showPanel, hidePanel])
 
   const handleToolSelect = (toolId: string) => {
     setActiveTool(toolId)
@@ -133,6 +158,17 @@ const AppContent: React.FC = () => {
       setActiveTool(null)
       setSelectedActivity('home')
       hidePanel('sidePanel')
+    } else if (activity === 'tools' || activity === 'knowledge') {
+      // For tools and knowledge, toggle the sidebar
+      setSelectedActivity(activity)
+      setShowHome(false)
+      if (activity === 'tools') {
+        // Reset to show tool list when switching to tools
+        setActiveTool(null)
+      }
+      if (!visibility.sidePanel) {
+        showPanel('sidePanel')
+      }
     } else {
       setSelectedActivity(activity)
       setShowHome(false)

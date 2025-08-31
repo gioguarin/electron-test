@@ -257,7 +257,7 @@ The application follows Electron security best practices:
 
 - [ ] Complete terminal integration with node-pty
 - [ ] AI Assistant with LLM integration
-- [ ] Additional network tools (VLSM, Ping, Port Scanner, DNS Lookup)
+- [ ] Additional network tools (DNS Lookup, Whois)
 - [ ] Redux state management
 - [ ] Plugin/extension system
 - [ ] Network topology visualization

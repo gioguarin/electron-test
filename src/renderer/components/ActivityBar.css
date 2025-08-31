@@ -2,11 +2,11 @@
 
 .activity-bar {
   width: 48px;
-  background-color: #333333;
+  background-color: var(--activity-bar-bg, var(--bg-tertiary));
   display: flex;
   flex-direction: column;
   align-items: center;
-  border-right: 1px solid #1e1e1e;
+  border-right: 1px solid var(--color-bg-primary, var(--bg-primary));
   justify-content: space-between;
 }
 
@@ -22,7 +22,7 @@
   flex-direction: column;
   width: 100%;
   padding: 8px 0;
-  border-top: 1px solid #1e1e1e;
+  border-top: 1px solid var(--color-bg-primary, var(--bg-primary));
 }
 
 .activity-item {
@@ -35,16 +35,16 @@
   border: none;
   cursor: pointer;
   position: relative;
-  color: #8b8b8b;
+  color: var(--color-text-secondary, var(--text-secondary));
   transition: color 0.1s ease;
 }
 
 .activity-item:hover {
-  color: #cccccc;
+  color: var(--color-text-primary, var(--text-primary));
 }
 
 .activity-item.active {
-  color: #ffffff;
+  color: white;
 }
 
 .activity-item.active::before {
@@ -54,7 +54,7 @@
   top: 8px;
   bottom: 8px;
   width: 2px;
-  background-color: #ffffff;
+  background-color: var(--color-accent, var(--accent-color));
 }
 
 .activity-icon {

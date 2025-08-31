@@ -23,16 +23,19 @@ export const ActivityBar: React.FC<ActivityBarProps> = ({
   onToggleTerminal,
   onToggleAssistant
 }) => {
+  const isMac = (window as any).electronAPI?.platform === 'darwin'
+  const modKey = isMac ? 'Cmd' : 'Ctrl'
+  
   const topActivities: Activity[] = [
     { id: 'home', icon: '🏠', title: 'Home', action: 'select' },
-    { id: 'tools', icon: '🔧', title: 'Network Tools (Ctrl+B)', action: 'select' },
-    { id: 'knowledge', icon: '📚', title: 'Knowledge Base', action: 'select' },
-    { id: 'terminal', icon: '💻', title: 'Terminal (Ctrl+`)', action: 'toggle' },
-    { id: 'assistant', icon: '🤖', title: 'AI Assistant (Ctrl+Shift+A)', action: 'toggle' }
+    { id: 'tools', icon: '🔧', title: `Network Tools (${modKey}+B)`, action: 'toggle' },
+    { id: 'knowledge', icon: '📚', title: `Knowledge Base (${modKey}+K)`, action: 'toggle' },
+    { id: 'terminal', icon: '💻', title: `Terminal (${modKey}+T)`, action: 'toggle' },
+    { id: 'assistant', icon: '🤖', title: `AI Assistant (${modKey}+Shift+A)`, action: 'toggle' }
   ]
 
   const bottomActivities: Activity[] = [
-    { id: 'settings', icon: '⚙️', title: 'Settings', action: 'select' }
+    { id: 'settings', icon: '⚙️', title: `Settings (${modKey}+,)`, action: 'select' }
   ]
 
   const handleActivityClick = (activity: Activity) => {
@@ -45,17 +48,21 @@ export const ActivityBar: React.FC<ActivityBarProps> = ({
         case 'assistant':
           onToggleAssistant?.()
           break
+        case 'tools':
+        case 'knowledge':
+          // Toggle sidebar and set the appropriate activity
+          if (selectedActivity === activity.id) {
+            onToggleSidebar?.()
+          } else {
+            onActivitySelect(activity.id)
+          }
+          break
         default:
           break
       }
     } else {
-      // Handle regular activity selection
-      if (activity.id === 'tools' && selectedActivity === 'tools') {
-        // If already on tools, toggle the sidebar
-        onToggleSidebar?.()
-      } else {
-        onActivitySelect(activity.id)
-      }
+      // Handle regular activity selection (Home, Settings)
+      onActivitySelect(activity.id)
     }
   }
 
