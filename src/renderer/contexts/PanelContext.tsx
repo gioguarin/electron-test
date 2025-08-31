@@ -28,7 +28,7 @@ const defaultSizes: PanelSizes = {
 }
 
 const defaultVisibility: PanelVisibility = {
-  sidePanel: true,
+  sidePanel: false,
   terminal: false,
   assistant: false
 }

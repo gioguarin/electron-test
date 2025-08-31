@@ -129,6 +129,36 @@ function registerIpcHandlers() {
     }
   })
 
+  // Window control handlers
+  ipcMain.handle('minimize-window', () => {
+    const win = BrowserWindow.getFocusedWindow()
+    if (win) {
+      win.minimize()
+      log.info('Window minimized')
+    }
+  })
+
+  ipcMain.handle('maximize-window', () => {
+    const win = BrowserWindow.getFocusedWindow()
+    if (win) {
+      if (win.isMaximized()) {
+        win.unmaximize()
+        log.info('Window restored')
+      } else {
+        win.maximize()
+        log.info('Window maximized')
+      }
+    }
+  })
+
+  ipcMain.handle('close-window', () => {
+    const win = BrowserWindow.getFocusedWindow()
+    if (win) {
+      win.close()
+      log.info('Window closed')
+    }
+  })
+
   log.info('IPC handlers registered')
 }
 

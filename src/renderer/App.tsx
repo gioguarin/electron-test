@@ -3,6 +3,7 @@ import { Allotment } from 'allotment'
 import 'allotment/dist/style.css'
 import { ToolRegistry } from './components/ToolRegistry'
 import { ToolPanel } from './components/ToolPanel'
+import { TitleBar } from './components/TitleBar'
 import { ActivityBar } from './components/ActivityBar'
 import { SidePanel } from './components/SidePanel'
 import { TerminalPanel } from './components/TerminalPanel'
@@ -135,16 +136,18 @@ const AppContent: React.FC = () => {
   }, [setPanelSize, visibility.assistant])
 
   return (
-    <div className="app">
-      <ActivityBar 
-        selectedActivity={selectedActivity}
-        onActivitySelect={handleActivitySelect}
-        onToggleSidebar={() => togglePanel('sidePanel')}
-        onToggleTerminal={() => togglePanel('terminal')}
-        onToggleAssistant={() => togglePanel('assistant')}
-      />
-      
-      <div className="app-main">
+    <div className="app-with-titlebar">
+      <TitleBar />
+      <div className="app">
+        <ActivityBar 
+          selectedActivity={selectedActivity}
+          onActivitySelect={handleActivitySelect}
+          onToggleSidebar={() => togglePanel('sidePanel')}
+          onToggleTerminal={() => togglePanel('terminal')}
+          onToggleAssistant={() => togglePanel('assistant')}
+        />
+        
+        <div className="app-main">
         <Allotment 
           className="main-horizontal-split"
           onChange={handleSidePanelSizeChange}
@@ -232,6 +235,7 @@ const AppContent: React.FC = () => {
             </Allotment>
           </Allotment.Pane>
         </Allotment>
+        </div>
       </div>
     </div>
   )

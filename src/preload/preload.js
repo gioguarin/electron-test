@@ -41,6 +41,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
   openKnowledgeFolder: () => ipcRenderer.invoke('open-knowledge-folder'),
   openExternal: (url) => ipcRenderer.invoke('open-external', url),
   
+  // Window controls
+  minimizeWindow: () => ipcRenderer.invoke('minimize-window'),
+  maximizeWindow: () => ipcRenderer.invoke('maximize-window'),
+  closeWindow: () => ipcRenderer.invoke('close-window'),
+  
   // Storage API for calculation history
   storage: {
     getHistory: () => {

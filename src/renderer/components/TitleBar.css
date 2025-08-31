@@ -1,0 +1,124 @@
+/* Title Bar Styles */
+
+.title-bar {
+  height: 30px;
+  background-color: #2d2d30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  border-bottom: 1px solid #1e1e1e;
+  -webkit-app-region: drag;
+  user-select: none;
+}
+
+.title-bar-drag-region {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding-left: 8px;
+}
+
+.title-bar-title {
+  font-size: 12px;
+  color: #cccccc;
+  font-weight: 400;
+  pointer-events: none;
+}
+
+.title-bar-controls {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  -webkit-app-region: no-drag;
+}
+
+.layout-controls {
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  gap: 2px;
+}
+
+.window-controls-separator {
+  width: 1px;
+  height: 20px;
+  background-color: #3c3c3c;
+  margin: 0 8px;
+}
+
+.window-controls {
+  display: flex;
+  height: 100%;
+}
+
+.title-bar-button {
+  width: 32px;
+  height: 30px;
+  border: none;
+  background: transparent;
+  color: #8b8b8b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.1s, color 0.1s;
+  -webkit-app-region: no-drag;
+}
+
+.title-bar-button:hover {
+  background-color: #3c3c3c;
+  color: #cccccc;
+}
+
+.title-bar-button:active {
+  background-color: #4a4a4a;
+}
+
+/* Window control specific styles */
+.window-controls .title-bar-button {
+  width: 46px;
+}
+
+.window-controls .title-bar-button.minimize:hover {
+  background-color: #3c3c3c;
+}
+
+.window-controls .title-bar-button.maximize:hover {
+  background-color: #3c3c3c;
+}
+
+.window-controls .title-bar-button.close:hover {
+  background-color: #e81123;
+  color: #ffffff;
+}
+
+.window-controls .title-bar-button.close:active {
+  background-color: #f1707a;
+}
+
+/* Layout control icons hover effect */
+.layout-controls .title-bar-button:hover {
+  background-color: #094771;
+  color: #ffffff;
+}
+
+.layout-controls .title-bar-button.active {
+  background-color: #007acc;
+  color: #ffffff;
+}
+
+/* Adjust app layout for title bar */
+.app-with-titlebar {
+  padding-top: 30px;
+  height: 100vh;
+}
+
+.app-with-titlebar .app {
+  height: calc(100vh - 30px);
+}

@@ -25,6 +25,8 @@ function createWindow () {
     height: 700,
     minWidth: 800,
     minHeight: 600,
+    frame: false,  // Remove default title bar
+    titleBarStyle: 'hidden',
     webPreferences: {
       contextIsolation: true,  // Security: Enable context isolation
       nodeIntegration: false,  // Security: Disable node integration
@@ -47,7 +49,8 @@ function createWindow () {
   log.info('Loaded React app')
 
   // Open DevTools for debugging
-  mainWindow.webContents.openDevTools()
+  // DevTools disabled by default - press F12 to open
+  // mainWindow.webContents.openDevTools()
 
   // Handle window closed
   mainWindow.on('closed', () => {
