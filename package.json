@@ -4,7 +4,9 @@
   "description": "trying out electron, starting out with a subnet checker",
   "main": "src/main/main.js",
   "scripts": {
-    "start": "electron-forge start",
+    "start": "npm run build:dev && electron-forge start",
+    "start:dev": "npm run build:dev && electron-forge start",
+    "start:prod": "npm run build && electron-forge start",
     "build": "webpack --mode production",
     "build:dev": "webpack --mode development",
     "build:watch": "webpack --mode development --watch",
@@ -58,6 +60,7 @@
     "webpack-dev-server": "^5.2.2"
   },
   "dependencies": {
+    "allotment": "^1.20.4",
     "electron-log": "^5.4.3",
     "electron-squirrel-startup": "^1.0.1",
     "react": "^19.1.1",

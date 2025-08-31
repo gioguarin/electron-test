@@ -1,0 +1,80 @@
+/* Allotment Panel Styles - VS Code Theme */
+
+.allotment {
+  background-color: #1e1e1e;
+}
+
+/* Main splitter between panels */
+.allotment-module_splitView__L-yRc {
+  background-color: #1e1e1e;
+}
+
+/* Splitter/Sash styling */
+.allotment-module_sash__19rEa {
+  background: transparent;
+  transition: background-color 0.1s;
+}
+
+.allotment-module_sash__19rEa:hover {
+  background-color: #007acc;
+  transition-delay: 0.3s;
+}
+
+.allotment-module_sash__19rEa.allotment-module_sashHorizontal__fv8in {
+  height: 4px;
+  margin-top: -2px;
+  border-top: 1px solid #3c3c3c;
+  border-bottom: 1px solid #3c3c3c;
+}
+
+.allotment-module_sash__19rEa.allotment-module_sashVertical__OqrNH {
+  width: 4px;
+  margin-left: -2px;
+  border-left: 1px solid #3c3c3c;
+  border-right: 1px solid #3c3c3c;
+}
+
+.allotment-module_sash__19rEa.allotment-module_sashDisabled__2asc7 {
+  pointer-events: none !important;
+}
+
+/* Active/dragging state */
+.allotment-module_sash__19rEa.allotment-module_sashActive__1xeTa {
+  background-color: #007acc !important;
+  opacity: 0.8;
+}
+
+/* Pane content */
+.allotment-module_splitViewContainer__rQnVa {
+  height: 100%;
+  width: 100%;
+}
+
+/* Remove default outlines */
+.allotment-module_splitView__L-yRc:focus {
+  outline: none;
+}
+
+/* Panel-specific customizations */
+.main-horizontal-split {
+  height: 100%;
+}
+
+.editor-vertical-split {
+  height: 100%;
+}
+
+.terminal-vertical-split {
+  height: 100%;
+}
+
+/* Smooth transitions for panel visibility */
+.allotment-module_pane__H5oIK {
+  overflow: hidden;
+}
+
+/* Ensure panels fill their containers */
+.allotment-module_paneWrapper__1GYSF {
+  height: 100%;
+  width: 100%;
+}

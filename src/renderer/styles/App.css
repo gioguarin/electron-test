@@ -6,10 +6,18 @@
   width: 100vw;
   background-color: #1e1e1e;
   color: #cccccc;
+  overflow: hidden;
 }
 
-.main-content {
+.app-main {
   flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.editor-area {
+  height: 100%;
+  width: 100%;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -37,4 +45,52 @@
   font-size: 16px;
   color: #8b8b8b;
   max-width: 500px;
+  margin-bottom: 32px;
+}
+
+/* Keyboard shortcuts display */
+.keyboard-shortcuts {
+  margin-top: 48px;
+  padding: 24px;
+  background-color: #252526;
+  border-radius: 8px;
+  border: 1px solid #3c3c3c;
+}
+
+.keyboard-shortcuts h3 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #cccccc;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.shortcut {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+
+.shortcut:last-child {
+  margin-bottom: 0;
+}
+
+.shortcut kbd {
+  background-color: #3c3c3c;
+  border: 1px solid #4a4a4a;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 11px;
+  color: #cccccc;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.shortcut span {
+  color: #8b8b8b;
+  flex: 1;
 }

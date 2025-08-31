@@ -7,7 +7,7 @@ module.exports = [
   // Main process configuration
   {
     mode: isDevelopment ? 'development' : 'production',
-    entry: './src/main/main.ts',
+    entry: './src/main/main.js',
     target: 'electron-main',
     module: {
       rules: [
@@ -38,7 +38,7 @@ module.exports = [
   // Preload script configuration
   {
     mode: isDevelopment ? 'development' : 'production',
-    entry: './src/preload/preload.ts',
+    entry: './src/preload/preload.js',
     target: 'electron-preload',
     module: {
       rules: [

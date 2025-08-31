@@ -30,7 +30,7 @@ function createWindow () {
       nodeIntegration: false,  // Security: Disable node integration
       sandbox: true,           // Security: Enable sandbox
       webSecurity: true,       // Security: Enable web security
-      preload: path.join(__dirname, '..', 'preload', 'preload.js')
+      preload: path.join(__dirname, '..', '..', 'dist', 'preload.js')
     },
     icon: path.join(__dirname, '..', '..', 'assets', 'icon.png'), // Add app icon
     show: false // Don't show until ready
@@ -42,8 +42,9 @@ function createWindow () {
     mainWindow.show()
   })
 
-  mainWindow.loadFile(path.join(__dirname, '..', 'renderer', 'landing.html'))
-  log.info('Loaded landing page')
+  // Load the React app from dist folder
+  mainWindow.loadFile(path.join(__dirname, '..', '..', 'dist', 'index.html'))
+  log.info('Loaded React app')
 
   // Open DevTools in development
   if (process.env.NODE_ENV === 'development') {

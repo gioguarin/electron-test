@@ -1,0 +1,188 @@
+/* Terminal Panel Styles */
+
+.terminal-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: #1e1e1e;
+  color: #cccccc;
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 13px;
+}
+
+.terminal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #252526;
+  border-bottom: 1px solid #3c3c3c;
+  height: 35px;
+  padding: 0 8px;
+}
+
+.terminal-tabs {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+  overflow-x: auto;
+}
+
+.terminal-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background-color: #2d2d30;
+  border: 1px solid transparent;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  transition: background-color 0.1s;
+}
+
+.terminal-tab:hover {
+  background-color: #37373d;
+}
+
+.terminal-tab.active {
+  background-color: #1e1e1e;
+  border-bottom-color: #1e1e1e;
+}
+
+.terminal-tab-icon {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.terminal-tab-name {
+  font-size: 12px;
+}
+
+.terminal-tab-close {
+  background: none;
+  border: none;
+  color: #cccccc;
+  cursor: pointer;
+  padding: 0 2px;
+  font-size: 16px;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+
+.terminal-tab:hover .terminal-tab-close {
+  opacity: 0.7;
+}
+
+.terminal-tab-close:hover {
+  opacity: 1 !important;
+}
+
+.terminal-tab-add {
+  background: none;
+  border: none;
+  color: #cccccc;
+  cursor: pointer;
+  padding: 4px 8px;
+  font-size: 18px;
+  line-height: 1;
+  opacity: 0.7;
+  transition: opacity 0.1s;
+}
+
+.terminal-tab-add:hover {
+  opacity: 1;
+  background-color: #37373d;
+}
+
+.terminal-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.terminal-action {
+  background: none;
+  border: none;
+  color: #cccccc;
+  cursor: pointer;
+  padding: 4px 8px;
+  font-size: 11px;
+  opacity: 0.7;
+  transition: opacity 0.1s;
+}
+
+.terminal-action:hover {
+  opacity: 1;
+  background-color: #37373d;
+}
+
+.terminal-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 8px;
+}
+
+.terminal-output {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: auto;
+  white-space: pre;
+  line-height: 1.4;
+}
+
+.terminal-line {
+  margin: 2px 0;
+}
+
+.terminal-input-container {
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #3c3c3c;
+}
+
+.terminal-prompt {
+  color: #569cd6;
+  margin-right: 8px;
+  user-select: none;
+}
+
+.terminal-input {
+  flex: 1;
+  background: none;
+  border: none;
+  color: #cccccc;
+  font-family: inherit;
+  font-size: inherit;
+  outline: none;
+}
+
+.terminal-input::placeholder {
+  color: #6b6b6b;
+}
+
+/* Scrollbar styling */
+.terminal-output::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.terminal-output::-webkit-scrollbar-track {
+  background: #1e1e1e;
+}
+
+.terminal-output::-webkit-scrollbar-thumb {
+  background: #424242;
+}
+
+.terminal-output::-webkit-scrollbar-thumb:hover {
+  background: #4f4f4f;
+}
+
+.terminal-output::-webkit-scrollbar-corner {
+  background: #1e1e1e;
+}
