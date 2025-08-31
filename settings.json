@@ -1,6 +1,6 @@
 {
   "appearance": {
-    "theme": "hacker-green",
+    "theme": "dark",
     "fontSize": 14,
     "fontFamily": "Consolas, 'Courier New', monospace",
     "showActivityBarLabels": true,

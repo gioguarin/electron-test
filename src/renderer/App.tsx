@@ -151,17 +151,19 @@ const AppContent: React.FC = () => {
 
   const handleActivitySelect = (activity: string) => {
     if (activity === 'settings') {
-      setShowSettings(true)
+      setShowSettings(prev => !prev)  // Toggle settings instead of always showing
       setShowHome(false)
     } else if (activity === 'home') {
       setShowHome(true)
       setActiveTool(null)
       setSelectedActivity('home')
+      setShowSettings(false)  // Close settings when switching to home
       hidePanel('sidePanel')
     } else if (activity === 'tools' || activity === 'knowledge') {
       // For tools and knowledge, toggle the sidebar
       setSelectedActivity(activity)
       setShowHome(false)
+      setShowSettings(false)  // Close settings when switching activities
       if (activity === 'tools') {
         // Reset to show tool list when switching to tools
         setActiveTool(null)
@@ -172,6 +174,7 @@ const AppContent: React.FC = () => {
     } else {
       setSelectedActivity(activity)
       setShowHome(false)
+      setShowSettings(false)  // Close settings when switching activities
       if (!visibility.sidePanel) {
         togglePanel('sidePanel')
       }

@@ -48,15 +48,16 @@ interface PanelProviderProps {
 }
 
 export const PanelProvider: React.FC<PanelProviderProps> = ({ children }) => {
-  // Load saved state from localStorage
+  // Load saved sizes from localStorage, but always use default visibility
   const loadSavedState = () => {
     try {
       const savedSizes = localStorage.getItem('panel-sizes')
-      const savedVisibility = localStorage.getItem('panel-visibility')
+      // Clear any old visibility state that might exist
+      localStorage.removeItem('panel-visibility')
       
       return {
         sizes: savedSizes ? JSON.parse(savedSizes) : defaultSizes,
-        visibility: savedVisibility ? JSON.parse(savedVisibility) : defaultVisibility
+        visibility: defaultVisibility // Always start with panels hidden
       }
     } catch {
       return {
@@ -68,15 +69,15 @@ export const PanelProvider: React.FC<PanelProviderProps> = ({ children }) => {
 
   const [state, setState] = useState(() => loadSavedState())
 
-  // Save state to localStorage whenever it changes
+  // Save only sizes to localStorage (not visibility)
   useEffect(() => {
     try {
       localStorage.setItem('panel-sizes', JSON.stringify(state.sizes))
-      localStorage.setItem('panel-visibility', JSON.stringify(state.visibility))
+      // Don't save visibility - always start with panels hidden
     } catch (error) {
       console.error('Failed to save panel state:', error)
     }
-  }, [state])
+  }, [state.sizes])
 
   const togglePanel = (panel: keyof PanelVisibility) => {
     setState(prev => ({
