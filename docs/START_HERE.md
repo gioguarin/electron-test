@@ -1,27 +1,30 @@
-# START HERE - Network Tools Hub User Guide
+# START HERE - Quick Start Guide
 
-Welcome to Network Tools Hub! This guide will help you get started with the application and understand all its features.
+Welcome to Network Tools Hub! This quick start guide helps you get up and running immediately.
 
 ## Table of Contents
-1. [Getting Started](#getting-started)
+1. [First Steps](#first-steps)
 2. [Application Layout](#application-layout)
-3. [Main Features](#main-features)
-4. [Network Tools](#network-tools)
-5. [Keyboard Shortcuts](#keyboard-shortcuts)
-6. [Tips and Tricks](#tips-and-tricks)
+3. [Essential Tools](#essential-tools)
+4. [Keyboard Shortcuts](#keyboard-shortcuts)
+5. [Next Steps](#next-steps)
 
 ---
 
-## Getting Started
+## First Steps
 
-Network Tools Hub is a comprehensive desktop application for network diagnostics, BGP analysis, and system administration. Built with Electron, it provides a VS Code-like interface with powerful networking capabilities.
+### 1. Launch the Application
+Open Network Tools Hub to see the VS Code-style interface.
 
-### First Launch
-When you first open the application, you'll see:
-- **Activity Bar** on the left side
-- **Main content area** in the center
-- **Terminal panel** at the bottom (can be toggled)
-- **AI Assistant panel** on the right (can be toggled)
+### 2. Set Up Your Vault (First Time Only)
+- Click **Knowledge Base** (`Cmd/Ctrl+K`)
+- Click **Set up Vault** to configure your personal notes location
+- Choose a folder or use the default
+
+### 3. Pick Your First Tool
+- Click the **🌐 Subnet Calculator** for IP calculations
+- Click the **🔀 BGP Route Server** for routing analysis
+- Or explore other tools in the sidebar
 
 ---
 
@@ -57,77 +60,44 @@ This is where tools and documents are displayed:
 
 ---
 
-## Main Features
+## Essential Tools
 
-### Network Tools
+### Quick Access Tools (Activity Bar)
+- **🌐 Subnet Calculator** - IP address and subnet calculations
+- **🔀 BGP Route Server** - Global routing analysis
+- **🔧 Network Tools** - All diagnostic tools
+- **📚 Knowledge Base** - Documentation and guides
 
-#### 1. **Subnet Calculator**
-Calculate network addresses, broadcast addresses, and host ranges.
-- Enter an IP address and CIDR notation
-- View detailed subnet information
-- See binary representations
-- Calculate available hosts
+### Top 3 Tools to Try First
 
-#### 2. **BGP Route Server Tool** ⭐ NEW
-Connect to Hurricane Electric's route servers worldwide for BGP analysis.
+#### 1. **Subnet Calculator** 
+*For complete documentation, see [Subnet Calculator Guide](tools/subnet-calculator-guide.md)*
+- Quick IP/CIDR calculations
+- Instant results as you type
+- Binary view for learning
 
-**How to use:**
-1. Select a route server location from the dropdown
-2. Click "Connect" (automatically authenticates with password: rviews)
-3. Choose a command from the dropdown:
-   - `show ip bgp <IP>` - View BGP routing info for an IP
-   - `show ip bgp summary` - See BGP peer summary
-   - `traceroute <host>` - Trace route from that location
-4. Enter target IP/hostname (if required)
-5. Click "Send Command"
+#### 2. **BGP Route Server**
+*For complete documentation, see [BGP Route Server Guide](tools/bgp-route-server-guide.md)*
+- Connect to 20+ global servers
+- View internet routing paths
+- Troubleshoot connectivity
 
-**Available Servers:**
-- North America: Seattle, San Jose, Los Angeles, Chicago, Dallas, Toronto, New York, Ashburn, Miami, Denver, Kansas City
-- Europe: London, Amsterdam, Frankfurt, Paris, Zurich, Stockholm
-- Asia: Hong Kong, Tokyo, Singapore
+#### 3. **Ping/Traceroute**
+- Test basic connectivity
+- Trace packet paths
+- Identify network issues
 
-#### 3. **Ping Tool**
-Test network connectivity to hosts.
-- Enter hostname or IP address
-- Specify ping count
-- View real-time results
-- See packet loss statistics
+### Knowledge Base Features
 
-#### 4. **Traceroute Tool**
-Trace the path packets take to reach a destination.
-- Enter target hostname or IP
-- View hop-by-hop path
-- See latency for each hop
-- Identify network bottlenecks
+**Two Storage Locations:**
+- **📚 Public Docs** - Shared documentation (this repository)
+- **🔐 My Vault** - Your personal notes and configurations
 
-#### 5. **ASN Lookup Tool**
-Look up Autonomous System Numbers and BGP information.
-- Enter an IP address
-- View AS number and organization
-- See BGP prefix information
-- Get routing details
-
-### Knowledge Base
-
-Browse and edit documentation directly in the application:
-- **Markdown support** with syntax highlighting
-- **Live preview** as you type
-- **File tree navigation**
-- **Search functionality** (coming soon)
-
-To access the Knowledge Base:
-1. Click the book icon in the Activity Bar
-2. Browse the file tree on the left
-3. Click any document to view/edit
-4. Use the toolbar to save changes or open in system editor
-
-### Settings
-
-Customize your experience:
-- **Theme**: Choose between Light, Dark, and High Contrast themes
-- **Font Size**: Adjust the interface font size
-- **Terminal Settings**: Configure shell preferences
-- **Network Defaults**: Set default servers and timeouts
+**Key Features:**
+- Live markdown editing with preview
+- Split view for editing
+- File search and navigation
+- Auto-save options
 
 ---
 
@@ -150,94 +120,43 @@ On macOS, use `Cmd` instead of `Ctrl` for most shortcuts:
 
 ---
 
-## Tips and Tricks
+## Quick Tips
 
-### 0. The Knowledgebase is Markdown-based, which means you can open the location of the folder and edit files directly
-- Use `#` for main headings
-- Use `##` for subheadings
-- Use `-` for bullet points
-- Use backticks for code snippets
+### Getting Help
+- **F1** or **?** in tools - Show available commands
+- **AI Assistant** - Get context-aware help
+- **Tool Guides** - Comprehensive documentation for each tool
 
-### 1. BGP Route Server Best Practices
-- Start with servers geographically close to your target
-- Use `show ip bgp summary` first to verify connectivity
-- For IPv6, use the `show ipv6 bgp` commands
-- The `?` command shows all available commands on the server
-
-### 2. Terminal Usage
-- The terminal maintains your session between toggles
-- Use it to run local network commands alongside the GUI tools
-- Supports copy/paste with standard shortcuts
-
-### 3. Efficient Navigation
-- Use keyboard shortcuts to quickly toggle panels
-- Keep frequently used tools in the sidebar for quick access
-- The main area remembers your last tool selection
-
-### 4. Troubleshooting
-- If a tool isn't responding, check the terminal for error messages
-- For connection issues, verify your internet connectivity first
-- The BGP Route Server requires internet access to reach HE servers
-
-### 5. Working with Multiple Tools
-- While you can only view one tool at a time, they continue running in the background
-- Use the sidebar to quickly switch between active tools
-- Terminal sessions persist when switching tools
+### Power User Tips
+1. **Quick Tool Access** - Use Activity Bar icons
+2. **Keyboard Navigation** - Learn the shortcuts
+3. **Split View Editing** - Edit and preview markdown simultaneously
+4. **Multiple Route Servers** - Compare routing from different locations
+5. **Copy Results** - One-click copy for documentation
 
 ---
 
-## Getting Help
+## Next Steps
 
-### In-App Resources
-- **AI Assistant**: Ask questions about networking or the application
-- **Knowledge Base**: Browse documentation and guides
-- **Help Command**: Type `?` in the BGP Route Server for available commands
+### Explore Documentation
+- **[Subnet Calculator Guide](tools/subnet-calculator-guide.md)** - Master subnet calculations
+- **[BGP Route Server Guide](tools/bgp-route-server-guide.md)** - Learn global routing analysis
+- **[README](README.md)** - Complete documentation index
 
-### External Resources
-- **GitHub Repository**: Report issues and request features
-- **Hurricane Electric**: Learn more about BGP and routing at he.net
-- **Network Documentation**: IETF RFCs for protocol specifications
+### Build Your Workflow
+1. **Learn the Tools** - Start with the guides
+2. **Practice** - Try real-world scenarios
+3. **Document** - Save notes in your vault
+4. **Customize** - Adjust settings to your preference
 
----
-
-## Advanced Features
-
-### BGP Analysis Workflows
-
-#### Finding the Best Path to a Destination
-1. Connect to a route server near your location
-2. Run `show ip bgp <destination-ip>`
-3. Note the AS path
-4. Connect to route servers in other regions
-5. Compare AS paths to understand routing differences
-
-#### Investigating Routing Issues
-1. Use `traceroute` from multiple route servers
-2. Compare results to identify where packets diverge
-3. Use `show ip route` to see the routing table entry
-4. Check `show bgp neighbors` to verify peer status
-
-### Custom Workflows
-Create your own diagnostic workflows by combining tools:
-1. Start with ASN Lookup to identify the target network
-2. Use BGP Route Server to check routing from multiple locations
-3. Run Traceroute to verify the actual path
-4. Use Ping to test connectivity and packet loss
-
----
-
-## Conclusion
-
-Network Tools Hub combines powerful networking tools with an intuitive interface. Whether you're troubleshooting connectivity issues, analyzing BGP routes, or learning about networking, this application provides the tools you need.
-
-**Remember:**
-- Explore all the tools to understand their capabilities
-- Use keyboard shortcuts to work more efficiently
-- The BGP Route Server tool provides unique insights from global vantage points
-- Keep this guide handy as you learn the application
+### Get Support
+- **In-App**: Use the AI Assistant
+- **Documentation**: All guides in Knowledge Base
+- **Community**: GitHub issues and discussions
 
 
 ---
 
-*Last updated: August 31st, 2025*
-*Version: 1.0.0*
+*Quick Start Guide - Network Tools Hub v1.0.0*
+*Last updated: August 31, 2025*
+*For detailed documentation, see the [tool guides](README.md#tool-guides)*
