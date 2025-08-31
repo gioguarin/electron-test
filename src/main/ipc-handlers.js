@@ -72,7 +72,7 @@ function registerIpcHandlers() {
   // Get knowledge tree structure
   ipcMain.handle('get-knowledge-tree', async () => {
     try {
-      const knowledgeBasePath = path.join(__dirname, '..', '..', 'knowledge-base')
+      const knowledgeBasePath = path.join(__dirname, '..', '..', 'devnotes')
       const tree = await buildFileTree(knowledgeBasePath, knowledgeBasePath)
       return tree
     } catch (error) {
@@ -84,7 +84,7 @@ function registerIpcHandlers() {
   // Read knowledge file
   ipcMain.handle('read-knowledge-file', async (event, filePath) => {
     try {
-      const fullPath = path.join(__dirname, '..', '..', 'knowledge-base', filePath)
+      const fullPath = path.join(__dirname, '..', '..', 'devnotes', filePath)
       const content = await fs.readFile(fullPath, 'utf-8')
       return content
     } catch (error) {
@@ -96,7 +96,7 @@ function registerIpcHandlers() {
   // Save knowledge file
   ipcMain.handle('save-knowledge-file', async (event, filePath, content) => {
     try {
-      const fullPath = path.join(__dirname, '..', '..', 'knowledge-base', filePath)
+      const fullPath = path.join(__dirname, '..', '..', 'devnotes', filePath)
       await fs.writeFile(fullPath, content, 'utf-8')
       log.info('Knowledge file saved:', filePath)
       return true
@@ -109,7 +109,7 @@ function registerIpcHandlers() {
   // Open knowledge folder in system file explorer
   ipcMain.handle('open-knowledge-folder', async () => {
     try {
-      const knowledgeBasePath = path.join(__dirname, '..', '..', 'knowledge-base')
+      const knowledgeBasePath = path.join(__dirname, '..', '..', 'devnotes')
       await shell.openPath(knowledgeBasePath)
       return true
     } catch (error) {
@@ -154,7 +154,8 @@ async function buildFileTree(dir, baseDir) {
       items.push({
         name: file,
         path: relativePath,
-        type: 'file'
+        type: 'file',
+        lastModified: stat.mtime.toISOString()
       })
     }
   }

@@ -179,6 +179,9 @@ old-structure-backup/
 !electron-setup-guide.md
 config.json
 
+# Developer notes (personal documentation)
+devnotes/
+
 # Electron specific
 electron-builder.yml
 dist_electron/

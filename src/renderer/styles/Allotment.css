@@ -112,3 +112,20 @@
   height: 100%;
   width: 100%;
 }
+
+/* Fix for single pane scenarios */
+.allotment-module_pane__H5oIK:only-child {
+  width: 100% !important;
+  height: 100% !important;
+  flex: 1 1 100% !important;
+}
+
+/* Hide sash when there's only one pane */
+.allotment-module_splitView__L-yRc:has(.allotment-module_pane__H5oIK:only-child) .allotment-module_sash__19rEa {
+  display: none !important;
+}
+
+/* Fallback for browsers without :has() support */
+.allotment-module_sash__19rEa:only-of-type {
+  display: none !important;
+}

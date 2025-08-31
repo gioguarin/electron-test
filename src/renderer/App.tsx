@@ -24,6 +24,7 @@ const AppContent: React.FC = () => {
   const [activeTool, setActiveTool] = useState<string | null>(null)
   const [registeredTools, setRegisteredTools] = useState<Tool[]>([])
   const [selectedActivity, setSelectedActivity] = useState<string>('tools')
+  const [selectedKnowledgeFile, setSelectedKnowledgeFile] = useState<string | null>(null)
   const { visibility, sizes, togglePanel, setPanelSize, showPanel, hidePanel } = usePanelContext()
 
   useEffect(() => {
@@ -159,6 +160,8 @@ const AppContent: React.FC = () => {
                 tools={registeredTools}
                 onToolSelect={handleToolSelect}
                 activeTool={activeTool}
+                onFileSelect={setSelectedKnowledgeFile}
+                selectedFile={selectedKnowledgeFile || undefined}
               />
             </Allotment.Pane>
           )}
@@ -177,7 +180,7 @@ const AppContent: React.FC = () => {
                   <Allotment.Pane>
                     <div className="editor-area">
                       {selectedActivity === 'knowledge' ? (
-                        <KnowledgePanel />
+                        <KnowledgePanel selectedFile={selectedKnowledgeFile} />
                       ) : activeTool ? (
                         <ToolPanel toolId={activeTool} />
                       ) : (

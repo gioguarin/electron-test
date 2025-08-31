@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Tool } from '../App'
+import { KnowledgeExplorer } from './KnowledgeExplorer'
 import './SidePanel.css'
 
 interface SidePanelProps {
@@ -7,13 +8,17 @@ interface SidePanelProps {
   tools: Tool[]
   onToolSelect: (toolId: string) => void
   activeTool: string | null
+  onFileSelect?: (path: string) => void
+  selectedFile?: string
 }
 
 export const SidePanel: React.FC<SidePanelProps> = ({ 
   activity, 
   tools, 
   onToolSelect,
-  activeTool 
+  activeTool,
+  onFileSelect,
+  selectedFile
 }) => {
   const [searchQuery, setSearchQuery] = useState('')
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(['networking', 'diagnostics', 'security']))
@@ -117,40 +122,15 @@ export const SidePanel: React.FC<SidePanelProps> = ({
     </>
   )
 
-  const renderKnowledgePanel = () => (
-    <>
-      <div className="side-panel-header">
-        <h3>📚 Knowledge Base</h3>
-      </div>
-      <div className="knowledge-info">
-        <div className="info-section">
-          <p>Your project documentation is now available in the main view.</p>
-          <div className="folder-list">
-            <div className="folder-item">
-              <span className="folder-icon">📁</span>
-              <strong>project/</strong>
-              <span className="folder-desc">Project docs</span>
-            </div>
-            <div className="folder-item">
-              <span className="folder-icon">📁</span>
-              <strong>documentation/</strong>
-              <span className="folder-desc">General docs</span>
-            </div>
-            <div className="folder-item">
-              <span className="folder-icon">📁</span>
-              <strong>guides/</strong>
-              <span className="folder-desc">How-to guides</span>
-            </div>
-            <div className="folder-item">
-              <span className="folder-icon">📁</span>
-              <strong>notes/</strong>
-              <span className="folder-desc">Personal notes</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </>
-  )
+  const renderKnowledgePanel = () => {
+    if (!onFileSelect) return null
+    return (
+      <KnowledgeExplorer 
+        onFileSelect={onFileSelect}
+        selectedFile={selectedFile}
+      />
+    )
+  }
 
   const renderTerminalPanel = () => (
     <>
