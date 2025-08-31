@@ -48,15 +48,19 @@ jobs:
         
     - name: Create Release
       id: create_release
-      uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ steps.get_version.outputs.version }}
-        release_name: Network Tools Hub ${{ steps.get_version.outputs.version }}
-        body_path: CHANGELOG_TEMP.md
-        draft: false
-        prerelease: false
+      run: |
+        VERSION="${{ steps.get_version.outputs.version }}"
+        gh release create "$VERSION" \
+          --title "Network Tools Hub $VERSION" \
+          --notes-file CHANGELOG_TEMP.md \
+          --draft=false \
+          --prerelease=false
+        
+        # Get the release upload URL for artifact uploads
+        UPLOAD_URL=$(gh api repos/${{ github.repository }}/releases/tags/$VERSION --jq '.upload_url')
+        echo "upload_url=$UPLOAD_URL" >> $GITHUB_OUTPUT
 
   build-and-release:
     name: Build and Upload Release Assets

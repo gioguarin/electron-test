@@ -221,7 +221,7 @@ jobs:
         GH_TOKEN: ${{ github.token }}
         
     - name: Save analysis as artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: security-analysis
         path: |

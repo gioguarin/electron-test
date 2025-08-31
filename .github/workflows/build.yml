@@ -31,7 +31,7 @@ jobs:
         NODE_ENV: production
         
     - name: Upload Linux artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: linux-build
         path: |
@@ -62,7 +62,7 @@ jobs:
         NODE_ENV: production
         
     - name: Upload Windows artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: windows-build
         path: |
@@ -94,7 +94,7 @@ jobs:
         NODE_ENV: production
         
     - name: Upload macOS artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: macos-build
         path: |
@@ -109,7 +109,7 @@ jobs:
     
     steps:
     - name: Download all artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       
     - name: List artifacts
       run: |
