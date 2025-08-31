@@ -1,0 +1,56 @@
+<svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle with gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000000" flood-opacity="0.2"/>
+    </filter>
+  </defs>
+  
+  <!-- Main circle background -->
+  <circle cx="128" cy="128" r="120" fill="url(#bgGradient)" filter="url(#shadow)"/>
+  
+  <!-- Network nodes -->
+  <g stroke="white" stroke-width="3" fill="white">
+    <!-- Central node -->
+    <circle cx="128" cy="128" r="15" fill="white"/>
+    
+    <!-- Top node -->
+    <circle cx="128" cy="60" r="10" fill="white"/>
+    <line x1="128" y1="113" x2="128" y2="70" stroke="white" stroke-width="3"/>
+    
+    <!-- Top-right node -->
+    <circle cx="180" cy="80" r="10" fill="white"/>
+    <line x1="140" y1="116" x2="170" y2="86" stroke="white" stroke-width="3"/>
+    
+    <!-- Right node -->
+    <circle cx="196" cy="128" r="10" fill="white"/>
+    <line x1="143" y1="128" x2="186" y2="128" stroke="white" stroke-width="3"/>
+    
+    <!-- Bottom-right node -->
+    <circle cx="180" cy="176" r="10" fill="white"/>
+    <line x1="140" y1="140" x2="170" y2="170" stroke="white" stroke-width="3"/>
+    
+    <!-- Bottom node -->
+    <circle cx="128" cy="196" r="10" fill="white"/>
+    <line x1="128" y1="143" x2="128" y2="186" stroke="white" stroke-width="3"/>
+    
+    <!-- Bottom-left node -->
+    <circle cx="76" cy="176" r="10" fill="white"/>
+    <line x1="116" y1="140" x2="86" y2="170" stroke="white" stroke-width="3"/>
+    
+    <!-- Left node -->
+    <circle cx="60" cy="128" r="10" fill="white"/>
+    <line x1="113" y1="128" x2="70" y2="128" stroke="white" stroke-width="3"/>
+    
+    <!-- Top-left node -->
+    <circle cx="76" cy="80" r="10" fill="white"/>
+    <line x1="116" y1="116" x2="86" y2="86" stroke="white" stroke-width="3"/>
+  </g>
+  
+  <!-- Text label (optional) -->
+  <text x="128" y="230" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="white" text-anchor="middle">NET TOOLS</text>
+</svg>

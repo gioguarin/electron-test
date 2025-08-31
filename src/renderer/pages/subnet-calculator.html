@@ -201,6 +201,7 @@
             border-radius: 8px;
             margin-bottom: 12px;
             border-left: 4px solid #667eea;
+            position: relative;
         }
 
         .result-label {
@@ -254,6 +255,130 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        .copy-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .copy-button:hover {
+            background: #5a67d8;
+            transform: translateY(-1px);
+        }
+
+        .copy-button:active {
+            transform: translateY(0);
+        }
+
+        .copy-button.copied {
+            background: #48bb78;
+        }
+
+        .copy-all-button {
+            width: auto;
+            padding: 10px 20px;
+            margin-top: 20px;
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        }
+
+        .copy-all-button:hover:not(:disabled) {
+            box-shadow: 0 10px 30px rgba(72, 187, 120, 0.3);
+        }
+
+        .history-section {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .history-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .clear-history-btn {
+            padding: 8px 16px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .clear-history-btn:hover {
+            background: #dc2626;
+        }
+
+        .history-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-left: 3px solid #667eea;
+        }
+
+        .history-item:hover {
+            background: #e9ecef;
+            transform: translateX(3px);
+        }
+
+        .history-timestamp {
+            font-size: 11px;
+            color: #999;
+            margin-bottom: 5px;
+        }
+
+        .history-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-ip {
+            font-family: 'Courier New', monospace;
+            font-weight: 500;
+        }
+
+        .history-cidr {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .no-history {
+            text-align: center;
+            color: #999;
+            padding: 20px;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -286,41 +411,81 @@
             
             <div class="results" id="results">
                 <div class="result-item">
+                    <button class="copy-button" data-copy="networkAddress">
+                        <span class="copy-icon">📋</span>
+                        <span class="copy-text">Copy</span>
+                    </button>
                     <div class="result-label">Network Address</div>
                     <div class="result-value" id="networkAddress">-</div>
                     <div class="binary" id="networkBinary">-</div>
                 </div>
                 
                 <div class="result-item">
+                    <button class="copy-button" data-copy="broadcastAddress">
+                        <span class="copy-icon">📋</span>
+                        <span class="copy-text">Copy</span>
+                    </button>
                     <div class="result-label">Broadcast Address</div>
                     <div class="result-value" id="broadcastAddress">-</div>
                     <div class="binary" id="broadcastBinary">-</div>
                 </div>
                 
                 <div class="result-item">
+                    <button class="copy-button" data-copy="subnetMask">
+                        <span class="copy-icon">📋</span>
+                        <span class="copy-text">Copy</span>
+                    </button>
                     <div class="result-label">Subnet Mask</div>
                     <div class="result-value" id="subnetMask">-</div>
                     <div class="binary" id="subnetBinary">-</div>
                 </div>
                 
                 <div class="result-item">
+                    <button class="copy-button" data-copy="cidr">
+                        <span class="copy-icon">📋</span>
+                        <span class="copy-text">Copy</span>
+                    </button>
                     <div class="result-label">CIDR Notation</div>
                     <div class="result-value" id="cidr">-</div>
                 </div>
                 
                 <div class="result-item">
+                    <button class="copy-button" data-copy="hostRange">
+                        <span class="copy-icon">📋</span>
+                        <span class="copy-text">Copy</span>
+                    </button>
                     <div class="result-label">Usable Host Range</div>
                     <div class="result-value" id="hostRange">-</div>
                 </div>
                 
                 <div class="result-item">
+                    <button class="copy-button" data-copy="totalHosts">
+                        <span class="copy-icon">📋</span>
+                        <span class="copy-text">Copy</span>
+                    </button>
                     <div class="result-label">Total Hosts</div>
                     <div class="result-value" id="totalHosts">-</div>
                 </div>
                 
                 <div class="result-item">
+                    <button class="copy-button" data-copy="ipClass">
+                        <span class="copy-icon">📋</span>
+                        <span class="copy-text">Copy</span>
+                    </button>
                     <div class="result-label">IP Class</div>
                     <div class="result-value" id="ipClass">-</div>
+                </div>
+                
+                <button class="copy-all-button" id="copyAllBtn">📋 Copy All Results</button>
+            </div>
+            
+            <div class="history-section" id="historySection">
+                <div class="history-header">
+                    <h3 class="history-title">📚 Calculation History</h3>
+                    <button class="clear-history-btn" id="clearHistoryBtn">Clear History</button>
+                </div>
+                <div class="history-list" id="historyList">
+                    <div class="no-history">No calculations yet. Start by calculating a subnet above!</div>
                 </div>
             </div>
             

@@ -40,19 +40,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Tool card click handlers
     toolCards.forEach(card => {
-        card.addEventListener('click', () => {
+        card.addEventListener('click', (event) => {
+            // Prevent event bubbling
+            event.stopPropagation();
+            
             const toolName = card.dataset.tool;
             const isAvailable = card.dataset.available === 'true';
             
             console.log('Tool clicked:', toolName, 'Available:', isAvailable);
             
-            if (isAvailable) {
+            if (isAvailable && toolName) {
                 // Navigate to the tool
                 console.log('Navigating to:', toolName);
-                window.electronAPI.navigateToTool(toolName);
-            } else {
+                try {
+                    window.electronAPI.navigateToTool(toolName);
+                } catch (error) {
+                    console.error('Navigation error:', error);
+                    alert('Error navigating to tool: ' + error.message);
+                }
+            } else if (!isAvailable) {
                 // Show coming soon message
                 showNotification('This tool is coming soon!');
+            } else {
+                console.error('No tool name specified');
             }
         });
     });

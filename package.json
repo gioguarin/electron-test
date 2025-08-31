@@ -2,7 +2,7 @@
   "name": "electron-test",
   "version": "1.0.0",
   "description": "trying out electron, starting out with a subnet checker",
-  "main": "main.js",
+  "main": "src/main/main.js",
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
@@ -31,9 +31,11 @@
     "@electron-forge/plugin-auto-unpack-natives": "^7.8.3",
     "@electron-forge/plugin-fuses": "^7.8.3",
     "@electron/fuses": "^1.8.0",
-    "electron": "^37.4.0"
+    "electron": "^37.4.0",
+    "sharp": "^0.34.3"
   },
   "dependencies": {
+    "electron-log": "^5.4.3",
     "electron-squirrel-startup": "^1.0.1",
     "rpmbuild": "^0.0.23"
   }

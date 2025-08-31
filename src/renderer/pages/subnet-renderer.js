@@ -125,11 +125,12 @@ async function calculateSubnet() {
         
         if (result.success) {
             displayResults(result.data);
+            window.electronAPI.log.info('Subnet calculation completed successfully');
         } else {
-            console.error('Calculation error:', result.error);
+            window.electronAPI.log.error('Calculation error:', result.error);
         }
     } catch (error) {
-        console.error('Error:', error);
+        window.electronAPI.log.error('Error:', error);
     } finally {
         calculateBtn.disabled = false;
         calculateBtn.textContent = 'Calculate';
@@ -174,6 +175,81 @@ function displayResults(data) {
     // Show results
     results.classList.add('show');
     results.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    
+    // Save to history
+    window.electronAPI.storage.saveToHistory(data);
+    
+    // Refresh history display
+    loadHistory();
+}
+
+// Copy to clipboard function
+function copyToClipboard(elementId) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        const text = element.textContent;
+        window.electronAPI.clipboard.writeText(text);
+        return text;
+    }
+    return null;
+}
+
+// Copy all results to clipboard
+function copyAllResults() {
+    const results = {
+        'Network Address': document.getElementById('networkAddress').textContent,
+        'Broadcast Address': document.getElementById('broadcastAddress').textContent,
+        'Subnet Mask': document.getElementById('subnetMask').textContent,
+        'CIDR': document.getElementById('cidr').textContent,
+        'Host Range': document.getElementById('hostRange').textContent,
+        'Total Hosts': document.getElementById('totalHosts').textContent,
+        'IP Class': document.getElementById('ipClass').textContent
+    };
+    
+    const formattedText = Object.entries(results)
+        .map(([key, value]) => `${key}: ${value}`)
+        .join('\n');
+    
+    window.electronAPI.clipboard.writeText(formattedText);
+    return formattedText;
+}
+
+// Load and display calculation history
+function loadHistory() {
+    const historyList = document.getElementById('historyList');
+    const history = window.electronAPI.storage.getHistory();
+    
+    if (history && history.length > 0) {
+        historyList.innerHTML = history.map(item => {
+            const date = new Date(item.timestamp);
+            const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+            
+            return `
+                <div class="history-item" data-ip="${item.ipAddress}" data-cidr="${item.cidr}">
+                    <div class="history-timestamp">${formattedDate}</div>
+                    <div class="history-details">
+                        <span class="history-ip">${item.ipAddress}</span>
+                        <span class="history-cidr">/${item.cidr}</span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    } else {
+        historyList.innerHTML = '<div class="no-history">No calculations yet. Start by calculating a subnet above!</div>';
+    }
+}
+
+// Load calculation from history
+function loadFromHistory(ipAddress, cidr) {
+    // Set values in input fields
+    document.getElementById('ip').value = ipAddress;
+    document.getElementById('subnet').value = `/${cidr}`;
+    
+    // Trigger calculation
+    calculateSubnet();
+    
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // Event listeners
@@ -227,4 +303,68 @@ document.addEventListener('DOMContentLoaded', () => {
             if (results) results.classList.remove('show');
         }
     });
+    
+    // Copy button listeners
+    document.addEventListener('click', (e) => {
+        if (e.target.closest('.copy-button')) {
+            const button = e.target.closest('.copy-button');
+            const copyTarget = button.getAttribute('data-copy');
+            if (copyTarget) {
+                copyToClipboard(copyTarget);
+                
+                // Update button to show copied state
+                const originalHTML = button.innerHTML;
+                button.classList.add('copied');
+                button.innerHTML = '<span class="copy-icon">✓</span><span class="copy-text">Copied!</span>';
+                
+                setTimeout(() => {
+                    button.classList.remove('copied');
+                    button.innerHTML = originalHTML;
+                }, 2000);
+            }
+        }
+    });
+    
+    // Copy all button listener
+    const copyAllBtn = document.getElementById('copyAllBtn');
+    if (copyAllBtn) {
+        copyAllBtn.addEventListener('click', () => {
+            copyAllResults();
+            
+            // Update button to show copied state
+            const originalText = copyAllBtn.textContent;
+            copyAllBtn.textContent = '✓ All Results Copied!';
+            copyAllBtn.style.background = 'linear-gradient(135deg, #48bb78 0%, #38a169 100%)';
+            
+            setTimeout(() => {
+                copyAllBtn.textContent = originalText;
+                copyAllBtn.style.background = '';
+            }, 2000);
+        });
+    }
+    
+    // Load history on page load
+    loadHistory();
+    
+    // History item click listener
+    document.addEventListener('click', (e) => {
+        const historyItem = e.target.closest('.history-item');
+        if (historyItem) {
+            const ip = historyItem.getAttribute('data-ip');
+            const cidr = historyItem.getAttribute('data-cidr');
+            loadFromHistory(ip, cidr);
+        }
+    });
+    
+    // Clear history button listener
+    const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+    if (clearHistoryBtn) {
+        clearHistoryBtn.addEventListener('click', () => {
+            if (confirm('Are you sure you want to clear all calculation history?')) {
+                window.electronAPI.storage.clearHistory();
+                loadHistory();
+                window.electronAPI.log.info('History cleared');
+            }
+        });
+    }
 });

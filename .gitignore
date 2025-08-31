@@ -139,3 +139,53 @@ vite.config.ts.timestamp-*
 
 # Electron Forge output
 out/
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.iml
+*.ipr
+*.iws
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Temporary files
+*.swp
+*.swo
+*~
+*.tmp
+*.bak
+*.backup
+*.old
+
+# Project specific
+old-structure-backup/
+*.log
+!electron-setup-guide.md
+config.json
+
+# Electron specific
+electron-builder.yml
+dist_electron/
+.electron-vue/
+
+# Local environment files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
