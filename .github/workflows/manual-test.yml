@@ -49,6 +49,7 @@ jobs:
       run: npm run make
       
     - name: List build artifacts
+      shell: bash
       run: |
         echo "Build artifacts:"
         ls -la out/make/

@@ -1,0 +1,230 @@
+name: Electron Security Check
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'src/**/*.js'
+      - 'src/**/*.html'
+      - 'package.json'
+      - 'package-lock.json'
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run every Monday at 9 AM UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+  pull-requests: write
+
+jobs:
+  security-scan:
+    name: Security Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+        
+    - name: Run npm audit
+      id: npm_audit
+      continue-on-error: true
+      shell: bash
+      run: |
+        npm audit --json > npm_audit.json || true
+        npm audit > npm_audit.txt || true
+        
+        # Check for high or critical vulnerabilities
+        if npm audit --audit-level=high; then
+          echo "audit_passed=true" >> $GITHUB_OUTPUT
+        else
+          echo "audit_passed=false" >> $GITHUB_OUTPUT
+          echo "⚠️ High or critical vulnerabilities found"
+        fi
+        
+    - name: Analyze Electron Security
+      id: electron_security
+      shell: bash
+      run: |
+        # Initialize report
+        echo "# 🔒 Electron Security Check Results" > security_report.md
+        echo "" >> security_report.md
+        echo "## Automated Security Scan" >> security_report.md
+        echo "" >> security_report.md
+        
+        ISSUES_FOUND=false
+        
+        # Check for nodeIntegration enabled
+        echo "### Checking Electron Security Settings" >> security_report.md
+        echo "" >> security_report.md
+        
+        if grep -r "nodeIntegration.*true" src/ --include="*.js" 2>/dev/null; then
+          echo "❌ **CRITICAL**: nodeIntegration is enabled in some files" >> security_report.md
+          echo "  - This allows Node.js APIs in renderer process (security risk)" >> security_report.md
+          echo "" >> security_report.md
+          ISSUES_FOUND=true
+        else
+          echo "✅ nodeIntegration is properly disabled" >> security_report.md
+        fi
+        
+        # Check for contextIsolation disabled
+        if grep -r "contextIsolation.*false" src/ --include="*.js" 2>/dev/null; then
+          echo "❌ **CRITICAL**: contextIsolation is disabled in some files" >> security_report.md
+          echo "  - This reduces security isolation between main and renderer" >> security_report.md
+          echo "" >> security_report.md
+          ISSUES_FOUND=true
+        else
+          echo "✅ contextIsolation is properly enabled" >> security_report.md
+        fi
+        
+        # Check for webSecurity disabled
+        if grep -r "webSecurity.*false" src/ --include="*.js" 2>/dev/null; then
+          echo "❌ **HIGH**: webSecurity is disabled" >> security_report.md
+          echo "  - This disables same-origin policy (security risk)" >> security_report.md
+          echo "" >> security_report.md
+          ISSUES_FOUND=true
+        else
+          echo "✅ webSecurity is enabled" >> security_report.md
+        fi
+        
+        # Check for remote content loading
+        if grep -r "loadURL.*http" src/ --include="*.js" 2>/dev/null; then
+          echo "⚠️ **WARNING**: Loading remote content detected" >> security_report.md
+          echo "  - Ensure remote URLs are trusted and use HTTPS" >> security_report.md
+          echo "" >> security_report.md
+          ISSUES_FOUND=true
+        else
+          echo "✅ No remote content loading detected" >> security_report.md
+        fi
+        
+        # Check for eval usage
+        if grep -r "eval(" src/ --include="*.js" --include="*.html" 2>/dev/null; then
+          echo "⚠️ **WARNING**: eval() usage detected" >> security_report.md
+          echo "  - Avoid eval() as it can execute arbitrary code" >> security_report.md
+          echo "" >> security_report.md
+          ISSUES_FOUND=true
+        else
+          echo "✅ No eval() usage detected" >> security_report.md
+        fi
+        
+        # Check for sandbox disabled
+        if grep -r "sandbox.*false" src/ --include="*.js" 2>/dev/null; then
+          echo "⚠️ **WARNING**: Sandbox is disabled in some files" >> security_report.md
+          echo "  - Sandbox provides an additional security layer" >> security_report.md
+          echo "" >> security_report.md
+          ISSUES_FOUND=true
+        else
+          echo "✅ Sandbox is properly configured" >> security_report.md
+        fi
+        
+        echo "" >> security_report.md
+        echo "---" >> security_report.md
+        echo "*Scan completed at $(date -u +"%Y-%m-%d %H:%M:%S UTC")*" >> security_report.md
+        
+        cat security_report.md
+        
+        if [ "$ISSUES_FOUND" = true ]; then
+          echo "security_issues=true" >> $GITHUB_OUTPUT
+        else
+          echo "security_issues=false" >> $GITHUB_OUTPUT
+        fi
+    
+    - name: Post PR Comment
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const fs = require('fs');
+          const report = fs.readFileSync('security_report.md', 'utf8');
+          
+          await github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: report
+          });
+    
+    - name: Upload Security Report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: security-report
+        path: |
+          security_report.md
+          npm_audit.txt
+          npm_audit.json
+        retention-days: 30
+        
+    - name: Create Issue if Critical
+      if: steps.electron_security.outputs.security_issues == 'true' && github.event_name == 'schedule'
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const fs = require('fs');
+          const report = fs.readFileSync('security_report.md', 'utf8');
+          
+          await github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: '🔒 Security Issues Detected - ' + new Date().toISOString().split('T')[0],
+            body: report,
+            labels: ['security', 'automated']
+          });
+
+  documentation-check:
+    name: Documentation Check
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+      
+    - name: Check for Missing Documentation
+      shell: bash
+      run: |
+        # Check if code changed but docs didn't
+        CODE_CHANGED=false
+        DOCS_CHANGED=false
+        
+        if git diff --name-only origin/main..HEAD | grep -E "(src/.*\.(js|html)|package\.json)" > /dev/null; then
+          CODE_CHANGED=true
+        fi
+        
+        if git diff --name-only origin/main..HEAD | grep -E "(README\.md|CLAUDE\.md|docs/)" > /dev/null; then
+          DOCS_CHANGED=true
+        fi
+        
+        if [ "$CODE_CHANGED" = true ] && [ "$DOCS_CHANGED" = false ]; then
+          echo "## 📚 Documentation Reminder" > doc_reminder.md
+          echo "" >> doc_reminder.md
+          echo "This PR contains code changes but no documentation updates." >> doc_reminder.md
+          echo "" >> doc_reminder.md
+          echo "Please consider:" >> doc_reminder.md
+          echo "- Updating README.md if adding new features" >> doc_reminder.md
+          echo "- Updating CLAUDE.md if changing architecture or development process" >> doc_reminder.md
+          echo "- Adding inline comments for complex logic" >> doc_reminder.md
+          echo "" >> doc_reminder.md
+          echo "*This is an automated reminder.*" >> doc_reminder.md
+          
+          # Post comment
+          gh pr comment ${{ github.event.pull_request.number }} --body-file doc_reminder.md
+        fi
+      env:
+        GH_TOKEN: ${{ github.token }}

@@ -112,12 +112,14 @@ jobs:
       uses: actions/download-artifact@v4
       
     - name: List artifacts
+      shell: bash
       run: |
         echo "Build artifacts:"
         ls -la
         find . -type f -name "*.deb" -o -name "*.exe" -o -name "*.dmg" -o -name "*.zip" | head -20
         
     - name: Check artifact sizes
+      shell: bash
       run: |
         echo "Checking artifact sizes..."
         find . -type f \( -name "*.deb" -o -name "*.exe" -o -name "*.dmg" -o -name "*.zip" \) -exec ls -lh {} \;

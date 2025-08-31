@@ -29,6 +29,7 @@ jobs:
       continue-on-error: true
       
     - name: Check for lint errors
+      shell: bash
       run: |
         if npm run lint 2>&1 | grep -q "error"; then
           echo "Linting errors found. Please fix them."
@@ -54,6 +55,7 @@ jobs:
       run: npm ci
       
     - name: Run tests
+      shell: bash
       run: |
         if [ -f "package.json" ] && grep -q "\"test\":" package.json; then
           npm test
@@ -100,6 +102,7 @@ jobs:
       run: npm ci
       
     - name: Check for console.log statements
+      shell: bash
       run: |
         echo "Checking for console.log statements in production code..."
         if grep -r "console\.log" src/ --exclude-dir=node_modules --exclude="*.test.js" --exclude="*.spec.js"; then
@@ -107,6 +110,7 @@ jobs:
         fi
         
     - name: Check for TODO comments
+      shell: bash
       run: |
         echo "Checking for TODO comments..."
         grep -r "TODO\|FIXME\|HACK" src/ --exclude-dir=node_modules || echo "No TODO comments found"
