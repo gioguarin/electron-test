@@ -1,0 +1,218 @@
+name: Claude Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR number to review'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  claude-review:
+    name: Claude AI Code Review
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - name: Get PR diff
+      id: pr_diff
+      run: |
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ github.event.inputs.pr_number }}" ]; then
+          PR_NUMBER="${{ github.event.inputs.pr_number }}"
+        else
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+        fi
+        
+        echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
+        
+        # Get the PR diff
+        gh pr diff $PR_NUMBER > pr_diff.txt
+        
+        # Get file list
+        gh pr view $PR_NUMBER --json files -q '.files[].path' > changed_files.txt
+        
+        # Get PR description
+        gh pr view $PR_NUMBER --json title,body -q '.title + "\n\n" + .body' > pr_description.txt
+        
+        echo "Files changed:"
+        cat changed_files.txt
+      env:
+        GH_TOKEN: ${{ github.token }}
+        
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install Anthropic SDK
+      run: |
+        pip install anthropic
+        
+    - name: Review with Claude
+      id: claude_review
+      env:
+        ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      run: |
+        python3 << 'EOF'
+        import os
+        import json
+        import anthropic
+        from pathlib import Path
+        
+        # Initialize Claude
+        client = anthropic.Anthropic(api_key=os.environ['ANTHROPIC_API_KEY'])
+        
+        # Read PR information
+        with open('pr_diff.txt', 'r') as f:
+            pr_diff = f.read()[:50000]  # Limit to 50k chars
+        
+        with open('pr_description.txt', 'r') as f:
+            pr_description = f.read()[:2000]
+        
+        with open('changed_files.txt', 'r') as f:
+            changed_files = f.read()
+        
+        # Prepare the prompt
+        prompt = f"""You are reviewing a pull request for an Electron application called Network Tools Hub.
+        
+        PR Description:
+        {pr_description}
+        
+        Files Changed:
+        {changed_files}
+        
+        Diff (truncated if too long):
+        {pr_diff}
+        
+        Please provide a code review focusing on:
+        1. **Security Issues**: Identify any security vulnerabilities, especially Electron-specific concerns
+        2. **Code Quality**: Style, maintainability, best practices
+        3. **Bugs**: Potential bugs or logic errors
+        4. **Performance**: Performance concerns or optimization opportunities
+        5. **Electron Best Practices**: Proper IPC usage, preload scripts, context isolation
+        
+        Format your response as:
+        
+        ## 🔍 Code Review Summary
+        [Brief overview]
+        
+        ### ✅ Strengths
+        - [List positive aspects]
+        
+        ### ⚠️ Issues Found
+        - [List issues with severity: 🔴 Critical, 🟡 Warning, 🔵 Suggestion]
+        
+        ### 💡 Suggestions
+        - [Improvement suggestions]
+        
+        ### 🔒 Security Check
+        - [Security analysis specific to Electron]
+        
+        Be constructive and specific. Include line numbers or file names when referencing code.
+        If the changes look good overall, be encouraging but still provide valuable insights.
+        """
+        
+        # Get Claude's review
+        try:
+            response = client.messages.create(
+                model="claude-3-haiku-20240307",
+                max_tokens=2000,
+                temperature=0,
+                messages=[
+                    {"role": "user", "content": prompt}
+                ]
+            )
+            
+            review_content = response.content[0].text
+            
+            # Save review to file
+            with open('claude_review.md', 'w') as f:
+                f.write(review_content)
+            
+            print("Review generated successfully")
+            
+        except Exception as e:
+            print(f"Error: {e}")
+            with open('claude_review.md', 'w') as f:
+                f.write("## ⚠️ Claude Review Unavailable\n\nCould not generate automated review. Please ensure ANTHROPIC_API_KEY is set correctly.")
+        EOF
+        
+    - name: Post review comment
+      if: always()
+      run: |
+        PR_NUMBER="${{ steps.pr_diff.outputs.pr_number }}"
+        
+        # Add header and footer to the review
+        {
+          echo "## 🤖 Claude AI Code Review"
+          echo ""
+          cat claude_review.md
+          echo ""
+          echo "---"
+          echo "*This is an automated review by Claude AI. Please consider these suggestions, but use your judgment.*"
+          echo "*Powered by Claude 3 Haiku*"
+        } > final_review.md
+        
+        # Post as PR comment
+        gh pr comment $PR_NUMBER --body-file final_review.md
+      env:
+        GH_TOKEN: ${{ github.token }}
+
+  documentation-check:
+    name: Documentation Analysis
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Check documentation updates
+      id: doc_check
+      run: |
+        # Check if README or CLAUDE.md need updates
+        if git diff --name-only origin/main..HEAD | grep -E "(README.md|CLAUDE.md|docs/)" > /dev/null; then
+          echo "docs_changed=true" >> $GITHUB_OUTPUT
+        else
+          echo "docs_changed=false" >> $GITHUB_OUTPUT
+        fi
+        
+        # Check for new features without documentation
+        if git diff origin/main..HEAD -- 'src/**/*.js' 'src/**/*.html' | grep -E "(class |function |export )" > /dev/null; then
+          echo "code_changed=true" >> $GITHUB_OUTPUT
+        else  
+          echo "code_changed=false" >> $GITHUB_OUTPUT
+        fi
+        
+    - name: Suggest documentation updates
+      if: steps.doc_check.outputs.code_changed == 'true' && steps.doc_check.outputs.docs_changed == 'false'
+      run: |
+        PR_NUMBER="${{ github.event.pull_request.number }}"
+        
+        COMMENT="## 📚 Documentation Reminder
+        
+        This PR contains code changes but no documentation updates. Please consider:
+        - Updating README.md if adding new features
+        - Updating CLAUDE.md if changing architecture or development process
+        - Adding inline comments for complex logic
+        - Updating JSDoc comments for new functions
+        
+        *This is an automated reminder.*"
+        
+        echo "$COMMENT" | gh pr comment $PR_NUMBER --body-file -
+      env:
+        GH_TOKEN: ${{ github.token }}

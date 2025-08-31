@@ -1,0 +1,226 @@
+name: Claude Changelog Generator
+
+on:
+  release:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      since_tag:
+        description: 'Generate changelog since this tag'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  generate-changelog:
+    name: Generate AI Changelog
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - name: Get commit history
+      id: get_commits
+      run: |
+        if [ "${{ github.event_name }}" = "release" ]; then
+          # For releases, get commits since last release
+          SINCE_TAG=$(git describe --tags --abbrev=0 $(git rev-list --tags --skip=1 --max-count=1) 2>/dev/null || echo "")
+        elif [ -n "${{ github.event.inputs.since_tag }}" ]; then
+          SINCE_TAG="${{ github.event.inputs.since_tag }}"
+        else
+          # Default to last tag
+          SINCE_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+        fi
+        
+        echo "since_tag=$SINCE_TAG" >> $GITHUB_OUTPUT
+        
+        # Get commit messages
+        if [ -n "$SINCE_TAG" ]; then
+          git log ${SINCE_TAG}..HEAD --pretty=format:"%h - %s (%an)" > commits.txt
+        else
+          git log --pretty=format:"%h - %s (%an)" -30 > commits.txt
+        fi
+        
+        # Get PR information
+        gh pr list --state merged --limit 20 --json number,title,body,author,labels > prs.json
+        
+        # Get file changes summary
+        if [ -n "$SINCE_TAG" ]; then
+          git diff --stat ${SINCE_TAG}..HEAD > changes.txt
+        else
+          echo "No previous tag found" > changes.txt
+        fi
+      env:
+        GH_TOKEN: ${{ github.token }}
+        
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: pip install anthropic
+      
+    - name: Generate changelog with Claude
+      env:
+        ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      run: |
+        python3 << 'EOF'
+        import os
+        import json
+        import anthropic
+        from datetime import datetime
+        
+        client = anthropic.Anthropic(api_key=os.environ['ANTHROPIC_API_KEY'])
+        
+        # Read commit history
+        with open('commits.txt', 'r') as f:
+            commits = f.read()
+            
+        # Read PRs
+        with open('prs.json', 'r') as f:
+            prs = json.load(f)
+            
+        # Read changes
+        with open('changes.txt', 'r') as f:
+            changes = f.read()[:2000]
+        
+        # Format PR information
+        pr_info = ""
+        for pr in prs[:10]:  # Limit to 10 PRs
+            pr_info += f"PR #{pr['number']}: {pr['title']}\n"
+            if pr.get('labels'):
+                labels = ', '.join([l['name'] for l in pr['labels']])
+                pr_info += f"  Labels: {labels}\n"
+        
+        prompt = f"""Generate a comprehensive changelog for the Network Tools Hub Electron application.
+        
+        Commits since last release:
+        {commits}
+        
+        Merged Pull Requests:
+        {pr_info}
+        
+        File changes summary:
+        {changes}
+        
+        Please create a well-structured changelog that:
+        1. Groups changes by category (Features, Bug Fixes, Performance, Security, etc.)
+        2. Uses clear, user-friendly language
+        3. Highlights important changes
+        4. Includes contributor acknowledgments
+        5. Follows the Keep a Changelog format
+        
+        Format as:
+        
+        # Changelog
+        
+        ## [Version] - {datetime.now().strftime('%Y-%m-%d')}
+        
+        ### ✨ Features
+        - [List new features]
+        
+        ### 🐛 Bug Fixes
+        - [List bug fixes]
+        
+        ### 🔒 Security
+        - [List security improvements]
+        
+        ### 📈 Performance
+        - [List performance improvements]
+        
+        ### 📚 Documentation
+        - [List documentation updates]
+        
+        ### 🔧 Maintenance
+        - [List dependency updates, refactoring, etc.]
+        
+        ### 👥 Contributors
+        - [Acknowledge contributors]
+        
+        Only include sections that have actual changes.
+        """
+        
+        try:
+            response = client.messages.create(
+                model="claude-3-haiku-20240307",
+                max_tokens=1500,
+                temperature=0,
+                messages=[{"role": "user", "content": prompt}]
+            )
+            
+            changelog = response.content[0].text
+            
+            with open('CHANGELOG_AI.md', 'w') as f:
+                f.write(changelog)
+                f.write("\n\n---\n*This changelog was generated with the assistance of Claude AI*\n")
+            
+            print("Changelog generated successfully")
+            
+        except Exception as e:
+            print(f"Error: {e}")
+            # Fallback to basic changelog
+            with open('CHANGELOG_AI.md', 'w') as f:
+                f.write(f"# Changelog\n\n## Changes\n\n")
+                f.write(commits)
+        EOF
+        
+    - name: Update release or create PR
+      run: |
+        if [ "${{ github.event_name }}" = "release" ]; then
+          # Update the release description
+          RELEASE_ID="${{ github.event.release.id }}"
+          CURRENT_BODY="${{ github.event.release.body }}"
+          
+          {
+            cat CHANGELOG_AI.md
+            echo ""
+            echo "---"
+            echo ""
+            echo "$CURRENT_BODY"
+          } > updated_release.md
+          
+          gh release edit "${{ github.event.release.tag_name }}" \
+            --notes-file updated_release.md
+            
+        else
+          # Create a PR with the changelog
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
+          
+          # Create a new branch
+          BRANCH="update-changelog-$(date +%Y%m%d%H%M%S)"
+          git checkout -b $BRANCH
+          
+          # Prepend to CHANGELOG.md if it exists, otherwise create it
+          if [ -f CHANGELOG.md ]; then
+            {
+              cat CHANGELOG_AI.md
+              echo ""
+              echo ""
+              cat CHANGELOG.md
+            } > CHANGELOG_NEW.md
+            mv CHANGELOG_NEW.md CHANGELOG.md
+          else
+            cp CHANGELOG_AI.md CHANGELOG.md
+          fi
+          
+          # Commit and push
+          git add CHANGELOG.md
+          git commit -m "docs: update changelog with AI-generated content"
+          git push origin $BRANCH
+          
+          # Create PR
+          gh pr create \
+            --title "📝 Update Changelog" \
+            --body "This PR updates the changelog with AI-generated content based on recent commits and PRs." \
+            --label "documentation,automated"
+        fi
+      env:
+        GH_TOKEN: ${{ github.token }}

@@ -1,0 +1,231 @@
+name: Claude Security Analysis
+
+on:
+  schedule:
+    # Run every Monday at 9 AM UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'src/**/*.js'
+      - 'src/**/*.html'
+      - 'package.json'
+      - 'package-lock.json'
+
+permissions:
+  contents: read
+  security-events: write
+  issues: write
+
+jobs:
+  security-analysis:
+    name: Claude Security Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: Run npm audit
+      id: npm_audit
+      continue-on-error: true
+      run: |
+        npm audit --json > npm_audit.json || true
+        npm audit > npm_audit.txt || true
+        
+    - name: Analyze Electron security
+      run: |
+        # Check for common Electron security issues
+        echo "Checking for security issues..." > security_report.txt
+        echo "" >> security_report.txt
+        
+        # Check for nodeIntegration enabled
+        if grep -r "nodeIntegration.*true" src/ --include="*.js"; then
+          echo "⚠️ WARNING: nodeIntegration is enabled in some files" >> security_report.txt
+        fi
+        
+        # Check for contextIsolation disabled
+        if grep -r "contextIsolation.*false" src/ --include="*.js"; then
+          echo "⚠️ WARNING: contextIsolation is disabled in some files" >> security_report.txt
+        fi
+        
+        # Check for webSecurity disabled
+        if grep -r "webSecurity.*false" src/ --include="*.js"; then
+          echo "⚠️ WARNING: webSecurity is disabled in some files" >> security_report.txt
+        fi
+        
+        # Check for remote content loading
+        if grep -r "loadURL.*http" src/ --include="*.js"; then
+          echo "⚠️ WARNING: Loading remote content detected" >> security_report.txt
+        fi
+        
+        # Check for eval usage
+        if grep -r "eval(" src/ --include="*.js" --include="*.html"; then
+          echo "⚠️ WARNING: eval() usage detected" >> security_report.txt
+        fi
+        
+        cat security_report.txt
+        
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: pip install anthropic
+      
+    - name: Claude Security Review
+      env:
+        ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      run: |
+        python3 << 'EOF'
+        import os
+        import json
+        import anthropic
+        from pathlib import Path
+        
+        client = anthropic.Anthropic(api_key=os.environ['ANTHROPIC_API_KEY'])
+        
+        # Read security reports
+        security_report = ""
+        npm_audit = ""
+        
+        try:
+            with open('security_report.txt', 'r') as f:
+                security_report = f.read()
+        except:
+            pass
+            
+        try:
+            with open('npm_audit.txt', 'r') as f:
+                npm_audit = f.read()[:5000]  # Limit size
+        except:
+            pass
+        
+        # Read critical files for analysis
+        critical_files = []
+        for file_path in ['src/main/main.js', 'src/preload/preload.js', 'src/main/ipc-handlers.js']:
+            try:
+                with open(file_path, 'r') as f:
+                    content = f.read()[:3000]  # Limit each file
+                    critical_files.append(f"File: {file_path}\n{content}\n")
+            except:
+                pass
+        
+        prompt = f"""Analyze the security of this Electron application.
+        
+        Static Analysis Results:
+        {security_report}
+        
+        NPM Audit Results:
+        {npm_audit}
+        
+        Critical Files (truncated):
+        {''.join(critical_files)}
+        
+        Please provide a comprehensive security analysis focusing on:
+        
+        1. **Electron Security Best Practices**
+           - Context isolation
+           - Node integration
+           - Preload script security
+           - IPC security
+        
+        2. **Dependency Vulnerabilities**
+           - Analysis of npm audit results
+           - Recommendations for fixes
+        
+        3. **Code Security Issues**
+           - XSS vulnerabilities
+           - Remote code execution risks
+           - Unsafe API usage
+        
+        4. **Data Security**
+           - Sensitive data handling
+           - Storage security
+           - API key management
+        
+        Format as:
+        
+        # 🔒 Security Analysis Report
+        
+        ## Risk Level: [Critical/High/Medium/Low]
+        
+        ## 🚨 Critical Issues
+        [List any critical security issues that need immediate attention]
+        
+        ## ⚠️ Warnings
+        [List security warnings and concerns]
+        
+        ## ✅ Security Strengths
+        [List what's done well]
+        
+        ## 📋 Recommendations
+        [Specific actionable recommendations]
+        
+        ## 🛡️ Security Score
+        [Give a score out of 10 with brief justification]
+        """
+        
+        try:
+            response = client.messages.create(
+                model="claude-3-haiku-20240307",
+                max_tokens=2000,
+                temperature=0,
+                messages=[{"role": "user", "content": prompt}]
+            )
+            
+            analysis = response.content[0].text
+            
+            with open('claude_security_analysis.md', 'w') as f:
+                f.write(analysis)
+                
+            print("Security analysis completed")
+            
+            # Determine if we should create an issue
+            if "Critical" in analysis or "High" in analysis:
+                with open('create_issue.txt', 'w') as f:
+                    f.write("true")
+            
+        except Exception as e:
+            print(f"Error: {e}")
+            with open('claude_security_analysis.md', 'w') as f:
+                f.write("## Security Analysis Unavailable\n\nCould not generate automated analysis.")
+        EOF
+        
+    - name: Create security issue if needed
+      if: hashFiles('create_issue.txt') != ''
+      run: |
+        # Create an issue with the security report
+        {
+          echo "## 🔒 Automated Security Analysis"
+          echo ""
+          cat claude_security_analysis.md
+          echo ""
+          echo "---"
+          echo "*This analysis was automatically generated by Claude AI.*"
+          echo "*Review date: $(date)*"
+        } > issue_body.md
+        
+        gh issue create \
+          --title "🔒 Security Analysis Report - $(date +%Y-%m-%d)" \
+          --body-file issue_body.md \
+          --label "security,automated"
+      env:
+        GH_TOKEN: ${{ github.token }}
+        
+    - name: Save analysis as artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: security-analysis
+        path: |
+          claude_security_analysis.md
+          npm_audit.json
+          security_report.txt
+        retention-days: 30
