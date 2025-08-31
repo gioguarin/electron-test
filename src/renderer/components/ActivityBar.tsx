@@ -23,11 +23,14 @@ export const ActivityBar: React.FC<ActivityBarProps> = ({
   onToggleTerminal,
   onToggleAssistant
 }) => {
-  const activities: Activity[] = [
+  const topActivities: Activity[] = [
     { id: 'tools', icon: '🔧', title: 'Network Tools (Ctrl+B)', action: 'select' },
     { id: 'knowledge', icon: '📚', title: 'Knowledge Base', action: 'select' },
     { id: 'terminal', icon: '💻', title: 'Terminal (Ctrl+`)', action: 'toggle' },
-    { id: 'assistant', icon: '🤖', title: 'AI Assistant (Ctrl+Shift+A)', action: 'toggle' },
+    { id: 'assistant', icon: '🤖', title: 'AI Assistant (Ctrl+Shift+A)', action: 'toggle' }
+  ]
+
+  const bottomActivities: Activity[] = [
     { id: 'settings', icon: '⚙️', title: 'Settings', action: 'select' }
   ]
 
@@ -57,8 +60,22 @@ export const ActivityBar: React.FC<ActivityBarProps> = ({
 
   return (
     <div className="activity-bar">
-      <div className="activity-bar-items">
-        {activities.map(activity => (
+      <div className="activity-bar-items-top">
+        {topActivities.map(activity => (
+          <button
+            key={activity.id}
+            className={`activity-item ${
+              activity.action === 'select' && selectedActivity === activity.id ? 'active' : ''
+            }`}
+            onClick={() => handleActivityClick(activity)}
+            title={activity.title}
+          >
+            <span className="activity-icon">{activity.icon}</span>
+          </button>
+        ))}
+      </div>
+      <div className="activity-bar-items-bottom">
+        {bottomActivities.map(activity => (
           <button
             key={activity.id}
             className={`activity-item ${

@@ -13,25 +13,37 @@
 .allotment-module_sash__19rEa {
   background: transparent;
   transition: background-color 0.1s;
+  position: relative;
 }
 
 .allotment-module_sash__19rEa:hover {
-  background-color: #007acc;
   transition-delay: 0.3s;
 }
 
+.allotment-module_sash__19rEa.allotment-module_sashVertical__OqrNH:hover {
+  width: 3px;
+  margin-left: -1px;
+  background-color: #007acc;
+}
+
+.allotment-module_sash__19rEa.allotment-module_sashHorizontal__fv8in:hover {
+  height: 3px;
+  margin-top: -1px;
+  background-color: #007acc;
+}
+
 .allotment-module_sash__19rEa.allotment-module_sashHorizontal__fv8in {
-  height: 4px;
-  margin-top: -2px;
-  border-top: 1px solid #3c3c3c;
-  border-bottom: 1px solid #3c3c3c;
+  height: 1px;
+  margin-top: 0;
+  background-color: #3c3c3c;
+  border: none;
 }
 
 .allotment-module_sash__19rEa.allotment-module_sashVertical__OqrNH {
-  width: 4px;
-  margin-left: -2px;
-  border-left: 1px solid #3c3c3c;
-  border-right: 1px solid #3c3c3c;
+  width: 1px;
+  margin-left: 0;
+  background-color: #3c3c3c;
+  border: none;
 }
 
 .allotment-module_sash__19rEa.allotment-module_sashDisabled__2asc7 {
@@ -42,6 +54,25 @@
 .allotment-module_sash__19rEa.allotment-module_sashActive__1xeTa {
   background-color: #007acc !important;
   opacity: 0.8;
+}
+
+/* Snap threshold indicator */
+.allotment-module_sash__19rEa.allotment-module_sashActive__1xeTa::after {
+  content: '';
+  position: absolute;
+  background: rgba(255, 0, 0, 0.2);
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+
+/* Visual feedback when approaching snap threshold */
+.panel-snap-indicator {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px dashed #007acc;
+  pointer-events: none;
+  z-index: 9999;
+  transition: opacity 0.2s;
 }
 
 /* Pane content */
@@ -58,14 +89,17 @@
 /* Panel-specific customizations */
 .main-horizontal-split {
   height: 100%;
+  width: 100%;
 }
 
-.editor-vertical-split {
+.main-vertical-split {
   height: 100%;
+  width: 100%;
 }
 
-.terminal-vertical-split {
+.editor-horizontal-split {
   height: 100%;
+  width: 100%;
 }
 
 /* Smooth transitions for panel visibility */

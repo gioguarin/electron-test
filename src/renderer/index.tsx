@@ -13,8 +13,10 @@ if (!rootElement) {
 
 // Create React root and render app
 const root = ReactDOM.createRoot(rootElement)
+
+// Log version for debugging
+console.log('App Version: 2.0 - Fixed Layout')
+
 root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
+  <App />
 )

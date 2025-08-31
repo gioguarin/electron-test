@@ -46,10 +46,8 @@ function createWindow () {
   mainWindow.loadFile(path.join(__dirname, '..', '..', 'dist', 'index.html'))
   log.info('Loaded React app')
 
-  // Open DevTools in development
-  if (process.env.NODE_ENV === 'development') {
-    mainWindow.webContents.openDevTools()
-  }
+  // Open DevTools for debugging
+  mainWindow.webContents.openDevTools()
 
   // Handle window closed
   mainWindow.on('closed', () => {

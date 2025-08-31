@@ -13,6 +13,8 @@
   flex: 1;
   display: flex;
   overflow: hidden;
+  height: 100vh;
+  width: calc(100vw - 48px); /* Subtract activity bar width */
 }
 
 .editor-area {

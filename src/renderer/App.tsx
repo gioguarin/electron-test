@@ -23,40 +23,48 @@ const AppContent: React.FC = () => {
   const [activeTool, setActiveTool] = useState<string | null>(null)
   const [registeredTools, setRegisteredTools] = useState<Tool[]>([])
   const [selectedActivity, setSelectedActivity] = useState<string>('tools')
-  const { visibility, sizes, togglePanel, setPanelSize } = usePanelContext()
+  const { visibility, sizes, togglePanel, setPanelSize, showPanel, hidePanel } = usePanelContext()
 
   useEffect(() => {
     // Initialize tool registry
     const registry = ToolRegistry.getInstance()
     
-    // Register available tools
-    registry.register('subnet-calculator', {
-      name: 'Subnet Calculator',
-      description: 'Calculate network addresses, broadcast addresses, and host ranges',
-      icon: '🌐',
-      category: 'networking'
-    })
+    // Only register tools if not already registered
+    if (!registry.getTool('subnet-calculator')) {
+      registry.register('subnet-calculator', {
+        name: 'Subnet Calculator',
+        description: 'Calculate network addresses, broadcast addresses, and host ranges',
+        icon: '🌐',
+        category: 'networking'
+      })
+    }
 
-    registry.register('vlsm-calculator', {
-      name: 'VLSM Calculator',
-      description: 'Variable Length Subnet Mask calculator for efficient IP allocation',
-      icon: '📊',
-      category: 'networking'
-    })
+    if (!registry.getTool('vlsm-calculator')) {
+      registry.register('vlsm-calculator', {
+        name: 'VLSM Calculator',
+        description: 'Variable Length Subnet Mask calculator for efficient IP allocation',
+        icon: '📊',
+        category: 'networking'
+      })
+    }
 
-    registry.register('ping-tool', {
-      name: 'Ping Tool',
-      description: 'Test network connectivity to hosts',
-      icon: '📡',
-      category: 'diagnostics'
-    })
+    if (!registry.getTool('ping-tool')) {
+      registry.register('ping-tool', {
+        name: 'Ping Tool',
+        description: 'Test network connectivity to hosts',
+        icon: '📡',
+        category: 'diagnostics'
+      })
+    }
 
-    registry.register('port-scanner', {
-      name: 'Port Scanner',
-      description: 'Scan for open ports on target hosts',
-      icon: '🔍',
-      category: 'security'
-    })
+    if (!registry.getTool('port-scanner')) {
+      registry.register('port-scanner', {
+        name: 'Port Scanner',
+        description: 'Scan for open ports on target hosts',
+        icon: '🔍',
+        category: 'security'
+      })
+    }
 
     // Update registered tools state
     setRegisteredTools(registry.getAllTools())
@@ -98,22 +106,31 @@ const AppContent: React.FC = () => {
   }
 
   const handleSidePanelSizeChange = useCallback((newSizes: number[] | undefined) => {
-    if (newSizes && newSizes[0]) {
+    if (!newSizes) return
+    
+    // Only process if side panel is visible
+    if (visibility.sidePanel && newSizes[0] !== undefined) {
       setPanelSize('sidePanel', newSizes[0])
     }
-  }, [setPanelSize])
+  }, [setPanelSize, visibility.sidePanel])
 
   const handleTerminalSizeChange = useCallback((newSizes: number[] | undefined) => {
-    if (newSizes && newSizes[1]) {
+    if (!newSizes) return
+    
+    // For vertical split, save the terminal size (second pane)
+    if (visibility.terminal && newSizes.length > 1 && newSizes[1] !== undefined) {
       setPanelSize('terminal', newSizes[1])
     }
-  }, [setPanelSize])
+  }, [setPanelSize, visibility.terminal])
 
   const handleAssistantSizeChange = useCallback((newSizes: number[] | undefined) => {
-    if (newSizes && newSizes[1]) {
+    if (!newSizes) return
+    
+    // For horizontal split, save the assistant size (second pane)
+    if (visibility.assistant && newSizes.length > 1 && newSizes[1] !== undefined) {
       setPanelSize('assistant', newSizes[1])
     }
-  }, [setPanelSize])
+  }, [setPanelSize, visibility.assistant])
 
   return (
     <div className="app">
@@ -132,7 +149,7 @@ const AppContent: React.FC = () => {
         >
           {visibility.sidePanel && (
             <Allotment.Pane 
-              minSize={200} 
+              minSize={180} 
               maxSize={600}
               preferredSize={sizes.sidePanel}
             >
@@ -148,14 +165,13 @@ const AppContent: React.FC = () => {
           <Allotment.Pane>
             <Allotment 
               vertical
-              className="editor-vertical-split"
-              onChange={handleAssistantSizeChange}
+              className="main-vertical-split"
+              onChange={handleTerminalSizeChange}
             >
               <Allotment.Pane>
                 <Allotment 
-                  vertical
-                  className="terminal-vertical-split"
-                  onChange={handleTerminalSizeChange}
+                  className="editor-horizontal-split"
+                  onChange={handleAssistantSizeChange}
                 >
                   <Allotment.Pane>
                     <div className="editor-area">
@@ -185,25 +201,25 @@ const AppContent: React.FC = () => {
                     </div>
                   </Allotment.Pane>
                   
-                  {visibility.terminal && (
+                  {visibility.assistant && (
                     <Allotment.Pane 
-                      minSize={100} 
+                      minSize={250} 
                       maxSize={600}
-                      preferredSize={sizes.terminal}
+                      preferredSize={sizes.assistant}
                     >
-                      <TerminalPanel />
+                      <AssistantPanel />
                     </Allotment.Pane>
                   )}
                 </Allotment>
               </Allotment.Pane>
               
-              {visibility.assistant && (
+              {visibility.terminal && (
                 <Allotment.Pane 
-                  minSize={250} 
+                  minSize={150} 
                   maxSize={600}
-                  preferredSize={sizes.assistant}
+                  preferredSize={sizes.terminal}
                 >
-                  <AssistantPanel />
+                  <TerminalPanel />
                 </Allotment.Pane>
               )}
             </Allotment>
