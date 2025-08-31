@@ -1,0 +1,123 @@
+name: Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-linux:
+    name: Build for Linux
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build Linux app
+      run: npm run make
+      env:
+        NODE_ENV: production
+        
+    - name: Upload Linux artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: linux-build
+        path: |
+          out/make/deb/x64/*.deb
+          out/make/zip/linux/x64/*.zip
+        retention-days: 7
+
+  build-windows:
+    name: Build for Windows
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build Windows app
+      run: npm run make
+      env:
+        NODE_ENV: production
+        
+    - name: Upload Windows artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: windows-build
+        path: |
+          out/make/squirrel.windows/x64/*.exe
+          out/make/squirrel.windows/x64/*.nupkg
+          out/make/zip/win32/x64/*.zip
+        retention-days: 7
+
+  build-macos:
+    name: Build for macOS
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build macOS app
+      run: npm run make
+      env:
+        NODE_ENV: production
+        
+    - name: Upload macOS artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: macos-build
+        path: |
+          out/make/*.dmg
+          out/make/zip/darwin/**/*.zip
+        retention-days: 7
+
+  test-builds:
+    name: Test Built Applications
+    needs: [build-linux, build-windows, build-macos]
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v3
+      
+    - name: List artifacts
+      run: |
+        echo "Build artifacts:"
+        ls -la
+        find . -type f -name "*.deb" -o -name "*.exe" -o -name "*.dmg" -o -name "*.zip" | head -20
+        
+    - name: Check artifact sizes
+      run: |
+        echo "Checking artifact sizes..."
+        find . -type f \( -name "*.deb" -o -name "*.exe" -o -name "*.dmg" -o -name "*.zip" \) -exec ls -lh {} \;

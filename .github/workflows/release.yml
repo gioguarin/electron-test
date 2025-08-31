@@ -1,0 +1,175 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., v1.0.1)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      version: ${{ steps.get_version.outputs.version }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Get version
+      id: get_version
+      run: |
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          VERSION="${{ github.event.inputs.version }}"
+        else
+          VERSION=${GITHUB_REF#refs/tags/}
+        fi
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "Version: $VERSION"
+        
+    - name: Generate changelog
+      id: changelog
+      run: |
+        echo "# Changelog" > CHANGELOG_TEMP.md
+        echo "" >> CHANGELOG_TEMP.md
+        echo "## What's Changed" >> CHANGELOG_TEMP.md
+        git log --pretty=format:"- %s (%h)" $(git describe --tags --abbrev=0 2>/dev/null || echo "")..HEAD >> CHANGELOG_TEMP.md || echo "- Initial release" >> CHANGELOG_TEMP.md
+        cat CHANGELOG_TEMP.md
+        
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.get_version.outputs.version }}
+        release_name: Network Tools Hub ${{ steps.get_version.outputs.version }}
+        body_path: CHANGELOG_TEMP.md
+        draft: false
+        prerelease: false
+
+  build-and-release:
+    name: Build and Upload Release Assets
+    needs: create-release
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux
+            artifact_name: linux-build
+          - os: windows-latest
+            platform: windows
+            artifact_name: windows-build
+          - os: macos-latest
+            platform: macos
+            artifact_name: macos-build
+    
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Update version in package.json
+      run: |
+        VERSION=${{ needs.create-release.outputs.version }}
+        VERSION=${VERSION#v}
+        npm version $VERSION --no-git-tag-version || echo "Version already set"
+        
+    - name: Build application
+      run: npm run make
+      env:
+        NODE_ENV: production
+        
+    - name: Package artifacts
+      id: package
+      shell: bash
+      run: |
+        VERSION=${{ needs.create-release.outputs.version }}
+        mkdir -p release-assets
+        
+        if [ "${{ matrix.platform }}" = "linux" ]; then
+          cp out/make/deb/x64/*.deb release-assets/network-tools-hub-${VERSION}-amd64.deb || true
+          cp out/make/zip/linux/x64/*.zip release-assets/network-tools-hub-${VERSION}-linux-x64.zip || true
+        elif [ "${{ matrix.platform }}" = "windows" ]; then
+          cp out/make/squirrel.windows/x64/*.exe release-assets/network-tools-hub-${VERSION}-setup.exe || true
+          cp out/make/zip/win32/x64/*.zip release-assets/network-tools-hub-${VERSION}-win32-x64.zip || true
+        elif [ "${{ matrix.platform }}" = "macos" ]; then
+          cp out/make/*.dmg release-assets/network-tools-hub-${VERSION}.dmg || true
+          cp out/make/zip/darwin/**/*.zip release-assets/network-tools-hub-${VERSION}-darwin.zip || true
+        fi
+        
+        ls -la release-assets/
+        
+    - name: Upload Release Assets
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const fs = require('fs');
+          const path = require('path');
+          
+          const uploadUrl = '${{ needs.create-release.outputs.upload_url }}';
+          const assetsDir = 'release-assets';
+          
+          const files = fs.readdirSync(assetsDir);
+          
+          for (const file of files) {
+            const filePath = path.join(assetsDir, file);
+            const stats = fs.statSync(filePath);
+            
+            if (stats.isFile()) {
+              console.log(`Uploading ${file}...`);
+              
+              const data = fs.readFileSync(filePath);
+              const contentType = file.endsWith('.deb') ? 'application/vnd.debian.binary-package' :
+                                file.endsWith('.exe') ? 'application/x-msdownload' :
+                                file.endsWith('.dmg') ? 'application/x-apple-diskimage' :
+                                file.endsWith('.zip') ? 'application/zip' : 'application/octet-stream';
+              
+              try {
+                await github.rest.repos.uploadReleaseAsset({
+                  url: uploadUrl,
+                  name: file,
+                  data: data,
+                  headers: {
+                    'content-type': contentType,
+                    'content-length': stats.size
+                  }
+                });
+                console.log(`Successfully uploaded ${file}`);
+              } catch (error) {
+                console.error(`Failed to upload ${file}:`, error.message);
+              }
+            }
+          }
+
+  publish-release:
+    name: Publish Release
+    needs: [create-release, build-and-release]
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Publish release
+      run: |
+        echo "Release ${{ needs.create-release.outputs.version }} has been published!"
+        echo "View at: https://github.com/${{ github.repository }}/releases/tag/${{ needs.create-release.outputs.version }}"

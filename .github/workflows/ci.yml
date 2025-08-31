@@ -1,0 +1,112 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint:
+    name: Lint Code
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Run ESLint
+      run: npm run lint
+      continue-on-error: true
+      
+    - name: Check for lint errors
+      run: |
+        if npm run lint 2>&1 | grep -q "error"; then
+          echo "Linting errors found. Please fix them."
+          npm run lint
+          exit 1
+        fi
+
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Run tests
+      run: |
+        if [ -f "package.json" ] && grep -q "\"test\":" package.json; then
+          npm test
+        else
+          echo "No tests configured yet"
+        fi
+
+  security:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Run npm audit
+      run: npm audit --audit-level=moderate
+      continue-on-error: true
+      
+    - name: Run npm audit fix (dry run)
+      run: npm audit fix --dry-run
+
+  code-quality:
+    name: Code Quality Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Check for console.log statements
+      run: |
+        echo "Checking for console.log statements in production code..."
+        if grep -r "console\.log" src/ --exclude-dir=node_modules --exclude="*.test.js" --exclude="*.spec.js"; then
+          echo "Warning: console.log statements found in source code"
+        fi
+        
+    - name: Check for TODO comments
+      run: |
+        echo "Checking for TODO comments..."
+        grep -r "TODO\|FIXME\|HACK" src/ --exclude-dir=node_modules || echo "No TODO comments found"
