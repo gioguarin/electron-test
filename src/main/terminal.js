@@ -10,16 +10,52 @@ class TerminalManager {
   }
 
   createTerminal(cols = 80, rows = 24) {
-    const shell = os.platform() === 'win32' ? 'powershell.exe' : process.env.SHELL || '/bin/bash'
+    // Determine the shell based on platform
+    let shell
+    const platform = os.platform()
+    
+    if (platform === 'win32') {
+      shell = 'powershell.exe'
+    } else if (platform === 'darwin') {
+      // macOS - use zsh by default (macOS Catalina+) or bash
+      shell = process.env.SHELL || '/bin/zsh' || '/bin/bash'
+    } else {
+      // Linux
+      shell = process.env.SHELL || '/bin/bash'
+    }
+    
     const id = `terminal-${this.nextId++}`
     
     try {
+      // Set up environment variables
+      const env = { ...process.env }
+      
+      // Fix PATH for macOS apps (they often have limited PATH)
+      if (platform === 'darwin') {
+        // Add common paths for macOS
+        const additionalPaths = [
+          '/usr/local/bin',
+          '/opt/homebrew/bin',
+          '/opt/homebrew/sbin',
+          '/usr/bin',
+          '/bin',
+          '/usr/sbin',
+          '/sbin'
+        ]
+        const currentPath = env.PATH || ''
+        const pathSet = new Set(currentPath.split(':'))
+        additionalPaths.forEach(p => pathSet.add(p))
+        env.PATH = Array.from(pathSet).filter(Boolean).join(':')
+      }
+      
+      // Create terminal with proper options
       const terminal = pty.spawn(shell, [], {
-        name: 'xterm-color',
+        name: 'xterm-256color',
         cols,
         rows,
-        cwd: process.env.HOME || process.env.USERPROFILE,
-        env: process.env
+        cwd: process.env.HOME || process.env.USERPROFILE || '/',
+        env,
+        encoding: 'utf8'
       })
 
       this.terminals.set(id, terminal)

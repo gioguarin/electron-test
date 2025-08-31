@@ -9,12 +9,14 @@ interface MarkdownViewerProps {
   filePath: string
   editable?: boolean
   onSave?: (content: string) => void
+  onNavigate?: (path: string) => void
 }
 
 export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ 
   filePath, 
   editable = false,
-  onSave 
+  onSave,
+  onNavigate 
 }) => {
   const [content, setContent] = useState('')
   const [isEditing, setIsEditing] = useState(false)
@@ -138,31 +140,61 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
               remarkPlugins={[remarkGfm]}
               rehypePlugins={[rehypeHighlight]}
               components={{
-                // Custom link handler to open external links
+                // Custom link handler to open external links and handle internal navigation
                 a: ({ href, children }) => {
-                  const isExternal = href?.startsWith('http')
+                  const isExternal = href?.startsWith('http') || href?.startsWith('https')
+                  const isMarkdownFile = href?.endsWith('.md')
+                  
                   return (
                     <a 
                       href={href}
                       onClick={(e) => {
-                        if (isExternal) {
-                          e.preventDefault()
+                        e.preventDefault() // Always prevent default navigation
+                        
+                        if (isExternal && href) {
+                          // Open external links in browser
                           window.electronAPI.openExternal(href)
+                        } else if (isMarkdownFile && href && onNavigate) {
+                          // Navigate to internal markdown files
+                          // Handle relative paths from current file location
+                          const currentDir = filePath.substring(0, filePath.lastIndexOf('/'))
+                          let targetPath = href
+                          
+                          // If the link is relative, resolve it from current directory
+                          if (!href.startsWith('/')) {
+                            if (currentDir) {
+                              targetPath = `${currentDir}/${href}`
+                            } else {
+                              targetPath = href
+                            }
+                            // Normalize the path (remove ./ and resolve ../)
+                            targetPath = targetPath.replace(/\/\.\//, '/')
+                            while (targetPath.includes('../')) {
+                              targetPath = targetPath.replace(/[^/]+\/\.\.\//, '')
+                            }
+                          }
+                          
+                          onNavigate(targetPath)
                         }
+                        // For other links (like anchors), do nothing to prevent navigation
                       }}
                       className={isExternal ? 'external-link' : 'internal-link'}
+                      style={{ cursor: 'pointer' }}
                     >
                       {children}
                     </a>
                   )
                 },
                 // Style code blocks
-                code: ({ inline, className, children }) => {
-                  if (inline) {
-                    return <code className="inline-code">{children}</code>
+                code: ({ className, children, ...props }) => {
+                  const match = /language-(\w+)/.exec(className || '')
+                  const isInline = !match
+                  
+                  if (isInline) {
+                    return <code className="inline-code" {...props}>{children}</code>
                   }
                   return (
-                    <code className={className}>
+                    <code className={className} {...props}>
                       {children}
                     </code>
                   )

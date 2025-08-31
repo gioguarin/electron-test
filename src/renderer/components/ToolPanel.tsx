@@ -1,8 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { ToolRegistry } from './ToolRegistry'
-import { PingTool } from './tools/PingTool'
-import { TracerouteTool } from './tools/TracerouteTool'
-import { ASNLookupTool } from './tools/ASNLookupTool'
+import { BGPRouteServerTool } from './tools/BGPRouteServerTool'
 import './ToolPanel.css'
 
 interface ToolPanelProps {
@@ -37,7 +35,7 @@ export const ToolPanel: React.FC<ToolPanelProps> = ({ toolId }) => {
         containerRef.current.innerHTML = ''
 
         // Check if it's a React component first
-        if (['ping-tool', 'traceroute-tool', 'asn-lookup'].includes(toolId)) {
+        if (toolId === 'bgp-route-server') {
           setLoading(false)
           return // Let React render it below
         }
@@ -91,16 +89,8 @@ export const ToolPanel: React.FC<ToolPanelProps> = ({ toolId }) => {
   }, [toolId])
 
   // Render React components directly
-  if (toolId === 'ping-tool') {
-    return <PingTool />
-  }
-  
-  if (toolId === 'traceroute-tool') {
-    return <TracerouteTool />
-  }
-  
-  if (toolId === 'asn-lookup') {
-    return <ASNLookupTool />
+  if (toolId === 'bgp-route-server') {
+    return <BGPRouteServerTool />
   }
 
   return (

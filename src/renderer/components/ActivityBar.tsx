@@ -24,6 +24,7 @@ export const ActivityBar: React.FC<ActivityBarProps> = ({
   onToggleAssistant
 }) => {
   const topActivities: Activity[] = [
+    { id: 'home', icon: '🏠', title: 'Home', action: 'select' },
     { id: 'tools', icon: '🔧', title: 'Network Tools (Ctrl+B)', action: 'select' },
     { id: 'knowledge', icon: '📚', title: 'Knowledge Base', action: 'select' },
     { id: 'terminal', icon: '💻', title: 'Terminal (Ctrl+`)', action: 'toggle' },

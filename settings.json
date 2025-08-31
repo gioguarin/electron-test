@@ -22,7 +22,7 @@
     "scrollback": 1000
   },
   "panels": {
-    "defaultLayout": "full",
+    "defaultLayout": "minimal",
     "sidebarPosition": "left",
     "sidebarWidth": 240,
     "terminalHeight": 200,

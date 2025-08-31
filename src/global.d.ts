@@ -58,11 +58,16 @@ interface ElectronAPI {
     onTracerouteData: (callback: (data: any) => void) => () => void
     onAsnData: (callback: (data: any) => void) => () => void
     onBgpData: (callback: (data: any) => void) => () => void
+    // Route Server API
+    connectRouteServer: (host: string) => Promise<{ success: boolean; sessionId?: string; error?: string }>
+    sendRouteServerCommand: (sessionId: string, command: string) => Promise<{ success: boolean; error?: string }>
+    disconnectRouteServer: (sessionId: string) => Promise<{ success: boolean; error?: string }>
+    onRouteServerData: (callback: (data: any) => void) => () => void
   }
   
   // Terminal API
   terminal: {
-    create: (cols: number, rows: number) => Promise<string>
+    create: (cols: number, rows: number) => Promise<{ id: string; pid: number }>
     write: (id: string, data: string) => Promise<void>
     resize: (id: string, cols: number, rows: number) => Promise<void>
     kill: (id: string) => Promise<void>

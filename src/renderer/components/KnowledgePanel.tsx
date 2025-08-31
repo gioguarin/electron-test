@@ -4,15 +4,17 @@ import './KnowledgePanel.css'
 
 interface KnowledgePanelProps {
   selectedFile: string | null
+  onFileSelect?: (path: string) => void
 }
 
-export const KnowledgePanel: React.FC<KnowledgePanelProps> = ({ selectedFile }) => {
+export const KnowledgePanel: React.FC<KnowledgePanelProps> = ({ selectedFile, onFileSelect }) => {
   return (
     <div className="knowledge-panel">
       {selectedFile ? (
         <MarkdownViewer 
           filePath={selectedFile}
           editable={true}
+          onNavigate={onFileSelect}
         />
       ) : (
         <div className="no-file-selected">

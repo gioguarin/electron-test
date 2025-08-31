@@ -76,6 +76,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onBgpData: (callback) => {
       ipcRenderer.on('network-bgp-data', (event, data) => callback(data))
       return () => ipcRenderer.removeAllListeners('network-bgp-data')
+    },
+    // Route Server API
+    connectRouteServer: (host) => ipcRenderer.invoke('route-server-connect', host),
+    sendRouteServerCommand: (sessionId, command) => ipcRenderer.invoke('route-server-command', sessionId, command),
+    disconnectRouteServer: (sessionId) => ipcRenderer.invoke('route-server-disconnect', sessionId),
+    onRouteServerData: (callback) => {
+      ipcRenderer.on('route-server-data', (event, data) => callback(data))
+      return () => ipcRenderer.removeAllListeners('route-server-data')
     }
   },
   

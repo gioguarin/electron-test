@@ -262,6 +262,37 @@ function registerIpcHandlers() {
     })
   })
 
+  // BGP Route Server handlers
+  ipcMain.handle('route-server-connect', async (event, host) => {
+    try {
+      const result = await networkTools.connectRouteServer(host, 23, event.sender)
+      return result
+    } catch (error) {
+      log.error('Route server connect error:', error)
+      return { success: false, error: error.message }
+    }
+  })
+  
+  ipcMain.handle('route-server-command', async (event, sessionId, command) => {
+    try {
+      const result = await networkTools.sendRouteServerCommand(sessionId, command)
+      return result
+    } catch (error) {
+      log.error('Route server command error:', error)
+      return { success: false, error: error.message }
+    }
+  })
+  
+  ipcMain.handle('route-server-disconnect', async (event, sessionId) => {
+    try {
+      const result = await networkTools.disconnectRouteServer(sessionId)
+      return result
+    } catch (error) {
+      log.error('Route server disconnect error:', error)
+      return { success: false, error: error.message }
+    }
+  })
+
   // Register terminal handlers
   registerTerminalHandlers()
 

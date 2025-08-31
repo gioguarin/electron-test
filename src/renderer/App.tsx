@@ -10,6 +10,7 @@ import { TerminalPanel } from './components/TerminalPanel'
 import { AssistantPanel } from './components/AssistantPanel'
 import { KnowledgePanel } from './components/KnowledgePanel'
 import { Settings } from './components/Settings'
+import { HomePage } from './components/HomePage'
 import { PanelProvider, usePanelContext } from './contexts/PanelContext'
 import './styles/App.css'
 import './styles/Allotment.css'
@@ -25,9 +26,10 @@ export interface Tool {
 const AppContent: React.FC = () => {
   const [activeTool, setActiveTool] = useState<string | null>(null)
   const [registeredTools, setRegisteredTools] = useState<Tool[]>([])
-  const [selectedActivity, setSelectedActivity] = useState<string>('tools')
+  const [selectedActivity, setSelectedActivity] = useState<string>('home')
   const [selectedKnowledgeFile, setSelectedKnowledgeFile] = useState<string | null>(null)
   const [showSettings, setShowSettings] = useState(false)
+  const [showHome, setShowHome] = useState(true)
   const { visibility, sizes, togglePanel, setPanelSize, showPanel, hidePanel } = usePanelContext()
 
   useEffect(() => {
@@ -70,47 +72,11 @@ const AppContent: React.FC = () => {
       })
     }
 
-    if (!registry.getTool('ping-tool')) {
-      registry.register('ping-tool', {
-        name: 'Ping Tool',
-        description: 'Test network connectivity to hosts',
-        icon: '📡',
-        category: 'diagnostics'
-      })
-    }
-
-    if (!registry.getTool('port-scanner')) {
-      registry.register('port-scanner', {
-        name: 'Port Scanner',
-        description: 'Scan for open ports on target hosts',
-        icon: '🔍',
-        category: 'security'
-      })
-    }
-
-    if (!registry.getTool('ping-tool')) {
-      registry.register('ping-tool', {
-        name: 'Ping Tool',
-        description: 'Test network connectivity to hosts',
-        icon: '🏓',
-        category: 'diagnostics'
-      })
-    }
-
-    if (!registry.getTool('traceroute-tool')) {
-      registry.register('traceroute-tool', {
-        name: 'Traceroute',
-        description: 'Trace packet path to destination',
-        icon: '🗺️',
-        category: 'diagnostics'
-      })
-    }
-
-    if (!registry.getTool('asn-lookup')) {
-      registry.register('asn-lookup', {
-        name: 'ASN Lookup',
-        description: 'Look up AS numbers and BGP info',
-        icon: '🌐',
+    if (!registry.getTool('bgp-route-server')) {
+      registry.register('bgp-route-server', {
+        name: 'BGP Route Server',
+        description: 'Connect to route servers for traceroute and BGP queries',
+        icon: '🔀',
         category: 'networking'
       })
     }
@@ -155,13 +121,21 @@ const AppContent: React.FC = () => {
 
   const handleToolSelect = (toolId: string) => {
     setActiveTool(toolId)
+    setShowHome(false)
   }
 
   const handleActivitySelect = (activity: string) => {
     if (activity === 'settings') {
       setShowSettings(true)
+      setShowHome(false)
+    } else if (activity === 'home') {
+      setShowHome(true)
+      setActiveTool(null)
+      setSelectedActivity('home')
+      hidePanel('sidePanel')
     } else {
       setSelectedActivity(activity)
+      setShowHome(false)
       if (!visibility.sidePanel) {
         togglePanel('sidePanel')
       }
@@ -243,36 +217,60 @@ const AppContent: React.FC = () => {
                 >
                   <Allotment.Pane>
                     <div className="editor-area">
-                      {showSettings ? (
-                        <Settings onClose={() => setShowSettings(false)} />
+                      {showHome ? (
+                        <HomePage 
+                          onNavigateToTool={(toolId) => {
+                            setActiveTool(toolId)
+                            setShowHome(false)
+                            setSelectedActivity('tools')
+                            if (!visibility.sidePanel) {
+                              showPanel('sidePanel')
+                            }
+                          }}
+                          onNavigateToKnowledge={(file) => {
+                            setSelectedActivity('knowledge')
+                            setShowHome(false)
+                            if (file) {
+                              setSelectedKnowledgeFile(file)
+                            }
+                            if (!visibility.sidePanel) {
+                              showPanel('sidePanel')
+                            }
+                          }}
+                        />
+                      ) : showSettings ? (
+                        <Settings onClose={() => {
+                          setShowSettings(false)
+                          setShowHome(true)
+                        }} />
                       ) : selectedActivity === 'knowledge' ? (
-                        <KnowledgePanel selectedFile={selectedKnowledgeFile} />
+                        <KnowledgePanel 
+                          selectedFile={selectedKnowledgeFile}
+                          onFileSelect={setSelectedKnowledgeFile}
+                        />
                       ) : activeTool ? (
                         <ToolPanel toolId={activeTool} />
                       ) : (
-                        <div className="welcome-screen">
-                          <h1>Network Tools Hub</h1>
-                          <p>Select a tool from the sidebar to get started</p>
-                          <div className="keyboard-shortcuts">
-                            <h3>Keyboard Shortcuts</h3>
-                            <div className="shortcut">
-                              <kbd>Ctrl</kbd> + <kbd>B</kbd>
-                              <span>Toggle Sidebar</span>
-                            </div>
-                            <div className="shortcut">
-                              <kbd>Ctrl</kbd> + <kbd>`</kbd>
-                              <span>Toggle Terminal</span>
-                            </div>
-                            <div className="shortcut">
-                              <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>A</kbd>
-                              <span>Toggle AI Assistant</span>
-                            </div>
-                            <div className="shortcut">
-                              <kbd>Ctrl</kbd> + <kbd>,</kbd>
-                              <span>Open Settings</span>
-                            </div>
-                          </div>
-                        </div>
+                        <HomePage 
+                          onNavigateToTool={(toolId) => {
+                            setActiveTool(toolId)
+                            setShowHome(false)
+                            setSelectedActivity('tools')
+                            if (!visibility.sidePanel) {
+                              showPanel('sidePanel')
+                            }
+                          }}
+                          onNavigateToKnowledge={(file) => {
+                            setSelectedActivity('knowledge')
+                            setShowHome(false)
+                            if (file) {
+                              setSelectedKnowledgeFile(file)
+                            }
+                            if (!visibility.sidePanel) {
+                              showPanel('sidePanel')
+                            }
+                          }}
+                        />
                       )}
                     </div>
                   </Allotment.Pane>

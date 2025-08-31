@@ -1,8 +1,13 @@
 const { spawn } = require('child_process')
 const net = require('net')
 const log = require('electron-log/main')
+const { Telnet } = require('telnet-client')
 
 class NetworkTools {
+  constructor() {
+    this.telnetSessions = new Map()
+  }
+
   /**
    * Execute ping command
    * @param {string} host - Hostname or IP to ping
@@ -266,6 +271,153 @@ class NetworkTools {
         error: error.message
       })
     })
+  }
+
+  // BGP Route Server Methods
+  async connectRouteServer(host, port = 23, eventSender) {
+    const sessionId = `telnet-${Date.now()}`
+    const connection = new Telnet()
+    
+    let outputBuffer = ''
+    
+    // Capture all output events
+    connection.on('data', (data) => {
+      outputBuffer += data.toString()
+      if (eventSender) {
+        eventSender.send('route-server-data', {
+          sessionId,
+          data: data.toString()
+        })
+      }
+    })
+    
+    connection.on('writedone', () => {
+      log.debug('Write completed')
+    })
+    
+    connection.on('timeout', () => {
+      log.warn('Connection timeout')
+      if (eventSender) {
+        eventSender.send('route-server-data', {
+          sessionId,
+          data: '\n[Connection timeout]\n'
+        })
+      }
+    })
+    
+    const params = {
+      host: host,
+      port: port,
+      negotiationMandatory: false,
+      timeout: 20000,
+      shellPrompt: /route-server[.\w-]*[>#]/,  // Match prompts like 'route-server.he.net>'
+      loginPrompt: false,  // No username prompt, only password
+      passwordPrompt: /Password:/i,
+      password: 'rviews',  // HE route servers use 'rviews' as password
+      ors: '\r\n',
+      sendTimeout: 5000,
+      execTimeout: 30000,
+      verbose: true,  // Enable verbose output
+      initialLFCR: false  // Don't send initial line feed
+    }
+    
+    try {
+      // Send initial connection message
+      if (eventSender) {
+        eventSender.send('route-server-data', {
+          sessionId,
+          data: `Connecting to ${host}:${port}...\n`
+        })
+      }
+      
+      await connection.connect(params)
+      this.telnetSessions.set(sessionId, { connection, eventSender })
+      
+      // Send success message
+      if (eventSender) {
+        eventSender.send('route-server-data', {
+          sessionId,
+          data: '\n[Connection established]\n'
+        })
+      }
+      
+      return {
+        success: true,
+        sessionId
+      }
+    } catch (error) {
+      log.error('Route server connection error:', error)
+      if (eventSender) {
+        eventSender.send('route-server-data', {
+          sessionId,
+          data: `\n[Connection failed: ${error.message}]\n`
+        })
+      }
+      return {
+        success: false,
+        error: error.message
+      }
+    }
+  }
+  
+  async sendRouteServerCommand(sessionId, command) {
+    const session = this.telnetSessions.get(sessionId)
+    if (!session) {
+      throw new Error('Session not found')
+    }
+    
+    const { connection, eventSender } = session
+    
+    try {
+      // Send the command
+      if (eventSender) {
+        eventSender.send('route-server-data', {
+          sessionId,
+          data: `\n> ${command}\n`
+        })
+      }
+      
+      // Execute command and get response
+      const response = await connection.exec(command, { timeout: 30000 })
+      
+      // Send response back to renderer
+      if (eventSender && response) {
+        eventSender.send('route-server-data', {
+          sessionId,
+          data: response
+        })
+      }
+      
+      return { success: true }
+    } catch (error) {
+      if (eventSender) {
+        eventSender.send('route-server-data', {
+          sessionId,
+          data: `\n[Error: ${error.message}]\n`
+        })
+      }
+      return { success: false, error: error.message }
+    }
+  }
+  
+  async disconnectRouteServer(sessionId) {
+    const session = this.telnetSessions.get(sessionId)
+    if (session) {
+      const { connection, eventSender } = session
+      try {
+        if (eventSender) {
+          eventSender.send('route-server-data', {
+            sessionId,
+            data: '\n[Disconnecting...]\n'
+          })
+        }
+        await connection.end()
+      } catch (error) {
+        // Ignore errors on disconnect
+      }
+      this.telnetSessions.delete(sessionId)
+    }
+    return { success: true }
   }
 }
 

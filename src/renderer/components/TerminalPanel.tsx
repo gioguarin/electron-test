@@ -26,6 +26,28 @@ export const TerminalPanel: React.FC = () => {
     }
   }, [])
 
+  // Initialize terminals when tabs change
+  useEffect(() => {
+    const timeoutIds: NodeJS.Timeout[] = []
+    
+    tabs.forEach(tab => {
+      // Check if this tab needs initialization
+      if (!tab.terminalId && terminalRefs.current.has(tab.id)) {
+        // Give React a moment to ensure the DOM is ready
+        const timeoutId = setTimeout(() => {
+          if (terminalRefs.current.has(tab.id)) {
+            initializeTerminal(tab.id)
+          }
+        }, 100)
+        timeoutIds.push(timeoutId)
+      }
+    })
+    
+    return () => {
+      timeoutIds.forEach(id => clearTimeout(id))
+    }
+  }, [tabs])
+
   // Clean up on unmount
   useEffect(() => {
     return () => {
@@ -46,15 +68,27 @@ export const TerminalPanel: React.FC = () => {
     
     setTabs(prev => [...prev, newTab])
     setActiveTab(tabId)
-    
-    // Initialize terminal after state update
-    setTimeout(() => initializeTerminal(tabId), 0)
+    // Don't initialize here - let useEffect handle it
   }
 
   const initializeTerminal = async (tabId: string) => {
     const container = terminalRefs.current.get(tabId)
     if (!container) {
       console.error('Container not found for tab:', tabId)
+      // Retry once after a delay
+      setTimeout(() => {
+        const retryContainer = terminalRefs.current.get(tabId)
+        if (retryContainer) {
+          initializeTerminal(tabId)
+        }
+      }, 200)
+      return
+    }
+
+    // Check if already initialized
+    const existingTab = tabs.find(t => t.id === tabId)
+    if (existingTab?.terminalId) {
+      console.log('Terminal already initialized for tab:', tabId)
       return
     }
 
@@ -102,10 +136,11 @@ export const TerminalPanel: React.FC = () => {
       fitAddon.fit()
 
       // Create PTY terminal on backend
-      const { id: terminalId } = await window.electronAPI.terminal.create(
+      const result = await window.electronAPI.terminal.create(
         terminal.cols,
         terminal.rows
       )
+      const terminalId = result.id
 
       // Set up data listener
       const cleanupData = window.electronAPI.terminal.onData(terminalId, (data: string) => {

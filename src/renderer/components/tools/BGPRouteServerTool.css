@@ -1,0 +1,246 @@
+.bgp-route-server-tool {
+  padding: 20px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+}
+
+.tool-header {
+  margin-bottom: 10px;
+}
+
+.tool-header h2 {
+  margin: 0 0 8px 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: #cccccc;
+}
+
+.tool-header p {
+  margin: 0;
+  color: #8b8b8b;
+  font-size: 14px;
+}
+
+.server-controls {
+  display: flex;
+  gap: 20px;
+  align-items: flex-end;
+  padding: 15px;
+  background-color: #2d2d30;
+  border-radius: 6px;
+  border: 1px solid #3c3c3c;
+}
+
+.command-controls {
+  display: flex;
+  gap: 15px;
+  align-items: flex-end;
+  padding: 15px;
+  background-color: #2d2d30;
+  border-radius: 6px;
+  border: 1px solid #3c3c3c;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.control-group.flex-grow {
+  flex: 1;
+}
+
+.control-group label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #cccccc;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.control-group select,
+.control-group input {
+  padding: 8px 12px;
+  background-color: #1e1e1e;
+  border: 1px solid #3c3c3c;
+  border-radius: 4px;
+  color: #cccccc;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.control-group select:hover,
+.control-group input:hover {
+  border-color: #007acc;
+}
+
+.control-group select:focus,
+.control-group input:focus {
+  outline: none;
+  border-color: #007acc;
+  box-shadow: 0 0 0 1px #007acc33;
+}
+
+.control-group select:disabled,
+.control-group input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.control-group input::placeholder {
+  color: #6b6b6b;
+}
+
+.connection-controls {
+  display: flex;
+  gap: 10px;
+}
+
+.connect-btn,
+.disconnect-btn,
+.send-btn,
+.clear-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.connect-btn {
+  background-color: #0e639c;
+  color: white;
+}
+
+.connect-btn:hover:not(:disabled) {
+  background-color: #1177bb;
+}
+
+.connect-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.disconnect-btn {
+  background-color: #5a5a5a;
+  color: white;
+}
+
+.disconnect-btn:hover {
+  background-color: #6a6a6a;
+}
+
+.send-btn {
+  background-color: #0e639c;
+  color: white;
+  white-space: nowrap;
+}
+
+.send-btn:hover:not(:disabled) {
+  background-color: #1177bb;
+}
+
+.send-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.output-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 300px;
+  background-color: #1e1e1e;
+  border: 1px solid #3c3c3c;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.output-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  background-color: #2d2d30;
+  border-bottom: 1px solid #3c3c3c;
+}
+
+.output-header h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #cccccc;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.clear-btn {
+  padding: 4px 12px;
+  background-color: #3c3c3c;
+  color: #cccccc;
+  font-size: 12px;
+}
+
+.clear-btn:hover {
+  background-color: #4a4a4a;
+}
+
+.output-content {
+  flex: 1;
+  margin: 0;
+  padding: 15px;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #cccccc;
+  background-color: #1e1e1e;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.info-section {
+  padding: 20px;
+  background-color: #252526;
+  border-radius: 6px;
+  border: 1px solid #3c3c3c;
+}
+
+.info-section h4 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #cccccc;
+}
+
+.info-section h4:not(:first-child) {
+  margin-top: 20px;
+}
+
+.info-section ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.info-section li {
+  margin: 6px 0;
+  color: #8b8b8b;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.info-section code {
+  padding: 2px 6px;
+  background-color: #1e1e1e;
+  border: 1px solid #3c3c3c;
+  border-radius: 3px;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 12px;
+  color: #d7ba7d;
+}
