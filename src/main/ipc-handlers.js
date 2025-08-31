@@ -27,12 +27,12 @@ function registerIpcHandlers() {
     if (window) {
       try {
         switch(toolName) {
-          case 'subnet-calculator':
-            log.info('Loading subnet calculator...')
-            await window.loadFile(path.join(__dirname, '..', 'renderer', 'pages', 'subnet-calculator.html'))
-            break
-          default:
-            log.warn(`Unknown tool: ${toolName}`)
+        case 'subnet-calculator':
+          log.info('Loading subnet calculator...')
+          await window.loadFile(path.join(__dirname, '..', 'renderer', 'pages', 'subnet-calculator.html'))
+          break
+        default:
+          log.warn(`Unknown tool: ${toolName}`)
         }
       } catch (error) {
         log.error('Error loading tool:', error)
