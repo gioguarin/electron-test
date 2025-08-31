@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Tools Hub</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: #333;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px 40px;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 28px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header .subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-top: 5px;
+            margin-left: 40px;
+        }
+
+        .container {
+            flex: 1;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-y: auto;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            width: 100%;
+            max-width: 1200px;
+            margin-top: 20px;
+        }
+
+        .tool-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .tool-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .tool-card.disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .tool-card.disabled:hover {
+            transform: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .tool-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        .tool-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .tool-description {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .tool-status {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-available {
+            background: #e6f4ea;
+            color: #1e8e3e;
+        }
+
+        .status-coming-soon {
+            background: #fef7e0;
+            color: #ea8600;
+        }
+
+        .category-section {
+            width: 100%;
+            max-width: 1200px;
+            margin-bottom: 30px;
+        }
+
+        .category-title {
+            color: white;
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 15px;
+            padding-left: 5px;
+            opacity: 0.95;
+        }
+
+        .footer {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px;
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+        }
+
+        .search-bar {
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 30px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            background: white;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            box-shadow: 0 5px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .search-input::placeholder {
+            color: #999;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tool-card {
+            animation: fadeIn 0.5s ease backwards;
+        }
+
+        .tool-card:nth-child(1) { animation-delay: 0.1s; }
+        .tool-card:nth-child(2) { animation-delay: 0.2s; }
+        .tool-card:nth-child(3) { animation-delay: 0.3s; }
+        .tool-card:nth-child(4) { animation-delay: 0.4s; }
+        .tool-card:nth-child(5) { animation-delay: 0.5s; }
+        .tool-card:nth-child(6) { animation-delay: 0.6s; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>
+            <span>🛠️</span>
+            Network Tools Hub
+        </h1>
+        <div class="subtitle">Your toolkit for network administration and diagnostics</div>
+    </div>
+
+    <div class="container">
+        <div class="search-bar">
+            <input type="text" class="search-input" id="searchInput" placeholder="Search tools...">
+        </div>
+
+        <div class="category-section">
+            <h2 class="category-title">Network Calculators</h2>
+            <div class="tools-grid" id="calculatorTools">
+                <div class="tool-card" data-tool="subnet-calculator" data-available="true">
+                    <div class="tool-icon">📊</div>
+                    <h3 class="tool-title">Subnet Calculator</h3>
+                    <p class="tool-description">Calculate network addresses, broadcast addresses, and host ranges for any IP address and subnet mask.</p>
+                    <span class="tool-status status-available">Available</span>
+                </div>
+
+                <div class="tool-card disabled" data-tool="vlsm-calculator" data-available="false">
+                    <div class="tool-icon">🔢</div>
+                    <h3 class="tool-title">VLSM Calculator</h3>
+                    <p class="tool-description">Variable Length Subnet Masking calculator for efficient IP address allocation.</p>
+                    <span class="tool-status status-coming-soon">Coming Soon</span>
+                </div>
+
+                <div class="tool-card disabled" data-tool="wildcard-calculator" data-available="false">
+                    <div class="tool-icon">🎭</div>
+                    <h3 class="tool-title">Wildcard Mask Calculator</h3>
+                    <p class="tool-description">Convert between subnet masks and wildcard masks for ACL configuration.</p>
+                    <span class="tool-status status-coming-soon">Coming Soon</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="category-section">
+            <h2 class="category-title">Network Diagnostics</h2>
+            <div class="tools-grid" id="diagnosticTools">
+                <div class="tool-card disabled" data-tool="ping-tool" data-available="false">
+                    <div class="tool-icon">📡</div>
+                    <h3 class="tool-title">Ping Tool</h3>
+                    <p class="tool-description">Test network connectivity and measure round-trip time to remote hosts.</p>
+                    <span class="tool-status status-coming-soon">Coming Soon</span>
+                </div>
+
+                <div class="tool-card disabled" data-tool="port-scanner" data-available="false">
+                    <div class="tool-icon">🔍</div>
+                    <h3 class="tool-title">Port Scanner</h3>
+                    <p class="tool-description">Scan for open ports on local or remote hosts for security assessment.</p>
+                    <span class="tool-status status-coming-soon">Coming Soon</span>
+                </div>
+
+                <div class="tool-card disabled" data-tool="dns-lookup" data-available="false">
+                    <div class="tool-icon">🌐</div>
+                    <h3 class="tool-title">DNS Lookup</h3>
+                    <p class="tool-description">Query DNS records and perform reverse DNS lookups.</p>
+                    <span class="tool-status status-coming-soon">Coming Soon</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Network Tools Hub v1.0.0 | Electron v<span id="electron-version"></span> | Node v<span id="node-version"></span></p>
+    </div>
+
+    <script src="landing-renderer.js"></script>
+</body>
+</html>

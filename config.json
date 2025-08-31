@@ -1,0 +1,18 @@
+{
+  "development": {
+    "devTools": true,
+    "hotReload": true,
+    "logLevel": "debug"
+  },
+  "production": {
+    "devTools": false,
+    "hotReload": false,
+    "logLevel": "error"
+  },
+  "appInfo": {
+    "name": "Subnet Calculator",
+    "version": "1.0.0",
+    "author": "Your Name",
+    "description": "A simple subnet calculator built with Electron"
+  }
+}
