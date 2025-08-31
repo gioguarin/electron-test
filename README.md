@@ -13,14 +13,41 @@ A sophisticated VS Code-inspired Electron desktop application for network admini
 - **Custom Title Bar**: Integrated window controls and layout toggles
 
 ### Network Tools
-- **Subnet Calculator**: Calculate network addresses, broadcast addresses, and host ranges
-  - Support for both CIDR notation and dotted decimal subnet masks
-  - IP class identification
-  - Binary representation of IP addresses
-  - Usable host range calculation
-  - Copy results to clipboard
-  - Calculation history (last 50 calculations)
-  - Persistent storage using localStorage
+
+#### Subnet Calculator
+- Calculate network addresses, broadcast addresses, and host ranges
+- Support for both CIDR notation and dotted decimal subnet masks
+- IP class identification
+- Binary representation of IP addresses
+- Usable host range calculation
+- Copy results to clipboard
+- Calculation history (last 50 calculations)
+- Persistent storage using localStorage
+
+#### Ping Tool 🏓
+- Test network connectivity to any host
+- Configurable packet count
+- Real-time output display
+- Statistics showing packet loss and RTT (min/avg/max)
+- Cross-platform support (Windows/Mac/Linux)
+- Copy output to clipboard
+
+#### Traceroute Tool 🗺️
+- Trace the path packets take to reach a destination
+- Visual hop-by-hop breakdown with response times
+- Shows hostname and IP for each hop
+- One-click ASN lookup for any hop IP address
+- Real-time output display
+- Cross-platform traceroute/tracert support
+
+#### ASN Lookup Tool 🌐
+- Look up Autonomous System Number information for any IP
+- Uses Hurricane Electric's whois service (whois.he.net)
+- Alternative BGP lookup via Route Views telnet service
+- Shows ASN, network prefix, country, and organization
+- IPv4 and IPv6 support
+- History of recent lookups saved locally
+- Quick lookup from traceroute results
 
 ### 📚 Knowledge Repository
 - **Built-in Documentation Manager**: Browse and edit project documentation directly in the app
@@ -43,12 +70,22 @@ A sophisticated VS Code-inspired Electron desktop application for network admini
 - **Live Preview**: Settings apply immediately as you change them
 - **Import/Export**: Direct JSON editing for easy configuration sharing
 
+### Terminal Integration 💻
+- **Full Terminal Emulator**: Integrated xterm.js terminal with VS Code theme
+- **Multiple Tabs**: Create and manage multiple terminal sessions
+- **Cross-Platform Shell**: Automatically uses bash (Mac/Linux) or PowerShell (Windows)
+- **Real PTY Support**: Full shell functionality with node-pty
+- **Tab Management**: Create, close, and switch between terminals
+- **Terminal Actions**: Clear output, kill processes
+- **Auto-Resize**: Terminals automatically fit to panel size
+- **Web Links**: Clickable URLs in terminal output
+
 ### Additional Features
-- **Terminal Panel**: Integrated terminal interface (functionality coming soon)
 - **AI Assistant Panel**: Ready for LLM integration
 - **Component Architecture**: Modular, reusable components with TypeScript
 - **React + TypeScript**: Modern frontend stack
 - **Webpack Build System**: Optimized builds for development and production
+- **Hot Module Replacement**: Fast development iteration
 
 ### Keyboard Shortcuts
 - `Ctrl+B` - Toggle sidebar
@@ -133,11 +170,17 @@ electron-test/
 │   │   │   ├── ActivityBar.tsx  # VS Code-style activity bar
 │   │   │   ├── SidePanel.tsx    # Side panel with tool navigation
 │   │   │   ├── ToolPanel.tsx    # Tool rendering component
-│   │   │   ├── TerminalPanel.tsx # Terminal interface
+│   │   │   ├── TerminalPanel.tsx # Terminal interface with xterm.js
 │   │   │   ├── AssistantPanel.tsx # AI assistant interface
+│   │   │   ├── Settings.tsx     # VS Code-style settings component
+│   │   │   ├── TitleBar.tsx     # Custom title bar with window controls
 │   │   │   ├── KnowledgePanel.tsx # Knowledge repository main view
 │   │   │   ├── KnowledgeExplorer.tsx # File explorer with fuzzy search
-│   │   │   └── MarkdownViewer.tsx # Markdown viewer/editor
+│   │   │   ├── MarkdownViewer.tsx # Markdown viewer/editor
+│   │   │   └── tools/           # Network tool components
+│   │   │       ├── PingTool.tsx # Ping tool interface
+│   │   │       ├── TracerouteTool.tsx # Traceroute interface
+│   │   │       └── ASNLookupTool.tsx # ASN lookup interface
 │   │   ├── contexts/            # React contexts
 │   │   │   └── PanelContext.tsx # Panel state management
 │   │   └── styles/              # CSS styles
