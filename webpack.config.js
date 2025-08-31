@@ -33,6 +33,9 @@ module.exports = [
     node: {
       __dirname: false,
       __filename: false
+    },
+    externals: {
+      'node-pty': 'commonjs2 node-pty'
     }
   },
   // Preload script configuration

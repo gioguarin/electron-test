@@ -1,5 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { ToolRegistry } from './ToolRegistry'
+import { PingTool } from './tools/PingTool'
+import { TracerouteTool } from './tools/TracerouteTool'
+import { ASNLookupTool } from './tools/ASNLookupTool'
 import './ToolPanel.css'
 
 interface ToolPanelProps {
@@ -33,7 +36,13 @@ export const ToolPanel: React.FC<ToolPanelProps> = ({ toolId }) => {
         // Clear container
         containerRef.current.innerHTML = ''
 
-        // Load the appropriate component based on toolId
+        // Check if it's a React component first
+        if (['ping-tool', 'traceroute-tool', 'asn-lookup'].includes(toolId)) {
+          setLoading(false)
+          return // Let React render it below
+        }
+
+        // Load the appropriate legacy component based on toolId
         let toolComponent = null
 
         switch (toolId) {
@@ -48,7 +57,7 @@ export const ToolPanel: React.FC<ToolPanelProps> = ({ toolId }) => {
             containerRef.current.innerHTML = `
               <div class="tool-placeholder">
                 <h2>${toolId}</h2>
-                <p>This tool is not yet implemented in the React version.</p>
+                <p>This tool is not yet implemented.</p>
                 <p>Coming soon!</p>
               </div>
             `
@@ -80,6 +89,19 @@ export const ToolPanel: React.FC<ToolPanelProps> = ({ toolId }) => {
       }
     }
   }, [toolId])
+
+  // Render React components directly
+  if (toolId === 'ping-tool') {
+    return <PingTool />
+  }
+  
+  if (toolId === 'traceroute-tool') {
+    return <TracerouteTool />
+  }
+  
+  if (toolId === 'asn-lookup') {
+    return <ASNLookupTool />
+  }
 
   return (
     <div className="tool-panel">

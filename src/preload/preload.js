@@ -51,6 +51,53 @@ contextBridge.exposeInMainWorld('electronAPI', {
   saveSettings: (settings) => ipcRenderer.invoke('save-settings', settings),
   resetSettings: () => ipcRenderer.invoke('reset-settings'),
   
+  // Network Tools API
+  networkTools: {
+    ping: (host, count) => ipcRenderer.invoke('network-ping', host, count),
+    traceroute: (host) => ipcRenderer.invoke('network-traceroute', host),
+    asnLookup: (ip) => ipcRenderer.invoke('network-asn-lookup', ip),
+    bgpLookup: (ip) => ipcRenderer.invoke('network-bgp-lookup', ip),
+    dnsLookup: (hostname) => ipcRenderer.invoke('network-dns-lookup', hostname),
+    onPingData: (callback) => {
+      ipcRenderer.on('network-ping-data', (event, data) => callback(data))
+      return () => ipcRenderer.removeAllListeners('network-ping-data')
+    },
+    onTracerouteData: (callback) => {
+      ipcRenderer.on('network-traceroute-data', (event, data) => callback(data))
+      return () => ipcRenderer.removeAllListeners('network-traceroute-data')
+    },
+    onAsnData: (callback) => {
+      ipcRenderer.on('network-asn-data', (event, data) => callback(data))
+      return () => ipcRenderer.removeAllListeners('network-asn-data')
+    },
+    onBgpData: (callback) => {
+      ipcRenderer.on('network-bgp-data', (event, data) => callback(data))
+      return () => ipcRenderer.removeAllListeners('network-bgp-data')
+    }
+  },
+  
+  // Terminal API
+  terminal: {
+    create: (cols, rows) => ipcRenderer.invoke('terminal-create', cols, rows),
+    write: (id, data) => ipcRenderer.invoke('terminal-write', id, data),
+    resize: (id, cols, rows) => ipcRenderer.invoke('terminal-resize', id, cols, rows),
+    kill: (id) => ipcRenderer.invoke('terminal-kill', id),
+    onData: (id, callback) => {
+      const channel = `terminal-data-${id}`
+      const listener = (event, data) => callback(data)
+      ipcRenderer.on(channel, listener)
+      // Return cleanup function
+      return () => ipcRenderer.removeListener(channel, listener)
+    },
+    onExit: (id, callback) => {
+      const channel = `terminal-exit-${id}`
+      const listener = (event, data) => callback(data)
+      ipcRenderer.on(channel, listener)
+      // Return cleanup function
+      return () => ipcRenderer.removeListener(channel, listener)
+    }
+  },
+  
   // Storage API for calculation history
   storage: {
     getHistory: () => {

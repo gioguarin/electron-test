@@ -3,6 +3,8 @@ const path = require('path')
 const fs = require('fs').promises
 const log = require('electron-log/main')
 const { calculateSubnetInfo } = require('../utils/subnet-calculator')
+const { registerTerminalHandlers } = require('./terminal')
+const networkTools = require('./network-tools')
 
 /**
  * Register all IPC handlers
@@ -196,6 +198,72 @@ function registerIpcHandlers() {
       throw error
     }
   })
+
+  // Network Tools handlers
+  ipcMain.handle('network-ping', (event, host, count) => {
+    return new Promise((resolve) => {
+      const results = []
+      networkTools.ping(host, count, 
+        (data) => {
+          event.sender.send('network-ping-data', data)
+        },
+        (result) => {
+          resolve(result)
+        }
+      )
+    })
+  })
+
+  ipcMain.handle('network-traceroute', (event, host) => {
+    return new Promise((resolve) => {
+      const results = []
+      networkTools.traceroute(host,
+        (data) => {
+          event.sender.send('network-traceroute-data', data)
+        },
+        (result) => {
+          resolve(result)
+        }
+      )
+    })
+  })
+
+  ipcMain.handle('network-asn-lookup', (event, ip) => {
+    return new Promise((resolve) => {
+      networkTools.lookupASN(ip,
+        (data) => {
+          event.sender.send('network-asn-data', data)
+        },
+        (result) => {
+          resolve(result)
+        }
+      )
+    })
+  })
+
+  ipcMain.handle('network-bgp-lookup', (event, ip) => {
+    return new Promise((resolve) => {
+      networkTools.lookupBGPInfo(ip,
+        (data) => {
+          event.sender.send('network-bgp-data', data)
+        },
+        (result) => {
+          resolve(result)
+        }
+      )
+    })
+  })
+
+  ipcMain.handle('network-dns-lookup', (event, hostname) => {
+    return new Promise((resolve) => {
+      networkTools.dnsLookup(hostname, (result) => {
+        resolve(result)
+      })
+    })
+  })
+
+  // Register terminal handlers
+  registerTerminalHandlers()
 
   log.info('IPC handlers registered')
 }

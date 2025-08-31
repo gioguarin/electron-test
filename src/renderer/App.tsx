@@ -88,6 +88,33 @@ const AppContent: React.FC = () => {
       })
     }
 
+    if (!registry.getTool('ping-tool')) {
+      registry.register('ping-tool', {
+        name: 'Ping Tool',
+        description: 'Test network connectivity to hosts',
+        icon: '🏓',
+        category: 'diagnostics'
+      })
+    }
+
+    if (!registry.getTool('traceroute-tool')) {
+      registry.register('traceroute-tool', {
+        name: 'Traceroute',
+        description: 'Trace packet path to destination',
+        icon: '🗺️',
+        category: 'diagnostics'
+      })
+    }
+
+    if (!registry.getTool('asn-lookup')) {
+      registry.register('asn-lookup', {
+        name: 'ASN Lookup',
+        description: 'Look up AS numbers and BGP info',
+        icon: '🌐',
+        category: 'networking'
+      })
+    }
+
     // Update registered tools state
     setRegisteredTools(registry.getAllTools())
   }, [])

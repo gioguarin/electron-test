@@ -1,80 +1,225 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
+import { Terminal } from '@xterm/xterm'
+import { FitAddon } from '@xterm/addon-fit'
+import { WebLinksAddon } from '@xterm/addon-web-links'
+import '@xterm/xterm/css/xterm.css'
 import '../styles/TerminalPanel.css'
 
 interface TerminalTab {
   id: string
   name: string
-  content: string[]
+  terminalId?: string
+  terminal?: Terminal
+  fitAddon?: FitAddon
 }
 
 export const TerminalPanel: React.FC = () => {
-  const [tabs, setTabs] = useState<TerminalTab[]>([
-    {
-      id: 'terminal-1',
-      name: 'Terminal',
-      content: [
-        'Network Tools Hub Terminal v1.0.0',
-        'Type "help" for available commands',
-        ''
-      ]
+  const [tabs, setTabs] = useState<TerminalTab[]>([])
+  const [activeTab, setActiveTab] = useState<string>('')
+  const terminalRefs = useRef<Map<string, HTMLDivElement>>(new Map())
+  const terminalsMap = useRef<Map<string, { terminal: Terminal, cleanup: () => void }>>(new Map())
+
+  // Initialize first tab on mount
+  useEffect(() => {
+    if (tabs.length === 0) {
+      createNewTab()
     }
-  ])
-  const [activeTab, setActiveTab] = useState('terminal-1')
-  const [currentCommand, setCurrentCommand] = useState('')
+  }, [])
 
-  const handleCommandSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!currentCommand.trim()) return
+  // Clean up on unmount
+  useEffect(() => {
+    return () => {
+      // Kill all terminals
+      terminalsMap.current.forEach(({ cleanup }, id) => {
+        cleanup()
+        window.electronAPI.terminal.kill(id)
+      })
+    }
+  }, [])
 
-    const activeTabData = tabs.find(t => t.id === activeTab)
-    if (!activeTabData) return
-
-    const updatedTabs = tabs.map(tab => {
-      if (tab.id === activeTab) {
-        return {
-          ...tab,
-          content: [
-            ...tab.content,
-            `$ ${currentCommand}`,
-            `Command "${currentCommand}" is not yet implemented`,
-            ''
-          ]
-        }
-      }
-      return tab
-    })
-
-    setTabs(updatedTabs)
-    setCurrentCommand('')
-  }
-
-  const addNewTab = () => {
-    const newTabId = `terminal-${tabs.length + 1}`
+  const createNewTab = async () => {
+    const tabId = `tab-${Date.now()}`
     const newTab: TerminalTab = {
-      id: newTabId,
-      name: `Terminal ${tabs.length + 1}`,
-      content: [
-        'Network Tools Hub Terminal v1.0.0',
-        'Type "help" for available commands',
-        ''
-      ]
+      id: tabId,
+      name: `Terminal ${tabs.length + 1}`
     }
-    setTabs([...tabs, newTab])
-    setActiveTab(newTabId)
+    
+    setTabs(prev => [...prev, newTab])
+    setActiveTab(tabId)
+    
+    // Initialize terminal after state update
+    setTimeout(() => initializeTerminal(tabId), 0)
   }
 
-  const closeTab = (tabId: string) => {
-    if (tabs.length === 1) return // Don't close the last tab
-    
+  const initializeTerminal = async (tabId: string) => {
+    const container = terminalRefs.current.get(tabId)
+    if (!container) {
+      console.error('Container not found for tab:', tabId)
+      return
+    }
+
+    try {
+      // Create xterm.js terminal
+      const terminal = new Terminal({
+        cursorBlink: true,
+        fontSize: 14,
+        fontFamily: 'Consolas, "Courier New", monospace',
+        theme: {
+          background: '#1e1e1e',
+          foreground: '#cccccc',
+          cursor: '#ffffff',
+          cursorAccent: '#000000',
+          selectionBackground: '#4e94ce',
+          selectionForeground: '#ffffff',
+          black: '#000000',
+          red: '#cd3131',
+          green: '#0dbc79',
+          yellow: '#e5e510',
+          blue: '#2472c8',
+          magenta: '#bc3fbc',
+          cyan: '#11a8cd',
+          white: '#e5e5e5',
+          brightBlack: '#666666',
+          brightRed: '#f14c4c',
+          brightGreen: '#23d18b',
+          brightYellow: '#f5f543',
+          brightBlue: '#3b8eea',
+          brightMagenta: '#d670d6',
+          brightCyan: '#29b8db',
+          brightWhite: '#e5e5e5'
+        }
+      })
+
+      // Add addons
+      const fitAddon = new FitAddon()
+      const webLinksAddon = new WebLinksAddon()
+      
+      terminal.loadAddon(fitAddon)
+      terminal.loadAddon(webLinksAddon)
+      
+      // Open terminal in container
+      terminal.open(container)
+      fitAddon.fit()
+
+      // Create PTY terminal on backend
+      const { id: terminalId } = await window.electronAPI.terminal.create(
+        terminal.cols,
+        terminal.rows
+      )
+
+      // Set up data listener
+      const cleanupData = window.electronAPI.terminal.onData(terminalId, (data: string) => {
+        terminal.write(data)
+      })
+
+      // Set up exit listener
+      const cleanupExit = window.electronAPI.terminal.onExit(terminalId, ({ exitCode }: any) => {
+        terminal.write(`\r\n[Process exited with code ${exitCode}]\r\n`)
+        terminal.dispose()
+      })
+
+      // Send terminal input to PTY
+      terminal.onData((data: string) => {
+        window.electronAPI.terminal.write(terminalId, data)
+      })
+
+      // Handle resize
+      terminal.onResize(({ cols, rows }) => {
+        window.electronAPI.terminal.resize(terminalId, cols, rows)
+      })
+
+      // Store terminal and cleanup functions
+      terminalsMap.current.set(terminalId, {
+        terminal,
+        cleanup: () => {
+          cleanupData()
+          cleanupExit()
+          terminal.dispose()
+        }
+      })
+
+      // Update tab with terminal info
+      setTabs(prev => prev.map(tab => 
+        tab.id === tabId 
+          ? { ...tab, terminalId, terminal, fitAddon }
+          : tab
+      ))
+
+      // Handle window resize
+      const handleResize = () => {
+        fitAddon.fit()
+      }
+      window.addEventListener('resize', handleResize)
+      
+      // Store cleanup for this specific terminal
+      const existingCleanup = terminalsMap.current.get(terminalId)?.cleanup
+      if (existingCleanup) {
+        terminalsMap.current.set(terminalId, {
+          terminal,
+          cleanup: () => {
+            existingCleanup()
+            window.removeEventListener('resize', handleResize)
+          }
+        })
+      }
+    } catch (error) {
+      console.error('Failed to initialize terminal:', error)
+    }
+  }
+
+  const closeTab = async (tabId: string) => {
+    if (tabs.length === 1) {
+      // Don't close the last tab, just clear it
+      const tab = tabs[0]
+      if (tab.terminal) {
+        tab.terminal.clear()
+      }
+      return
+    }
+
+    const tab = tabs.find(t => t.id === tabId)
+    if (tab?.terminalId) {
+      const terminalInfo = terminalsMap.current.get(tab.terminalId)
+      if (terminalInfo) {
+        terminalInfo.cleanup()
+        await window.electronAPI.terminal.kill(tab.terminalId)
+        terminalsMap.current.delete(tab.terminalId)
+      }
+    }
+
     const filteredTabs = tabs.filter(t => t.id !== tabId)
     setTabs(filteredTabs)
     
-    if (activeTab === tabId) {
+    if (activeTab === tabId && filteredTabs.length > 0) {
       setActiveTab(filteredTabs[0].id)
     }
   }
 
-  const activeTabData = tabs.find(t => t.id === activeTab)
+  const clearTerminal = () => {
+    const tab = tabs.find(t => t.id === activeTab)
+    if (tab?.terminal) {
+      tab.terminal.clear()
+    }
+  }
+
+  const killTerminal = async () => {
+    const tab = tabs.find(t => t.id === activeTab)
+    if (tab?.terminalId) {
+      await window.electronAPI.terminal.kill(tab.terminalId)
+      // Re-initialize the terminal
+      initializeTerminal(tab.id)
+    }
+  }
+
+  // Resize terminals when tab changes
+  useEffect(() => {
+    const activeTabData = tabs.find(t => t.id === activeTab)
+    if (activeTabData?.fitAddon) {
+      setTimeout(() => {
+        activeTabData.fitAddon?.fit()
+      }, 0)
+    }
+  }, [activeTab, tabs])
 
   return (
     <div className="terminal-panel">
@@ -101,43 +246,32 @@ export const TerminalPanel: React.FC = () => {
               )}
             </div>
           ))}
-          <button className="terminal-tab-add" onClick={addNewTab}>
+          <button className="terminal-tab-add" onClick={createNewTab}>
             +
           </button>
         </div>
         <div className="terminal-actions">
-          <button className="terminal-action" title="Clear Terminal">
+          <button className="terminal-action" title="Clear Terminal" onClick={clearTerminal}>
             <span>Clear</span>
           </button>
-          <button className="terminal-action" title="Split Terminal">
-            <span>Split</span>
-          </button>
-          <button className="terminal-action" title="Kill Terminal">
+          <button className="terminal-action" title="Kill Terminal" onClick={killTerminal}>
             <span>Kill</span>
           </button>
         </div>
       </div>
       
       <div className="terminal-content">
-        <div className="terminal-output">
-          {activeTabData?.content.map((line, index) => (
-            <div key={index} className="terminal-line">
-              {line}
-            </div>
-          ))}
-        </div>
-        
-        <form className="terminal-input-container" onSubmit={handleCommandSubmit}>
-          <span className="terminal-prompt">$</span>
-          <input
-            type="text"
-            className="terminal-input"
-            value={currentCommand}
-            onChange={(e) => setCurrentCommand(e.target.value)}
-            placeholder="Enter command..."
-            autoFocus
+        {tabs.map(tab => (
+          <div
+            key={tab.id}
+            ref={el => {
+              if (el) terminalRefs.current.set(tab.id, el)
+              else terminalRefs.current.delete(tab.id)
+            }}
+            className="terminal-container"
+            style={{ display: tab.id === activeTab ? 'block' : 'none', height: '100%' }}
           />
-        </form>
+        ))}
       </div>
     </div>
   )
