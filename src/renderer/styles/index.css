@@ -18,8 +18,8 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #1e1e1e;
-  color: #cccccc;
+  background-color: var(--color-bg-primary, var(--bg-primary));
+  color: var(--color-text-primary, var(--text-primary));
 }
 
 code {
@@ -33,37 +33,37 @@ code {
 }
 
 ::-webkit-scrollbar-track {
-  background: #2d2d30;
+  background: var(--color-bg-secondary, var(--bg-tertiary));
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #464647;
+  background: var(--scrollbar-thumb, #464647);
   border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #5a5a5c;
+  background: var(--scrollbar-bg, #5a5a5c);
 }
 
 /* Selection */
 ::selection {
-  background-color: #264f78;
-  color: #ffffff;
+  background-color: var(--selection-bg, #264f78);
+  color: white;
 }
 
 /* Focus styles */
 :focus {
-  outline: 1px solid #007acc;
+  outline: 1px solid var(--color-accent, var(--accent-color));
   outline-offset: -1px;
 }
 
 button:focus {
-  outline: 1px solid #007acc;
+  outline: 1px solid var(--color-accent, var(--accent-color));
 }
 
 input:focus,
 textarea:focus,
 select:focus {
-  outline: 1px solid #007acc;
+  outline: 1px solid var(--color-accent, var(--accent-color));
   outline-offset: 0;
 }

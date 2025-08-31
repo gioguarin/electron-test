@@ -4,8 +4,8 @@
   display: flex;
   height: 100vh;
   width: 100vw;
-  background-color: #1e1e1e;
-  color: #cccccc;
+  background-color: var(--color-bg-primary, var(--bg-primary));
+  color: var(--color-text-primary, var(--text-primary));
   overflow: hidden;
 }
 
@@ -23,7 +23,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background-color: #1e1e1e;
+  background-color: var(--color-bg-primary, var(--bg-primary));
   position: relative;
 }
 
@@ -41,12 +41,12 @@
   font-size: 36px;
   font-weight: 300;
   margin-bottom: 16px;
-  color: #cccccc;
+  color: var(--color-text-primary, var(--text-primary));
 }
 
 .welcome-screen p {
   font-size: 16px;
-  color: #8b8b8b;
+  color: var(--color-text-secondary, var(--text-secondary));
   max-width: 500px;
   margin-bottom: 32px;
 }
@@ -55,9 +55,9 @@
 .keyboard-shortcuts {
   margin-top: 48px;
   padding: 24px;
-  background-color: #252526;
+  background-color: var(--color-bg-elevated, var(--bg-secondary));
   border-radius: 8px;
-  border: 1px solid #3c3c3c;
+  border: 1px solid var(--color-border, var(--border-color));
 }
 
 .keyboard-shortcuts h3 {
@@ -65,7 +65,7 @@
   margin-bottom: 20px;
   font-size: 14px;
   font-weight: 600;
-  color: #cccccc;
+  color: var(--color-text-primary, var(--text-primary));
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -83,17 +83,17 @@
 }
 
 .shortcut kbd {
-  background-color: #3c3c3c;
-  border: 1px solid #4a4a4a;
+  background-color: var(--color-bg-tertiary, var(--bg-tertiary));
+  border: 1px solid var(--hover-bg, var(--border-color));
   border-radius: 4px;
   padding: 4px 8px;
   font-family: 'Consolas', 'Courier New', monospace;
   font-size: 11px;
-  color: #cccccc;
+  color: var(--color-text-primary, var(--text-primary));
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .shortcut span {
-  color: #8b8b8b;
+  color: var(--color-text-secondary, var(--text-secondary));
   flex: 1;
 }

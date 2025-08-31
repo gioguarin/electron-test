@@ -215,6 +215,14 @@ const AppContent: React.FC = () => {
           onToggleSidebar={() => togglePanel('sidePanel')}
           onToggleTerminal={() => togglePanel('terminal')}
           onToggleAssistant={() => togglePanel('assistant')}
+          onOpenTool={(toolId) => {
+            setActiveTool(toolId)
+            setShowHome(false)
+            setSelectedActivity('tools')
+            if (!visibility.sidePanel) {
+              showPanel('sidePanel')
+            }
+          }}
         />
         
         <div className="app-main">

@@ -7,13 +7,15 @@ interface ActivityBarProps {
   onToggleSidebar?: () => void
   onToggleTerminal?: () => void
   onToggleAssistant?: () => void
+  onOpenTool?: (toolId: string) => void
 }
 
 interface Activity {
   id: string
   icon: string
   title: string
-  action?: 'select' | 'toggle'
+  action?: 'select' | 'toggle' | 'tool'
+  toolId?: string
 }
 
 export const ActivityBar: React.FC<ActivityBarProps> = ({ 
@@ -21,7 +23,8 @@ export const ActivityBar: React.FC<ActivityBarProps> = ({
   onActivitySelect,
   onToggleSidebar,
   onToggleTerminal,
-  onToggleAssistant
+  onToggleAssistant,
+  onOpenTool
 }) => {
   const isMac = (window as any).electronAPI?.platform === 'darwin'
   const modKey = isMac ? 'Cmd' : 'Ctrl'
@@ -30,11 +33,13 @@ export const ActivityBar: React.FC<ActivityBarProps> = ({
     { id: 'home', icon: '🏠', title: 'Home', action: 'select' },
     { id: 'tools', icon: '🔧', title: `Network Tools (${modKey}+B)`, action: 'toggle' },
     { id: 'knowledge', icon: '📚', title: `Knowledge Base (${modKey}+K)`, action: 'toggle' },
-    { id: 'terminal', icon: '💻', title: `Terminal (${modKey}+T)`, action: 'toggle' },
-    { id: 'assistant', icon: '🤖', title: `AI Assistant (${modKey}+Shift+A)`, action: 'toggle' }
+    { id: 'subnet-calculator', icon: '🌐', title: 'Subnet Calculator', action: 'tool', toolId: 'subnet-calculator' },
+    { id: 'bgp-route-server', icon: '🔀', title: 'BGP Route Server', action: 'tool', toolId: 'bgp-route-server' }
   ]
 
   const bottomActivities: Activity[] = [
+    { id: 'terminal', icon: '💻', title: `Terminal (${modKey}+T)`, action: 'toggle' },
+    { id: 'assistant', icon: '🤖', title: `AI Assistant (${modKey}+Shift+A)`, action: 'toggle' },
     { id: 'settings', icon: '⚙️', title: `Settings (${modKey}+,)`, action: 'select' }
   ]
 
@@ -59,6 +64,11 @@ export const ActivityBar: React.FC<ActivityBarProps> = ({
           break
         default:
           break
+      }
+    } else if (activity.action === 'tool') {
+      // Handle direct tool shortcuts
+      if (activity.toolId) {
+        onOpenTool?.(activity.toolId)
       }
     } else {
       // Handle regular activity selection (Home, Settings)
