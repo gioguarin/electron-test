@@ -4,7 +4,7 @@
     "fontSize": 13,
     "fontFamily": "Consolas, 'Courier New', monospace",
     "showActivityBarLabels": false,
-    "compactMode": true
+    "compactMode": false
   },
   "editor": {
     "wordWrap": "on",

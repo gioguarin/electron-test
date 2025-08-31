@@ -182,6 +182,9 @@ config.json
 # Developer notes (personal documentation)
 devnotes/
 
+# Troubleshooting screenshots
+troubleshooting/
+
 # Electron specific
 electron-builder.yml
 dist_electron/

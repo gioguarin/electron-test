@@ -13,7 +13,7 @@
   flex: 1;
   display: flex;
   overflow: hidden;
-  height: 100vh;
+  height: 100%;
   width: calc(100vw - 48px); /* Subtract activity bar width */
 }
 
@@ -24,6 +24,7 @@
   flex-direction: column;
   overflow: hidden;
   background-color: #1e1e1e;
+  position: relative;
 }
 
 .welcome-screen {
