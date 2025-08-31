@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { MarkdownViewer } from './MarkdownViewer'
 import { VaultSetupDialog } from './VaultSetupDialog'
+import { BookIcon, RocketIcon, LockIcon, FolderIcon, PlusIcon, DocumentIcon, SearchIcon, InfoIcon } from './Icons'
 import './KnowledgePanel.css'
 
 interface KnowledgePanelProps {
@@ -133,7 +134,7 @@ export const KnowledgePanel: React.FC<KnowledgePanelProps> = ({ selectedFile, on
       ) : (
         <div className="no-file-selected">
           <div className="empty-state">
-            <h2>📚 Knowledge Base</h2>
+            <h2><BookIcon size={24} /> Knowledge Base</h2>
             {vaultConfigured === false ? (
               // First-time user message
               <>
@@ -151,16 +152,16 @@ export const KnowledgePanel: React.FC<KnowledgePanelProps> = ({ selectedFile, on
                     fontWeight: 600
                   }}
                 >
-                  🚀 Set up Your Vault
+                  <RocketIcon size={16} /> Set up Your Vault
                 </button>
                 <div className="vault-benefits" style={{ marginTop: '30px', textAlign: 'left', maxWidth: '400px', margin: '30px auto' }}>
                   <h3>Your Knowledge Vault includes:</h3>
                   <ul style={{ lineHeight: '1.8' }}>
-                    <li>🔐 Private, secure storage for your notes</li>
-                    <li>📁 Organized folder structure</li>
-                    <li>📝 Markdown editor with live preview</li>
-                    <li>🔍 Fast, fuzzy search across all documents</li>
-                    <li>📚 Access to public documentation</li>
+                    <li><LockIcon size={14} /> Private, secure storage for your notes</li>
+                    <li><FolderIcon size={14} /> Organized folder structure</li>
+                    <li><PlusIcon size={14} /> Markdown editor with live preview</li>
+                    <li><SearchIcon size={14} /> Fast, fuzzy search across all documents</li>
+                    <li><BookIcon size={14} /> Access to public documentation</li>
                   </ul>
                 </div>
               </>
@@ -172,15 +173,15 @@ export const KnowledgePanel: React.FC<KnowledgePanelProps> = ({ selectedFile, on
                   className="create-document-btn"
                   onClick={() => setIsCreatingNew(true)}
                 >
-                  📝 Create New Document
+                  <PlusIcon size={16} /> Create New Document
                 </button>
                 <div className="quick-tips">
                   <h3>Quick Tips:</h3>
                   <ul>
-                    <li>📁 Navigate through folders in the explorer on the left</li>
-                    <li>📄 Click on any markdown file to view it here</li>
-                    <li>🔍 Use the search box to quickly find files</li>
-                    <li>🕐 Recently modified files show timestamps</li>
+                    <li><FolderIcon size={14} /> Navigate through folders in the explorer on the left</li>
+                    <li><DocumentIcon size={14} /> Click on any markdown file to view it here</li>
+                    <li><SearchIcon size={14} /> Use the search box to quickly find files</li>
+                    <li><InfoIcon size={14} /> Recently modified files show timestamps</li>
                   </ul>
                 </div>
               </>

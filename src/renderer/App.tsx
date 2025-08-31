@@ -61,7 +61,7 @@ const AppContent: React.FC = () => {
       registry.register('subnet-calculator', {
         name: 'Subnet Calculator',
         description: 'Calculate network addresses, broadcast addresses, and host ranges',
-        icon: '🌐',
+        icon: 'network',
         category: 'networking'
       })
     }
@@ -70,7 +70,7 @@ const AppContent: React.FC = () => {
       registry.register('bgp-route-server', {
         name: 'BGP Route Server',
         description: 'Connect to route servers for traceroute and BGP queries',
-        icon: '🔀',
+        icon: 'route',
         category: 'networking'
       })
     }

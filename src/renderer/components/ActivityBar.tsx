@@ -40,18 +40,32 @@ export const ActivityBar: React.FC<ActivityBarProps> = ({
   const modKey = isMac ? 'Cmd' : 'Ctrl'
   
   const topActivities: Activity[] = [
-    { id: 'home', icon: '🏠', title: 'Home', action: 'select' },
-    { id: 'tools', icon: '🔧', title: `Network Tools (${modKey}+B)`, action: 'toggle' },
-    { id: 'knowledge', icon: '📚', title: `Knowledge Base (${modKey}+K)`, action: 'toggle' },
-    { id: 'subnet-calculator', icon: '🌐', title: 'Subnet Calculator', action: 'tool', toolId: 'subnet-calculator' },
-    { id: 'bgp-route-server', icon: '🔀', title: 'BGP Route Server', action: 'tool', toolId: 'bgp-route-server' }
+    { id: 'home', icon: 'home', title: 'Home', action: 'select' },
+    { id: 'tools', icon: 'tools', title: `Network Tools (${modKey}+B)`, action: 'toggle' },
+    { id: 'knowledge', icon: 'book', title: `Knowledge Base (${modKey}+K)`, action: 'toggle' },
+    { id: 'subnet-calculator', icon: 'network', title: 'Subnet Calculator', action: 'tool', toolId: 'subnet-calculator' },
+    { id: 'bgp-route-server', icon: 'route', title: 'BGP Route Server', action: 'tool', toolId: 'bgp-route-server' }
   ]
 
   const bottomActivities: Activity[] = [
-    { id: 'terminal', icon: '💻', title: `Terminal (${modKey}+T)`, action: 'toggle' },
-    { id: 'assistant', icon: '🤖', title: `AI Assistant (${modKey}+Shift+A)`, action: 'toggle' },
-    { id: 'settings', icon: '⚙️', title: `Settings (${modKey}+,)`, action: 'select' }
+    { id: 'terminal', icon: 'terminal', title: `Terminal (${modKey}+T)`, action: 'toggle' },
+    { id: 'assistant', icon: 'atom', title: `AI Assistant (${modKey}+Shift+A)`, action: 'toggle' },
+    { id: 'settings', icon: 'gear', title: `Settings (${modKey}+,)`, action: 'select' }
   ]
+  
+  const renderIcon = (iconName: string) => {
+    switch(iconName) {
+      case 'home': return <HomeIcon size={20} />
+      case 'tools': return <ToolsIcon size={20} />
+      case 'book': return <BookIcon size={20} />
+      case 'network': return <NetworkIcon size={20} />
+      case 'route': return <RouteIcon size={20} />
+      case 'terminal': return <TerminalIcon size={20} />
+      case 'atom': return <AtomAltIcon size={20} />
+      case 'gear': return <GearIcon size={20} />
+      default: return null
+    }
+  }
 
   const handleActivityClick = (activity: Activity) => {
     if (activity.action === 'toggle') {
@@ -98,7 +112,7 @@ export const ActivityBar: React.FC<ActivityBarProps> = ({
             onClick={() => handleActivityClick(activity)}
             title={activity.title}
           >
-            <span className="activity-icon">{activity.icon}</span>
+            {renderIcon(activity.icon)}
           </button>
         ))}
       </div>
@@ -112,7 +126,7 @@ export const ActivityBar: React.FC<ActivityBarProps> = ({
             onClick={() => handleActivityClick(activity)}
             title={activity.title}
           >
-            <span className="activity-icon">{activity.icon}</span>
+            {renderIcon(activity.icon)}
           </button>
         ))}
       </div>

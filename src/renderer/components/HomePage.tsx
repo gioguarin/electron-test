@@ -1,4 +1,5 @@
 import React from 'react'
+import { RouteIcon, NetworkIcon, BookIcon, TerminalIcon, InfoIcon } from './Icons'
 import './HomePage.css'
 
 interface HomePageProps {
@@ -21,25 +22,25 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigateToTool, onNavigate
     { 
       title: 'BGP Route Server', 
       description: 'Connect to global route servers for BGP analysis and network diagnostics',
-      icon: '🔀',
+      icon: 'route',
       action: () => onNavigateToTool?.('bgp-route-server')
     },
     { 
       title: 'Subnet Calculator', 
       description: 'Calculate network addresses and CIDR ranges',
-      icon: '🌐',
+      icon: 'network',
       action: () => onNavigateToTool?.('subnet-calculator')
     },
     { 
       title: 'Knowledge Base', 
       description: 'Browse documentation and tutorials',
-      icon: '📚',
+      icon: 'book',
       action: () => onNavigateToKnowledge?.()
     },
     { 
       title: 'Terminal', 
       description: 'Access integrated terminal',
-      icon: '💻',
+      icon: 'terminal',
       action: () => {
         // This will trigger the terminal panel
         const event = new KeyboardEvent('keydown', {
@@ -51,6 +52,16 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigateToTool, onNavigate
       }
     }
   ]
+  
+  const renderActionIcon = (iconName: string) => {
+    switch(iconName) {
+      case 'route': return <RouteIcon size={32} />
+      case 'network': return <NetworkIcon size={32} />
+      case 'book': return <BookIcon size={32} />
+      case 'terminal': return <TerminalIcon size={32} />
+      default: return null
+    }
+  }
 
   return (
     <div className="home-page">
@@ -64,7 +75,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigateToTool, onNavigate
           <h2>New to Network Tools Hub?</h2>
           <p>Check out our comprehensive guide to get started quickly</p>
           <button className="primary-button" onClick={openTutorial}>
-            📖 Read START HERE Tutorial
+            <BookIcon size={16} /> Read START HERE Tutorial
           </button>
         </div>
       </div>
@@ -74,7 +85,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigateToTool, onNavigate
         <div className="action-grid">
           {quickActions.map((action, index) => (
             <div key={index} className="action-card" onClick={action.action}>
-              <div className="action-icon">{action.icon}</div>
+              <div className="action-icon">{renderActionIcon(action.icon)}</div>
               <h3>{action.title}</h3>
               <p>{action.description}</p>
             </div>
@@ -86,19 +97,19 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigateToTool, onNavigate
         <h2>Key Features</h2>
         <div className="features-grid">
           <div className="feature-item">
-            <h3>🌍 Global BGP Analysis & Diagnostics</h3>
+            <h3><NetworkIcon size={20} /> Global BGP Analysis & Diagnostics</h3>
             <p>Connect to Hurricane Electric route servers worldwide. Run traceroute, ping, and BGP queries from 20+ global locations</p>
           </div>
           <div className="feature-item">
-            <h3>🛠️ Network Planning Tools</h3>
+            <h3><RouteIcon size={20} /> Network Planning Tools</h3>
             <p>Subnet calculator for comprehensive CIDR planning and IP address management</p>
           </div>
           <div className="feature-item">
-            <h3>💻 Integrated Terminal</h3>
+            <h3><TerminalIcon size={20} /> Integrated Terminal</h3>
             <p>Full terminal access with support for your system's default shell for advanced operations</p>
           </div>
           <div className="feature-item">
-            <h3>📚 Knowledge Base</h3>
+            <h3><BookIcon size={20} /> Knowledge Base</h3>
             <p>Built-in documentation viewer and editor with Markdown support and comprehensive tutorials</p>
           </div>
         </div>

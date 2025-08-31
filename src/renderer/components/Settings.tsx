@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { GearIcon, DocumentIcon, TerminalIcon, NetworkIcon, BookIcon, LockIcon } from './Icons'
 import './Settings.css'
 
 interface SettingsProps {
@@ -110,15 +111,26 @@ export const Settings: React.FC<SettingsProps> = ({ onClose }) => {
   }
 
   const categories = [
-    { id: 'appearance', label: 'Appearance', icon: '🎨' },
-    { id: 'editor', label: 'Editor', icon: '📝' },
-    { id: 'terminal', label: 'Terminal', icon: '💻' },
-    { id: 'panels', label: 'Panels', icon: '📐' },
-    { id: 'network', label: 'Network Tools', icon: '🌐' },
-    { id: 'knowledge', label: 'Knowledge Base', icon: '📚' },
-    { id: 'keyboard', label: 'Keyboard', icon: '⌨️' },
-    { id: 'advanced', label: 'Advanced', icon: '⚙️' }
+    { id: 'appearance', label: 'Appearance', icon: 'gear' },
+    { id: 'editor', label: 'Editor', icon: 'document' },
+    { id: 'terminal', label: 'Terminal', icon: 'terminal' },
+    { id: 'panels', label: 'Panels', icon: 'gear' },
+    { id: 'network', label: 'Network Tools', icon: 'network' },
+    { id: 'knowledge', label: 'Knowledge Base', icon: 'book' },
+    { id: 'keyboard', label: 'Keyboard', icon: 'gear' },
+    { id: 'advanced', label: 'Advanced', icon: 'gear' }
   ]
+  
+  const renderCategoryIcon = (iconName: string) => {
+    switch(iconName) {
+      case 'gear': return <GearIcon size={16} />
+      case 'document': return <DocumentIcon size={16} />
+      case 'terminal': return <TerminalIcon size={16} />
+      case 'network': return <NetworkIcon size={16} />
+      case 'book': return <BookIcon size={16} />
+      default: return null
+    }
+  }
 
   const renderSettingsUI = () => {
     switch (activeCategory) {
@@ -348,8 +360,8 @@ export const Settings: React.FC<SettingsProps> = ({ onClose }) => {
                 fontFamily: 'monospace',
                 fontSize: '12px'
               }}>
-                <div>📚 Public Docs: /docs (repository)</div>
-                <div>🔐 Personal Vault: {settings.vaultPath || '~/Documents/KnowledgeVault (default)'}</div>
+                <div><BookIcon size={14} /> Public Docs: /docs (repository)</div>
+                <div><LockIcon size={14} /> Personal Vault: {settings.vaultPath || '~/Documents/KnowledgeVault (default)'}</div>
               </div>
             </div>
 
@@ -360,14 +372,14 @@ export const Settings: React.FC<SettingsProps> = ({ onClose }) => {
                   onClick={() => window.electronAPI.openKnowledgeFolder('vault')}
                   style={{ flex: 1 }}
                 >
-                  🔐 Open My Vault
+                  <LockIcon size={16} /> Open My Vault
                 </button>
                 <button 
                   className="action-button"
                   onClick={() => window.electronAPI.openKnowledgeFolder('docs')}
                   style={{ flex: 1 }}
                 >
-                  📚 Open Public Docs
+                  <BookIcon size={16} /> Open Public Docs
                 </button>
               </div>
             </div>
@@ -416,7 +428,7 @@ export const Settings: React.FC<SettingsProps> = ({ onClose }) => {
             onClick={() => setJsonMode(false)}
             title="UI Mode"
           >
-            🎛️ UI
+            <GearIcon size={16} /> UI
           </button>
           <button 
             className={`settings-mode-toggle ${jsonMode ? 'active' : ''}`}
@@ -441,7 +453,7 @@ export const Settings: React.FC<SettingsProps> = ({ onClose }) => {
                   className={`settings-category ${activeCategory === category.id ? 'active' : ''}`}
                   onClick={() => setActiveCategory(category.id)}
                 >
-                  <span className="category-icon">{category.icon}</span>
+                  <span className="category-icon">{renderCategoryIcon(category.icon)}</span>
                   <span className="category-label">{category.label}</span>
                 </button>
               ))}

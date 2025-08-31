@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Tool } from '../App'
 import { KnowledgeExplorer } from './KnowledgeExplorer'
+import { ChevronDownIcon, ChevronRightIcon, NetworkIcon, RouteIcon } from './Icons'
 import './SidePanel.css'
 
 interface SidePanelProps {
@@ -24,6 +25,14 @@ export const SidePanel: React.FC<SidePanelProps> = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState('')
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(['networking', 'diagnostics', 'security']))
+  
+  const renderToolIcon = (iconName: string) => {
+    switch(iconName) {
+      case 'network': return <NetworkIcon size={16} />
+      case 'route': return <RouteIcon size={16} />
+      default: return null
+    }
+  }
 
   // Group tools by category
   const toolsByCategory = tools.reduce((acc, tool) => {
@@ -77,7 +86,7 @@ export const SidePanel: React.FC<SidePanelProps> = ({
                 className={`tool-item ${activeTool === tool.id ? 'active' : ''}`}
                 onClick={() => onToolSelect(tool.id)}
               >
-                <span className="tool-icon">{tool.icon}</span>
+                <span className="tool-icon">{renderToolIcon(tool.icon)}</span>
                 <span className="tool-name">{tool.name}</span>
               </div>
             ))}
@@ -94,7 +103,7 @@ export const SidePanel: React.FC<SidePanelProps> = ({
                 onClick={() => toggleCategory(category)}
               >
                 <span className="category-arrow">
-                  {expandedCategories.has(category) ? '▼' : '▶'}
+                  {expandedCategories.has(category) ? <ChevronDownIcon size={12} /> : <ChevronRightIcon size={12} />}
                 </span>
                 <span className="category-name">
                   {category.charAt(0).toUpperCase() + category.slice(1)}
@@ -111,7 +120,7 @@ export const SidePanel: React.FC<SidePanelProps> = ({
                       onClick={() => onToolSelect(tool.id)}
                       title={tool.description}
                     >
-                      <span className="tool-icon">{tool.icon}</span>
+                      <span className="tool-icon">{renderToolIcon(tool.icon)}</span>
                       <span className="tool-name">{tool.name}</span>
                     </div>
                   ))}

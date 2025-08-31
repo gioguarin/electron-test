@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import Fuse from 'fuse.js'
 import { VaultSetupDialog } from './VaultSetupDialog'
+import { FolderIcon, FolderOpenIcon, DocumentIcon, RefreshIcon, PlusIcon, LockIcon, RocketIcon } from './Icons'
 import './KnowledgeExplorer.css'
 
 interface FileNode {
@@ -243,9 +244,9 @@ export const KnowledgeExplorer: React.FC<KnowledgeExplorerProps> = ({
 
     const getIcon = () => {
       if (node.type === 'directory') {
-        return isExpanded ? '📂' : '📁'
+        return isExpanded ? <FolderOpenIcon size={16} /> : <FolderIcon size={16} />
       }
-      return '📄'
+      return <DocumentIcon size={16} />
     }
 
     return (
@@ -322,7 +323,7 @@ export const KnowledgeExplorer: React.FC<KnowledgeExplorerProps> = ({
                 <div className="result-rank">#{index + 1}</div>
                 <div className="result-content">
                   <div className="result-name">
-                    📄 {highlightMatch(result.item.name, result.matches?.find(m => m.key === 'name')?.indices)}
+                    <DocumentIcon size={14} /> {highlightMatch(result.item.name, result.matches?.find(m => m.key === 'name')?.indices)}
                   </div>
                   <div className="result-path">
                     {result.item.parent || 'root'}
@@ -351,7 +352,7 @@ export const KnowledgeExplorer: React.FC<KnowledgeExplorerProps> = ({
                 textAlign: 'center',
                 color: 'var(--text-secondary)'
               }}>
-                <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔐</div>
+                <div style={{ marginBottom: '16px' }}><LockIcon size={48} /></div>
                 <h3 style={{ marginBottom: '8px' }}>No Vault Configured</h3>
                 <p style={{ fontSize: '12px', marginBottom: '16px' }}>
                   Set up your personal vault to start creating and organizing documents.
@@ -365,7 +366,7 @@ export const KnowledgeExplorer: React.FC<KnowledgeExplorerProps> = ({
                     fontWeight: 600
                   }}
                 >
-                  🚀 Set up Vault
+                  <RocketIcon size={16} /> Set up Vault
                 </button>
               </div>
             ) : (
@@ -377,7 +378,7 @@ export const KnowledgeExplorer: React.FC<KnowledgeExplorerProps> = ({
                       style={{ paddingLeft: '8px' }}
                       onClick={() => onFileSelect('__new__')}
                     >
-                      <span className="tree-node-icon">📝</span>
+                      <span className="tree-node-icon"><PlusIcon size={16} /></span>
                       <span className="tree-node-name">New Document (Unsaved)</span>
                       <span className="tree-node-badge">NEW</span>
                     </div>
@@ -409,15 +410,15 @@ export const KnowledgeExplorer: React.FC<KnowledgeExplorerProps> = ({
           // Show normal actions for configured users
           <>
             <button className="action-button" onClick={loadFileTree} title="Refresh file tree">
-              <span>🔄</span> <span>Refresh</span>
+              <RefreshIcon size={16} /> <span>Refresh</span>
             </button>
             {onCreateNew && (
               <button className="action-button" onClick={onCreateNew} title="Create new document">
-                <span>📝</span> <span>New</span>
+                <PlusIcon size={16} /> <span>New</span>
               </button>
             )}
             <button className="action-button" onClick={() => window.electronAPI.openKnowledgeFolder('vault')} title="Open vault folder">
-              <span>🔐</span> <span>Vault</span>
+              <LockIcon size={16} /> <span>Vault</span>
             </button>
           </>
         )}
