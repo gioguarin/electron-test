@@ -1,0 +1,95 @@
+.navigation-bar {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  background-color: var(--editor-bg);
+  border-bottom: 1px solid var(--border-color);
+  height: 40px;
+  gap: 12px;
+}
+
+.nav-controls {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.nav-button {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background-color: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.1s, opacity 0.1s;
+  opacity: 0.8;
+}
+
+.nav-button:hover:not(:disabled) {
+  background-color: var(--hover-bg);
+  opacity: 1;
+}
+
+.nav-button:active:not(:disabled) {
+  background-color: var(--active-bg);
+}
+
+.nav-button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.nav-button svg {
+  width: 16px;
+  height: 16px;
+}
+
+.nav-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  overflow: hidden;
+}
+
+.breadcrumb-item {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+/* Theme-specific styles */
+[data-theme="dark"] .navigation-bar {
+  background-color: #1e1e1e;
+  border-bottom-color: #2d2d30;
+}
+
+[data-theme="light"] .navigation-bar {
+  background-color: #f3f3f3;
+  border-bottom-color: #e5e5e5;
+}
+
+[data-theme="high-contrast"] .navigation-bar {
+  background-color: #000000;
+  border-bottom-color: #ffffff;
+}
+
+[data-theme="hacker-green"] .navigation-bar {
+  background-color: #0a0f0a;
+  border-bottom-color: #00ff00;
+}
+
+[data-theme="hacker-green"] .nav-button {
+  color: #00ff00;
+}
+
+[data-theme="hacker-green"] .breadcrumb-item {
+  color: #00ff00;
+}

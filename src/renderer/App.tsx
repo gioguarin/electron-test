@@ -11,7 +11,9 @@ import { AssistantPanel } from './components/AssistantPanel'
 import { KnowledgePanel } from './components/KnowledgePanel'
 import { Settings } from './components/Settings'
 import { HomePage } from './components/HomePage'
+import { NavigationBar } from './components/NavigationBar'
 import { PanelProvider, usePanelContext } from './contexts/PanelContext'
+import { NavigationProvider, useNavigation } from './contexts/NavigationContext'
 import './styles/App.css'
 import './styles/Allotment.css'
 
@@ -31,6 +33,7 @@ const AppContent: React.FC = () => {
   const [showSettings, setShowSettings] = useState(false)
   const [showHome, setShowHome] = useState(true)
   const { visibility, sizes, togglePanel, setPanelSize, showPanel, hidePanel } = usePanelContext()
+  const { pushEntry, goBack, goForward } = useNavigation()
 
   useEffect(() => {
     // Load and apply initial theme
@@ -76,11 +79,84 @@ const AppContent: React.FC = () => {
     setRegisteredTools(registry.getAllTools())
   }, [])
 
+  // Track navigation history
+  useEffect(() => {
+    // Add initial home entry
+    if (showHome) {
+      pushEntry({ type: 'home', title: 'Home' })
+    }
+  }, []) // Only on mount
+  
+  // Track navigation changes
+  useEffect(() => {
+    if (showSettings) {
+      pushEntry({ type: 'settings', title: 'Settings' })
+    } else if (showHome) {
+      pushEntry({ type: 'home', title: 'Home' })
+    } else if (selectedActivity === 'knowledge' && selectedKnowledgeFile) {
+      const fileName = selectedKnowledgeFile.split('/').pop() || 'Document'
+      pushEntry({ type: 'knowledge', id: selectedKnowledgeFile, title: fileName })
+    } else if (activeTool) {
+      const tool = registeredTools.find(t => t.id === activeTool)
+      pushEntry({ type: 'tool', id: activeTool, title: tool?.name || 'Tool' })
+    }
+  }, [showSettings, showHome, selectedActivity, selectedKnowledgeFile, activeTool])
+  
+  // Handle navigation from history
+  const handleNavigation = useCallback((entry: any) => {
+    switch (entry.type) {
+      case 'home':
+        setShowHome(true)
+        setShowSettings(false)
+        setActiveTool(null)
+        setSelectedActivity('home')
+        break
+      case 'settings':
+        setShowSettings(true)
+        setShowHome(false)
+        break
+      case 'tool':
+        setActiveTool(entry.id)
+        setShowHome(false)
+        setShowSettings(false)
+        setSelectedActivity('tools')
+        if (!visibility.sidePanel) {
+          showPanel('sidePanel')
+        }
+        break
+      case 'knowledge':
+        setSelectedKnowledgeFile(entry.id)
+        setSelectedActivity('knowledge')
+        setShowHome(false)
+        setShowSettings(false)
+        if (!visibility.sidePanel) {
+          showPanel('sidePanel')
+        }
+        break
+    }
+  }, [visibility.sidePanel, showPanel])
+
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const isMac = window.electronAPI.platform === 'darwin'
       const modKey = isMac ? e.metaKey : e.ctrlKey
+      
+      // Navigation shortcuts - Alt+Arrow or Cmd/Ctrl+Arrow
+      if ((e.altKey || modKey) && e.key === 'ArrowLeft') {
+        e.preventDefault()
+        const entry = goBack()
+        if (entry) {
+          handleNavigation(entry)
+        }
+      }
+      if ((e.altKey || modKey) && e.key === 'ArrowRight') {
+        e.preventDefault()
+        const entry = goForward()
+        if (entry) {
+          handleNavigation(entry)
+        }
+      }
       
       // Cmd+B (Mac) or Ctrl+B (Windows/Linux) to toggle tools sidebar
       if (modKey && e.key === 'b') {
@@ -142,7 +218,7 @@ const AppContent: React.FC = () => {
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [togglePanel, showSettings, selectedActivity, visibility.sidePanel, showPanel, hidePanel])
+  }, [togglePanel, showSettings, selectedActivity, visibility.sidePanel, showPanel, hidePanel, goBack, goForward, handleNavigation])
 
   const handleToolSelect = (toolId: string) => {
     setActiveTool(toolId)
@@ -282,6 +358,8 @@ const AppContent: React.FC = () => {
                 >
                   <Allotment.Pane>
                     <div className="editor-area">
+                      <NavigationBar onNavigate={handleNavigation} />
+                      <div className="editor-content">
                       {showHome ? (
                         <HomePage 
                           onNavigateToTool={(toolId) => {
@@ -355,6 +433,7 @@ const AppContent: React.FC = () => {
                           }}
                         />
                       )}
+                      </div>
                     </div>
                   </Allotment.Pane>
                   
@@ -390,8 +469,10 @@ const AppContent: React.FC = () => {
 
 export const App: React.FC = () => {
   return (
-    <PanelProvider>
-      <AppContent />
-    </PanelProvider>
+    <NavigationProvider>
+      <PanelProvider>
+        <AppContent />
+      </PanelProvider>
+    </NavigationProvider>
   )
 }

@@ -1,4 +1,14 @@
 import React from 'react'
+import { 
+  HomeIcon, 
+  ToolsIcon, 
+  BookIcon, 
+  NetworkIcon, 
+  RouteIcon, 
+  TerminalIcon, 
+  AtomAltIcon, 
+  GearIcon 
+} from './Icons'
 import './ActivityBar.css'
 
 interface ActivityBarProps {
