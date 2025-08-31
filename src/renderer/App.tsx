@@ -9,6 +9,7 @@ import { SidePanel } from './components/SidePanel'
 import { TerminalPanel } from './components/TerminalPanel'
 import { AssistantPanel } from './components/AssistantPanel'
 import { KnowledgePanel } from './components/KnowledgePanel'
+import { Settings } from './components/Settings'
 import { PanelProvider, usePanelContext } from './contexts/PanelContext'
 import './styles/App.css'
 import './styles/Allotment.css'
@@ -26,9 +27,27 @@ const AppContent: React.FC = () => {
   const [registeredTools, setRegisteredTools] = useState<Tool[]>([])
   const [selectedActivity, setSelectedActivity] = useState<string>('tools')
   const [selectedKnowledgeFile, setSelectedKnowledgeFile] = useState<string | null>(null)
+  const [showSettings, setShowSettings] = useState(false)
   const { visibility, sizes, togglePanel, setPanelSize, showPanel, hidePanel } = usePanelContext()
 
   useEffect(() => {
+    // Load and apply initial theme
+    const loadInitialSettings = async () => {
+      try {
+        const settings = await window.electronAPI.loadSettings()
+        const theme = settings.appearance?.theme || 'dark'
+        document.documentElement.setAttribute('data-theme', theme)
+        
+        if (settings.appearance?.fontSize) {
+          document.documentElement.style.setProperty('--base-font-size', `${settings.appearance.fontSize}px`)
+        }
+      } catch (error) {
+        console.error('Failed to load initial settings:', error)
+        document.documentElement.setAttribute('data-theme', 'dark')
+      }
+    }
+    loadInitialSettings()
+
     // Initialize tool registry
     const registry = ToolRegistry.getInstance()
     
@@ -91,20 +110,34 @@ const AppContent: React.FC = () => {
         e.preventDefault()
         togglePanel('assistant')
       }
+      // Ctrl+, to open settings
+      if ((e.ctrlKey || e.metaKey) && e.key === ',') {
+        e.preventDefault()
+        setShowSettings(true)
+      }
+      // Escape to close settings
+      if (e.key === 'Escape' && showSettings) {
+        e.preventDefault()
+        setShowSettings(false)
+      }
     }
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [togglePanel])
+  }, [togglePanel, showSettings])
 
   const handleToolSelect = (toolId: string) => {
     setActiveTool(toolId)
   }
 
   const handleActivitySelect = (activity: string) => {
-    setSelectedActivity(activity)
-    if (!visibility.sidePanel) {
-      togglePanel('sidePanel')
+    if (activity === 'settings') {
+      setShowSettings(true)
+    } else {
+      setSelectedActivity(activity)
+      if (!visibility.sidePanel) {
+        togglePanel('sidePanel')
+      }
     }
   }
 
@@ -183,7 +216,9 @@ const AppContent: React.FC = () => {
                 >
                   <Allotment.Pane>
                     <div className="editor-area">
-                      {selectedActivity === 'knowledge' ? (
+                      {showSettings ? (
+                        <Settings onClose={() => setShowSettings(false)} />
+                      ) : selectedActivity === 'knowledge' ? (
                         <KnowledgePanel selectedFile={selectedKnowledgeFile} />
                       ) : activeTool ? (
                         <ToolPanel toolId={activeTool} />
@@ -204,6 +239,10 @@ const AppContent: React.FC = () => {
                             <div className="shortcut">
                               <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>A</kbd>
                               <span>Toggle AI Assistant</span>
+                            </div>
+                            <div className="shortcut">
+                              <kbd>Ctrl</kbd> + <kbd>,</kbd>
+                              <span>Open Settings</span>
                             </div>
                           </div>
                         </div>

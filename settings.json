@@ -4,7 +4,7 @@
     "fontSize": 13,
     "fontFamily": "Consolas, 'Courier New', monospace",
     "showActivityBarLabels": false,
-    "compactMode": false
+    "compactMode": true
   },
   "editor": {
     "wordWrap": "on",
@@ -39,7 +39,10 @@
   "knowledge": {
     "defaultView": "tree",
     "showHiddenFiles": false,
-    "fileExtensions": [".md", ".txt"],
+    "fileExtensions": [
+      ".md",
+      ".txt"
+    ],
     "autoRefresh": true,
     "refreshInterval": 5000
   },

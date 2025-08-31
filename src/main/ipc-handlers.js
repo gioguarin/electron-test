@@ -159,6 +159,44 @@ function registerIpcHandlers() {
     }
   })
 
+  // Settings handlers
+  const settingsPath = path.join(__dirname, '..', '..', 'settings.json')
+  
+  ipcMain.handle('load-settings', async () => {
+    try {
+      const data = await fs.readFile(settingsPath, 'utf-8')
+      return JSON.parse(data)
+    } catch (error) {
+      log.error('Error loading settings:', error)
+      // Return default settings if file doesn't exist
+      const defaultSettings = require('../../settings.json')
+      return defaultSettings
+    }
+  })
+
+  ipcMain.handle('save-settings', async (event, settings) => {
+    try {
+      await fs.writeFile(settingsPath, JSON.stringify(settings, null, 2), 'utf-8')
+      log.info('Settings saved successfully')
+      return true
+    } catch (error) {
+      log.error('Error saving settings:', error)
+      throw error
+    }
+  })
+
+  ipcMain.handle('reset-settings', async () => {
+    try {
+      const defaultSettings = require('../../settings.json')
+      await fs.writeFile(settingsPath, JSON.stringify(defaultSettings, null, 2), 'utf-8')
+      log.info('Settings reset to defaults')
+      return defaultSettings
+    } catch (error) {
+      log.error('Error resetting settings:', error)
+      throw error
+    }
+  })
+
   log.info('IPC handlers registered')
 }
 

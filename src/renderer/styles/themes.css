@@ -1,0 +1,80 @@
+/* Dark Theme (default) */
+:root[data-theme="dark"] {
+  --bg-primary: #1e1e1e;
+  --bg-secondary: #252526;
+  --bg-tertiary: #2d2d30;
+  --text-primary: #cccccc;
+  --text-secondary: #8c8c8c;
+  --text-accent: #4ec9b0;
+  --border-color: #3c3c3c;
+  --hover-bg: #2a2a2a;
+  --selection-bg: #094771;
+  --accent-color: #007acc;
+  --accent-hover: #0062a3;
+  --input-bg: #3c3c3c;
+  --editor-bg: #1e1e1e;
+  --error-bg: #5a1d1d;
+  --error-color: #f48771;
+  --error-border: #763030;
+  --warning-color: #ddb700;
+  --success-color: #89d185;
+  --activity-bar-bg: #333333;
+  --sidebar-bg: #252526;
+  --terminal-bg: #1e1e1e;
+  --scrollbar-bg: #424242;
+  --scrollbar-thumb: #4a4a4a;
+}
+
+/* Light Theme */
+:root[data-theme="light"] {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f3f3f3;
+  --bg-tertiary: #e8e8e8;
+  --text-primary: #333333;
+  --text-secondary: #6c6c6c;
+  --text-accent: #0066cc;
+  --border-color: #e1e1e1;
+  --hover-bg: #f0f0f0;
+  --selection-bg: #add6ff;
+  --accent-color: #0066cc;
+  --accent-hover: #0055aa;
+  --input-bg: #ffffff;
+  --editor-bg: #ffffff;
+  --error-bg: #ffeaea;
+  --error-color: #d73a49;
+  --error-border: #fdbfbf;
+  --warning-color: #e36209;
+  --success-color: #28a745;
+  --activity-bar-bg: #2c2c2c;
+  --sidebar-bg: #f3f3f3;
+  --terminal-bg: #ffffff;
+  --scrollbar-bg: #e1e1e1;
+  --scrollbar-thumb: #c1c1c1;
+}
+
+/* High Contrast Theme */
+:root[data-theme="high-contrast"] {
+  --bg-primary: #000000;
+  --bg-secondary: #000000;
+  --bg-tertiary: #0c0c0c;
+  --text-primary: #ffffff;
+  --text-secondary: #ffffff;
+  --text-accent: #00ffff;
+  --border-color: #6fc3df;
+  --hover-bg: #094771;
+  --selection-bg: #094771;
+  --accent-color: #00ffff;
+  --accent-hover: #00cccc;
+  --input-bg: #000000;
+  --editor-bg: #000000;
+  --error-bg: #8b0000;
+  --error-color: #ff6b6b;
+  --error-border: #ff0000;
+  --warning-color: #ffff00;
+  --success-color: #00ff00;
+  --activity-bar-bg: #000000;
+  --sidebar-bg: #000000;
+  --terminal-bg: #000000;
+  --scrollbar-bg: #6fc3df;
+  --scrollbar-thumb: #00ffff;
+}

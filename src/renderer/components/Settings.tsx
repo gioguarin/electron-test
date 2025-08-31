@@ -17,6 +17,17 @@ export const Settings: React.FC<SettingsProps> = ({ onClose }) => {
     loadSettings()
   }, [])
 
+  useEffect(() => {
+    // Apply theme on mount and when settings change
+    const theme = settings.appearance?.theme || 'dark'
+    document.documentElement.setAttribute('data-theme', theme)
+    
+    // Apply font size
+    if (settings.appearance?.fontSize) {
+      document.documentElement.style.setProperty('--base-font-size', `${settings.appearance.fontSize}px`)
+    }
+  }, [settings.appearance?.theme, settings.appearance?.fontSize])
+
   const loadSettings = async () => {
     try {
       const loadedSettings = await window.electronAPI.loadSettings()
