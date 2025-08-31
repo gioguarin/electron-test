@@ -1,0 +1,69 @@
+/* Global styles for the React app */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #1e1e1e;
+  color: #cccccc;
+}
+
+code {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+}
+
+/* Scrollbar Styles */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #2d2d30;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #464647;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #5a5a5c;
+}
+
+/* Selection */
+::selection {
+  background-color: #264f78;
+  color: #ffffff;
+}
+
+/* Focus styles */
+:focus {
+  outline: 1px solid #007acc;
+  outline-offset: -1px;
+}
+
+button:focus {
+  outline: 1px solid #007acc;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: 1px solid #007acc;
+  outline-offset: 0;
+}

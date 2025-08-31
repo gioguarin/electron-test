@@ -1,0 +1,40 @@
+/* Main App Layout */
+
+.app {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  background-color: #1e1e1e;
+  color: #cccccc;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: #1e1e1e;
+}
+
+.welcome-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  padding: 20px;
+}
+
+.welcome-screen h1 {
+  font-size: 36px;
+  font-weight: 300;
+  margin-bottom: 16px;
+  color: #cccccc;
+}
+
+.welcome-screen p {
+  font-size: 16px;
+  color: #8b8b8b;
+  max-width: 500px;
+}

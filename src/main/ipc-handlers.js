@@ -31,6 +31,14 @@ function registerIpcHandlers() {
           log.info('Loading subnet calculator...')
           await window.loadFile(path.join(__dirname, '..', 'renderer', 'pages', 'subnet-calculator.html'))
           break
+        case 'component-test':
+          log.info('Loading component test page...')
+          await window.loadFile(path.join(__dirname, '..', 'renderer', 'pages', 'component-test.html'))
+          break
+        case 'registry-test':
+          log.info('Loading registry test page...')
+          await window.loadFile(path.join(__dirname, '..', 'renderer', 'pages', 'registry-test.html'))
+          break
         default:
           log.warn(`Unknown tool: ${toolName}`)
         }
