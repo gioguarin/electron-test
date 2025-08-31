@@ -27,7 +27,9 @@ export const VaultSetupDialog: React.FC<VaultSetupDialogProps> = ({ onComplete, 
     if (!vaultPath) {
       // Use default path if none specified
       const defaultVaultPath = await window.electronAPI.getVaultPath()
-      await handleSetPath(defaultVaultPath)
+      if (defaultVaultPath) {
+        await handleSetPath(defaultVaultPath)
+      }
     } else {
       await handleSetPath(vaultPath)
     }

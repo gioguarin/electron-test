@@ -34,8 +34,11 @@ interface ElectronAPI {
   getKnowledgeTree: () => Promise<any>
   readKnowledgeFile: (filePath: string) => Promise<string>
   saveKnowledgeFile: (filePath: string, content: string) => Promise<boolean>
-  openKnowledgeFolder: () => Promise<void>
+  openKnowledgeFolder: (location?: string) => Promise<void>
   openExternal: (url: string) => Promise<void>
+  selectFolder: () => Promise<string | undefined>
+  setVaultPath: (path: string) => Promise<void>
+  getVaultPath: () => Promise<string | null>
   
   // Window controls
   minimizeWindow: () => Promise<void>

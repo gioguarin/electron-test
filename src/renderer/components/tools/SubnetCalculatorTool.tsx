@@ -173,9 +173,9 @@ export const SubnetCalculatorTool: React.FC = () => {
         
         if (targetResult.success) {
           // Check if IP is within the subnet
-          const ipOctets = ipAddress.split('.').map(o => parseInt(o, 10))
-          const networkOctets = targetResult.data.networkAddress.split('.').map(o => parseInt(o, 10))
-          const broadcastOctets = targetResult.data.broadcastAddress.split('.').map(o => parseInt(o, 10))
+          const ipOctets = ipAddress.split('.').map((o: string) => parseInt(o, 10))
+          const networkOctets = targetResult.data.networkAddress.split('.').map((o: string) => parseInt(o, 10))
+          const broadcastOctets = targetResult.data.broadcastAddress.split('.').map((o: string) => parseInt(o, 10))
           
           // Convert to 32-bit unsigned integers for comparison
           const ipInt = (ipOctets[0] * 16777216) + (ipOctets[1] * 65536) + (ipOctets[2] * 256) + ipOctets[3]

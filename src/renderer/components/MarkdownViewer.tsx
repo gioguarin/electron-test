@@ -301,7 +301,7 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
                         if (isExternal && href) {
                           // Open external links in browser
                           window.electronAPI.openExternal(href)
-                        } else if (isMarkdownFile && href && onNavigate) {
+                        } else if (isMarkdownFile && href && onNavigate && filePath) {
                           // Navigate to internal markdown files
                           // Handle relative paths from current file location
                           const currentDir = filePath.substring(0, filePath.lastIndexOf('/'))

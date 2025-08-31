@@ -53,10 +53,10 @@ export const KnowledgeExplorer: React.FC<KnowledgeExplorerProps> = ({
       await loadFileTree()
     }
     
-    window.addEventListener('vault-configured', handleVaultConfigured as EventListener)
+    window.addEventListener('vault-configured', handleVaultConfigured as unknown as EventListener)
     
     return () => {
-      window.removeEventListener('vault-configured', handleVaultConfigured as EventListener)
+      window.removeEventListener('vault-configured', handleVaultConfigured as unknown as EventListener)
     }
   }, [])
 
