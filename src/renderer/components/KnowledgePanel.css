@@ -35,7 +35,26 @@
 .empty-state p {
   font-size: 14px;
   color: var(--color-text-secondary, var(--text-secondary));
+  margin-bottom: 24px;
+}
+
+.create-document-btn {
+  padding: 10px 24px;
+  background-color: var(--color-primary, var(--accent-color));
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
   margin-bottom: 32px;
+}
+
+.create-document-btn:hover {
+  background-color: var(--color-primary-hover, var(--accent-hover));
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .quick-tips {

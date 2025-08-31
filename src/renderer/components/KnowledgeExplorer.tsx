@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import Fuse from 'fuse.js'
+import { VaultSetupDialog } from './VaultSetupDialog'
 import './KnowledgeExplorer.css'
 
 interface FileNode {
@@ -10,6 +11,8 @@ interface FileNode {
   expanded?: boolean
   parent?: string
   lastModified?: string
+  isPublic?: boolean
+  isUserVault?: boolean
 }
 
 interface SearchResult {
@@ -21,11 +24,13 @@ interface SearchResult {
 interface KnowledgeExplorerProps {
   onFileSelect: (path: string) => void
   selectedFile?: string
+  onCreateNew?: () => void
 }
 
 export const KnowledgeExplorer: React.FC<KnowledgeExplorerProps> = ({ 
   onFileSelect, 
-  selectedFile 
+  selectedFile,
+  onCreateNew 
 }) => {
   const [fileTree, setFileTree] = useState<FileNode[]>([])
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set())
@@ -33,10 +38,38 @@ export const KnowledgeExplorer: React.FC<KnowledgeExplorerProps> = ({
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
   const [showSearchResults, setShowSearchResults] = useState(false)
   const [allFiles, setAllFiles] = useState<FileNode[]>([])
+  const [vaultConfigured, setVaultConfigured] = useState<boolean | null>(null)
+  const [showVaultSetup, setShowVaultSetup] = useState(false)
 
   useEffect(() => {
+    checkVaultConfiguration()
     loadFileTree()
   }, [])
+
+  const checkVaultConfiguration = async () => {
+    try {
+      const settings = await window.electronAPI.loadSettings()
+      setVaultConfigured(!!settings.vaultPath)
+    } catch (error) {
+      console.error('Error checking vault configuration:', error)
+      setVaultConfigured(false)
+    }
+  }
+
+  const handleVaultSetup = () => {
+    setShowVaultSetup(true)
+  }
+
+  const handleVaultSetupComplete = async (path: string) => {
+    setShowVaultSetup(false)
+    setVaultConfigured(true)
+    // Reload the file tree to show the new vault
+    await loadFileTree()
+  }
+
+  const handleVaultSetupCancel = () => {
+    setShowVaultSetup(false)
+  }
 
   // Helper function to flatten the file tree for searching
   const flattenTree = (nodes: FileNode[], parent = ''): FileNode[] => {
@@ -62,11 +95,15 @@ export const KnowledgeExplorer: React.FC<KnowledgeExplorerProps> = ({
       const flatFiles = flattenTree(tree)
       setAllFiles(flatFiles)
       
-      // Auto-expand first level
+      // Auto-expand first level (including My Vault and Public Docs)
       const firstLevel = new Set<string>()
       tree.forEach((node: FileNode) => {
         if (node.type === 'directory') {
           firstLevel.add(node.path)
+          // Also expand My Vault by default to show user's files
+          if (node.path === 'vault' || node.path === 'docs') {
+            firstLevel.add(node.path)
+          }
         }
       })
       setExpandedNodes(firstLevel)
@@ -210,9 +247,23 @@ export const KnowledgeExplorer: React.FC<KnowledgeExplorerProps> = ({
             ) : null
           })()}
         </div>
-        {node.type === 'directory' && isExpanded && node.children && (
+        {node.type === 'directory' && isExpanded && (
           <div className="tree-node-children">
-            {node.children.map(child => renderNode(child, level + 1))}
+            {node.children && node.children.length > 0 ? (
+              node.children.map(child => renderNode(child, level + 1))
+            ) : (
+              <div 
+                style={{ 
+                  paddingLeft: `${(level + 1) * 20 + 8}px`,
+                  color: 'var(--text-secondary)',
+                  fontSize: '12px',
+                  fontStyle: 'italic',
+                  padding: '4px 0 4px 0'
+                }}
+              >
+                {node.isUserVault ? 'No documents yet. Create your first!' : 'Empty folder'}
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -220,7 +271,14 @@ export const KnowledgeExplorer: React.FC<KnowledgeExplorerProps> = ({
   }
 
   return (
-    <div className="knowledge-explorer">
+    <>
+      {showVaultSetup && (
+        <VaultSetupDialog
+          onComplete={handleVaultSetupComplete}
+          onCancel={handleVaultSetupCancel}
+        />
+      )}
+      <div className="knowledge-explorer">
       <div className="explorer-header">
         <h3>Knowledge Base</h3>
       </div>
@@ -265,16 +323,87 @@ export const KnowledgeExplorer: React.FC<KnowledgeExplorerProps> = ({
         )}
       </div>
       <div className="explorer-tree">
-        {!showSearchResults && fileTree.map(node => renderNode(node))}
+        {!showSearchResults && (
+          <>
+            {vaultConfigured === false ? (
+              // Show setup prompt in tree area
+              <div style={{ 
+                padding: '20px', 
+                textAlign: 'center',
+                color: 'var(--text-secondary)'
+              }}>
+                <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔐</div>
+                <h3 style={{ marginBottom: '8px' }}>No Vault Configured</h3>
+                <p style={{ fontSize: '12px', marginBottom: '16px' }}>
+                  Set up your personal vault to start creating and organizing documents.
+                </p>
+                <button 
+                  className="action-button"
+                  onClick={handleVaultSetup}
+                  style={{ 
+                    backgroundColor: 'var(--accent-color)',
+                    color: 'white',
+                    fontWeight: 600
+                  }}
+                >
+                  🚀 Set up Vault
+                </button>
+              </div>
+            ) : (
+              <>
+                {selectedFile === '__new__' && (
+                  <div className="tree-node">
+                    <div
+                      className="tree-node-content selected new-document"
+                      style={{ paddingLeft: '8px' }}
+                      onClick={() => onFileSelect('__new__')}
+                    >
+                      <span className="tree-node-icon">📝</span>
+                      <span className="tree-node-name">New Document (Unsaved)</span>
+                      <span className="tree-node-badge">NEW</span>
+                    </div>
+                  </div>
+                )}
+                {fileTree.map(node => renderNode(node))}
+              </>
+            )}
+          </>
+        )}
       </div>
       <div className="explorer-actions">
-        <button className="action-button" onClick={loadFileTree}>
-          🔄 Refresh
-        </button>
-        <button className="action-button" onClick={() => window.electronAPI.openKnowledgeFolder()}>
-          📁 Open Folder
-        </button>
+        {vaultConfigured === false ? (
+          // Show setup button for first-time users
+          <button 
+            className="action-button setup-vault-button" 
+            onClick={handleVaultSetup}
+            style={{ 
+              width: '100%',
+              backgroundColor: 'var(--accent-color)',
+              color: 'white',
+              fontWeight: 600,
+              padding: '10px'
+            }}
+          >
+            🚀 Set up Vault
+          </button>
+        ) : (
+          // Show normal actions for configured users
+          <>
+            <button className="action-button" onClick={loadFileTree}>
+              🔄 Refresh
+            </button>
+            {onCreateNew && (
+              <button className="action-button" onClick={onCreateNew}>
+                📝 New Document
+              </button>
+            )}
+            <button className="action-button" onClick={() => window.electronAPI.openKnowledgeFolder('vault')} title="Open your personal vault folder">
+              🔐 My Vault
+            </button>
+          </>
+        )}
       </div>
     </div>
+    </>
   )
 }

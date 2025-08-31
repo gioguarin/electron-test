@@ -1,4 +1,4 @@
-const { ipcMain, BrowserWindow, shell } = require('electron')
+const { ipcMain, BrowserWindow, shell, dialog } = require('electron')
 const path = require('path')
 const fs = require('fs').promises
 const log = require('electron-log/main')
@@ -71,12 +71,79 @@ function registerIpcHandlers() {
 
   // Knowledge Base IPC Handlers
   
-  // Get knowledge tree structure
+  // Define settings path for use in multiple handlers
+  const settingsPath = path.join(__dirname, '..', '..', 'settings.json')
+  
+  // Helper to get user's vault path from settings
+  async function getUserVaultPath() {
+    try {
+      const data = await fs.readFile(settingsPath, 'utf-8')
+      const settings = JSON.parse(data)
+      if (settings.vaultPath) {
+        // Ensure the vault directory exists
+        try {
+          await fs.mkdir(settings.vaultPath, { recursive: true })
+        } catch (error) {
+          log.warn('Could not create vault directory:', error)
+        }
+        return settings.vaultPath
+      }
+    } catch (error) {
+      // Settings file doesn't exist or no vault path set
+    }
+    // Default to user's documents folder
+    const os = require('os')
+    const userHome = os.homedir()
+    const defaultPath = path.join(userHome, 'Documents', 'KnowledgeVault')
+    // Try to create default path
+    try {
+      await fs.mkdir(defaultPath, { recursive: true })
+    } catch (error) {
+      log.warn('Could not create default vault directory:', error)
+    }
+    return defaultPath
+  }
+
+  // Get knowledge tree structure (combines public docs and user vault)
   ipcMain.handle('get-knowledge-tree', async () => {
     try {
-      const knowledgeBasePath = path.join(__dirname, '..', '..', 'devnotes')
-      const tree = await buildFileTree(knowledgeBasePath, knowledgeBasePath)
-      return tree
+      const trees = []
+      
+      // Add public docs
+      const publicDocsPath = path.join(__dirname, '..', '..', 'docs')
+      try {
+        await fs.access(publicDocsPath)
+        const publicTree = await buildFileTree(publicDocsPath, publicDocsPath)
+        trees.push({
+          name: '📚 Public Docs',
+          path: 'docs',
+          type: 'directory',
+          isPublic: true,
+          children: publicTree
+        })
+      } catch (error) {
+        // Public docs folder doesn't exist
+        log.warn('Public docs folder not found:', publicDocsPath)
+      }
+      
+      // Add user vault
+      const userVaultPath = await getUserVaultPath()
+      try {
+        await fs.access(userVaultPath)
+        const userTree = await buildFileTree(userVaultPath, userVaultPath)
+        trees.push({
+          name: '🔒 My Vault',
+          path: 'vault',
+          type: 'directory',
+          isUserVault: true,
+          children: userTree
+        })
+      } catch (error) {
+        // User vault doesn't exist yet - will be created on first save
+        log.info('User vault not found (will be created on first save):', userVaultPath)
+      }
+      
+      return trees
     } catch (error) {
       log.error('Error getting knowledge tree:', error)
       throw error
@@ -86,7 +153,30 @@ function registerIpcHandlers() {
   // Read knowledge file
   ipcMain.handle('read-knowledge-file', async (event, filePath) => {
     try {
-      const fullPath = path.join(__dirname, '..', '..', 'devnotes', filePath)
+      let fullPath
+      
+      // Determine if it's a public doc or user vault file
+      if (filePath.startsWith('docs/')) {
+        // Public docs
+        const relativePath = filePath.substring(5) // Remove 'docs/' prefix
+        fullPath = path.join(__dirname, '..', '..', 'docs', relativePath)
+      } else if (filePath.startsWith('vault/')) {
+        // User vault
+        const relativePath = filePath.substring(6) // Remove 'vault/' prefix
+        const userVaultPath = await getUserVaultPath()
+        fullPath = path.join(userVaultPath, relativePath)
+      } else {
+        // Legacy support - try docs first, then vault
+        const docsPath = path.join(__dirname, '..', '..', 'docs', filePath)
+        try {
+          await fs.access(docsPath)
+          fullPath = docsPath
+        } catch {
+          const userVaultPath = await getUserVaultPath()
+          fullPath = path.join(userVaultPath, filePath)
+        }
+      }
+      
       const content = await fs.readFile(fullPath, 'utf-8')
       return content
     } catch (error) {
@@ -96,12 +186,37 @@ function registerIpcHandlers() {
   })
 
   // Save knowledge file
-  ipcMain.handle('save-knowledge-file', async (event, filePath, content) => {
+  ipcMain.handle('save-knowledge-file', async (event, filePath, content, forceLocation) => {
     try {
-      const fullPath = path.join(__dirname, '..', '..', 'devnotes', filePath)
+      let fullPath
+      
+      // Determine save location
+      if (forceLocation === 'docs' || filePath.startsWith('docs/')) {
+        // Save to public docs (only if explicitly requested)
+        const relativePath = filePath.startsWith('docs/') ? filePath.substring(5) : filePath
+        fullPath = path.join(__dirname, '..', '..', 'docs', relativePath)
+      } else if (filePath.startsWith('vault/')) {
+        // User vault
+        const relativePath = filePath.substring(6) // Remove 'vault/' prefix
+        const userVaultPath = await getUserVaultPath()
+        fullPath = path.join(userVaultPath, relativePath)
+      } else {
+        // Default to user vault for new files
+        const userVaultPath = await getUserVaultPath()
+        fullPath = path.join(userVaultPath, filePath)
+      }
+      
+      // Ensure the directory exists
+      await fs.mkdir(path.dirname(fullPath), { recursive: true })
       await fs.writeFile(fullPath, content, 'utf-8')
-      log.info('Knowledge file saved:', filePath)
-      return true
+      log.info('Knowledge file saved:', fullPath)
+      
+      // Return the location where it was saved
+      if (fullPath.includes(path.join(__dirname, '..', '..', 'docs'))) {
+        return { success: true, location: 'docs' }
+      } else {
+        return { success: true, location: 'vault' }
+      }
     } catch (error) {
       log.error('Error saving knowledge file:', error)
       throw error
@@ -109,10 +224,18 @@ function registerIpcHandlers() {
   })
 
   // Open knowledge folder in system file explorer
-  ipcMain.handle('open-knowledge-folder', async () => {
+  ipcMain.handle('open-knowledge-folder', async (event, location) => {
     try {
-      const knowledgeBasePath = path.join(__dirname, '..', '..', 'devnotes')
-      await shell.openPath(knowledgeBasePath)
+      let folderPath
+      if (location === 'docs') {
+        folderPath = path.join(__dirname, '..', '..', 'docs')
+      } else {
+        // Default to user vault
+        folderPath = await getUserVaultPath()
+        // Ensure it exists
+        await fs.mkdir(folderPath, { recursive: true })
+      }
+      await shell.openPath(folderPath)
       return true
     } catch (error) {
       log.error('Error opening knowledge folder:', error)
@@ -161,8 +284,7 @@ function registerIpcHandlers() {
     }
   })
 
-  // Settings handlers
-  const settingsPath = path.join(__dirname, '..', '..', 'settings.json')
+  // Settings handlers - removed duplicate, using the one declared above
   
   ipcMain.handle('load-settings', async () => {
     try {
@@ -291,6 +413,62 @@ function registerIpcHandlers() {
       log.error('Route server disconnect error:', error)
       return { success: false, error: error.message }
     }
+  })
+
+  // IPC handler to set vault path
+  ipcMain.handle('set-vault-path', async (event, newPath) => {
+    try {
+      log.info('Setting vault path to:', newPath)
+      
+      // Load current settings
+      let settings = {}
+      try {
+        const data = await fs.readFile(settingsPath, 'utf-8')
+        settings = JSON.parse(data)
+        log.info('Loaded existing settings')
+      } catch (err) {
+        // Settings file doesn't exist yet
+        log.info('No existing settings file, creating new one')
+      }
+      
+      // Update vault path
+      settings.vaultPath = newPath
+      
+      // Save settings
+      await fs.writeFile(settingsPath, JSON.stringify(settings, null, 2), 'utf-8')
+      log.info('Settings saved successfully')
+      
+      // Create the vault folder if it doesn't exist
+      await fs.mkdir(newPath, { recursive: true })
+      log.info('Vault directory created/verified:', newPath)
+      
+      log.info('Vault path updated successfully:', newPath)
+      return true
+    } catch (error) {
+      log.error('Error setting vault path:', error)
+      log.error('Error details:', error.message, error.stack)
+      throw error
+    }
+  })
+
+  // IPC handler to get current vault path
+  ipcMain.handle('get-vault-path', async () => {
+    return await getUserVaultPath()
+  })
+
+  // IPC handler for folder selection dialog
+  ipcMain.handle('select-folder', async () => {
+    const result = await dialog.showOpenDialog({
+      properties: ['openDirectory', 'createDirectory'],
+      title: 'Select Your Knowledge Vault Location',
+      buttonLabel: 'Select Folder',
+      message: 'Choose where to store your personal knowledge vault'
+    })
+    
+    if (!result.canceled && result.filePaths.length > 0) {
+      return result.filePaths[0]
+    }
+    return null
   })
 
   // Register terminal handlers

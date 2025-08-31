@@ -123,3 +123,87 @@
   --color-primary-hover: #00cccc;
   --color-code: #ffff00;
 }
+
+/* Hacker Orange Theme */
+:root[data-theme="hacker-orange"] {
+  /* Legacy variable names for compatibility */
+  --bg-primary: #000000;
+  --bg-secondary: #0a0a0a;
+  --bg-tertiary: #1a0f00;
+  --text-primary: #ff6600;
+  --text-secondary: #ff9944;
+  --text-accent: #ffaa00;
+  --border-color: #ff6600;
+  --hover-bg: #331100;
+  --selection-bg: #662200;
+  --accent-color: #ff6600;
+  --accent-hover: #ff8833;
+  --input-bg: #0a0500;
+  --editor-bg: #000000;
+  --error-bg: #660000;
+  --error-color: #ff3333;
+  --error-border: #ff0000;
+  --warning-color: #ffcc00;
+  --success-color: #00ff00;
+  --activity-bar-bg: #0a0500;
+  --sidebar-bg: #0a0500;
+  --terminal-bg: #000000;
+  --scrollbar-bg: #ff6600;
+  --scrollbar-thumb: #ff9944;
+  
+  /* New standardized variable names */
+  --color-bg-primary: #000000;
+  --color-bg-secondary: #1a0f00;
+  --color-bg-tertiary: #2a1a00;
+  --color-bg-elevated: #1a0f00;
+  --color-border: #ff6600;
+  --color-text-primary: #ff6600;
+  --color-text-secondary: #ff9944;
+  --color-text-tertiary: #cc6600;
+  --color-accent: #ff6600;
+  --color-primary: #ff6600;
+  --color-primary-hover: #ff8833;
+  --color-code: #ffaa00;
+}
+
+/* Hacker Green Theme */
+:root[data-theme="hacker-green"] {
+  /* Legacy variable names for compatibility */
+  --bg-primary: #000000;
+  --bg-secondary: #020a02;
+  --bg-tertiary: #001a00;
+  --text-primary: #00ff00;
+  --text-secondary: #00cc00;
+  --text-accent: #00ff44;
+  --border-color: #00ff00;
+  --hover-bg: #003300;
+  --selection-bg: #006600;
+  --accent-color: #00ff00;
+  --accent-hover: #00cc00;
+  --input-bg: #001100;
+  --editor-bg: #000000;
+  --error-bg: #660000;
+  --error-color: #ff3333;
+  --error-border: #ff0000;
+  --warning-color: #ffff00;
+  --success-color: #00ff00;
+  --activity-bar-bg: #001100;
+  --sidebar-bg: #001100;
+  --terminal-bg: #000000;
+  --scrollbar-bg: #00ff00;
+  --scrollbar-thumb: #00cc00;
+  
+  /* New standardized variable names */
+  --color-bg-primary: #000000;
+  --color-bg-secondary: #001a00;
+  --color-bg-tertiary: #002a00;
+  --color-bg-elevated: #001a00;
+  --color-border: #00ff00;
+  --color-text-primary: #00ff00;
+  --color-text-secondary: #00cc00;
+  --color-text-tertiary: #009900;
+  --color-accent: #00ff00;
+  --color-primary: #00ff00;
+  --color-primary-hover: #00cc00;
+  --color-code: #00ff44;
+}

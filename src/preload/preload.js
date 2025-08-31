@@ -41,8 +41,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getKnowledgeTree: () => ipcRenderer.invoke('get-knowledge-tree'),
   readKnowledgeFile: (filePath) => ipcRenderer.invoke('read-knowledge-file', filePath),
   saveKnowledgeFile: (filePath, content) => ipcRenderer.invoke('save-knowledge-file', filePath, content),
-  openKnowledgeFolder: () => ipcRenderer.invoke('open-knowledge-folder'),
+  openKnowledgeFolder: (location) => ipcRenderer.invoke('open-knowledge-folder', location),
   openExternal: (url) => ipcRenderer.invoke('open-external', url),
+  selectFolder: () => ipcRenderer.invoke('select-folder'),
+  setVaultPath: (path) => ipcRenderer.invoke('set-vault-path', path),
+  getVaultPath: () => ipcRenderer.invoke('get-vault-path'),
   
   // Window controls
   minimizeWindow: () => ipcRenderer.invoke('minimize-window'),

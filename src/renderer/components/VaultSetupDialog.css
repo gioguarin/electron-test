@@ -1,0 +1,237 @@
+/* Vault Setup Dialog Styles */
+
+.vault-setup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.vault-setup-dialog {
+  background-color: var(--bg-secondary, #1e1e1e);
+  border: 1px solid var(--border-color, #3c3c3c);
+  border-radius: 8px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.vault-setup-header {
+  padding: 24px;
+  border-bottom: 1px solid var(--border-color, #3c3c3c);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.vault-setup-header h2 {
+  margin: 0 0 8px 0;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.vault-setup-header p {
+  margin: 0;
+  opacity: 0.95;
+  font-size: 14px;
+}
+
+.vault-setup-body {
+  padding: 24px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.vault-info {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.info-section {
+  padding: 16px;
+  border: 1px solid var(--border-color, #3c3c3c);
+  border-radius: 6px;
+  background-color: var(--bg-primary, #252526);
+}
+
+.info-section.highlight {
+  border-color: var(--accent-color, #007acc);
+  background-color: rgba(0, 122, 204, 0.1);
+}
+
+.info-section h3 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  color: var(--text-primary, #cccccc);
+}
+
+.info-section p {
+  margin: 0 0 12px 0;
+  font-size: 13px;
+  color: var(--text-secondary, #8b8b8b);
+}
+
+.info-section code {
+  display: inline-block;
+  padding: 4px 8px;
+  background-color: var(--bg-secondary, #2d2d30);
+  border-radius: 3px;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 12px;
+  color: var(--text-primary, #cccccc);
+}
+
+.path-input-group {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.vault-path-input {
+  flex: 1;
+  padding: 8px 12px;
+  background-color: var(--bg-primary, #252526);
+  border: 1px solid var(--border-color, #3c3c3c);
+  border-radius: 4px;
+  color: var(--text-primary, #cccccc);
+  font-size: 13px;
+  font-family: 'Consolas', 'Monaco', monospace;
+}
+
+.vault-path-input:focus {
+  outline: none;
+  border-color: var(--accent-color, #007acc);
+}
+
+.browse-button {
+  padding: 8px 16px;
+  background-color: var(--button-bg, #0e639c);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s;
+}
+
+.browse-button:hover:not(:disabled) {
+  background-color: var(--button-hover, #1177bb);
+}
+
+.browse-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.help-text {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--text-secondary, #8b8b8b);
+  font-style: italic;
+}
+
+.vault-features {
+  padding: 16px;
+  background-color: var(--bg-primary, #252526);
+  border: 1px solid var(--border-color, #3c3c3c);
+  border-radius: 6px;
+}
+
+.vault-features h4 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  color: var(--text-primary, #cccccc);
+}
+
+.vault-features ul {
+  margin: 0;
+  padding-left: 24px;
+  list-style: none;
+}
+
+.vault-features li {
+  margin: 8px 0;
+  font-size: 13px;
+  color: var(--text-secondary, #8b8b8b);
+}
+
+.vault-setup-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border-color, #3c3c3c);
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  background-color: var(--bg-secondary, #2d2d30);
+}
+
+.cancel-button,
+.confirm-button {
+  padding: 8px 20px;
+  border: none;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancel-button {
+  background-color: transparent;
+  color: var(--text-primary, #cccccc);
+  border: 1px solid var(--border-color, #3c3c3c);
+}
+
+.cancel-button:hover:not(:disabled) {
+  background-color: var(--bg-primary, #252526);
+}
+
+.confirm-button {
+  background-color: var(--accent-color, #007acc);
+  color: white;
+  min-width: 120px;
+}
+
+.confirm-button:hover:not(:disabled) {
+  background-color: var(--accent-hover, #0098ff);
+}
+
+.cancel-button:disabled,
+.confirm-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

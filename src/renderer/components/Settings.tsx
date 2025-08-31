@@ -136,6 +136,8 @@ export const Settings: React.FC<SettingsProps> = ({ onClose }) => {
                 <option value="dark">Dark</option>
                 <option value="light">Light</option>
                 <option value="high-contrast">High Contrast</option>
+                <option value="hacker-orange">Hacker Orange</option>
+                <option value="hacker-green">Hacker Green</option>
               </select>
             </div>
 
@@ -294,6 +296,101 @@ export const Settings: React.FC<SettingsProps> = ({ onClose }) => {
                   onChange={(e) => handleSettingChange('panels', 'rememberPanelSizes', e.target.checked)}
                 />
                 Remember Panel Sizes
+              </label>
+            </div>
+          </div>
+        )
+
+      case 'knowledge':
+        return (
+          <div className="settings-group">
+            <h3>Knowledge Base Settings</h3>
+            
+            <div className="setting-item">
+              <label>Personal Vault Location</label>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <input 
+                  type="text"
+                  value={settings.vaultPath || ''}
+                  onChange={(e) => {
+                    setSettings({...settings, vaultPath: e.target.value})
+                    setHasChanges(true)
+                  }}
+                  placeholder="e.g., /Users/username/Documents/KnowledgeVault"
+                  style={{ flex: 1 }}
+                />
+                <button 
+                  className="browse-button"
+                  onClick={async () => {
+                    // We'll need to add this IPC handler
+                    const result = await window.electronAPI.selectFolder?.()
+                    if (result) {
+                      setSettings({...settings, vaultPath: result})
+                      setHasChanges(true)
+                    }
+                  }}
+                  style={{ padding: '6px 12px' }}
+                >
+                  Browse...
+                </button>
+              </div>
+              <small style={{ color: 'var(--text-secondary)', display: 'block', marginTop: '4px' }}>
+                Your personal vault stores your private notes and documents. Public docs are in the /docs folder.
+              </small>
+            </div>
+
+            <div className="setting-item">
+              <label>Current Paths</label>
+              <div style={{ 
+                padding: '8px', 
+                backgroundColor: 'var(--bg-secondary)', 
+                borderRadius: '4px',
+                fontFamily: 'monospace',
+                fontSize: '12px'
+              }}>
+                <div>📚 Public Docs: /docs (repository)</div>
+                <div>🔐 Personal Vault: {settings.vaultPath || '~/Documents/KnowledgeVault (default)'}</div>
+              </div>
+            </div>
+
+            <div className="setting-item">
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button 
+                  className="action-button"
+                  onClick={() => window.electronAPI.openKnowledgeFolder('vault')}
+                  style={{ flex: 1 }}
+                >
+                  🔐 Open My Vault
+                </button>
+                <button 
+                  className="action-button"
+                  onClick={() => window.electronAPI.openKnowledgeFolder('docs')}
+                  style={{ flex: 1 }}
+                >
+                  📚 Open Public Docs
+                </button>
+              </div>
+            </div>
+
+            <div className="setting-item checkbox">
+              <label>
+                <input 
+                  type="checkbox"
+                  checked={settings.knowledge?.autoSave || false}
+                  onChange={(e) => handleSettingChange('knowledge', 'autoSave', e.target.checked)}
+                />
+                Auto-save documents while editing
+              </label>
+            </div>
+
+            <div className="setting-item checkbox">
+              <label>
+                <input 
+                  type="checkbox"
+                  checked={settings.knowledge?.showRecentFiles || true}
+                  onChange={(e) => handleSettingChange('knowledge', 'showRecentFiles', e.target.checked)}
+                />
+                Show recently modified files
               </label>
             </div>
           </div>

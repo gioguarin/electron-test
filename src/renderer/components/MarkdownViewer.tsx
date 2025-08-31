@@ -6,29 +6,52 @@ import 'highlight.js/styles/vs2015.css'
 import './MarkdownViewer.css'
 
 interface MarkdownViewerProps {
-  filePath: string
+  filePath?: string
+  initialContent?: string
+  isNewDocument?: boolean
   editable?: boolean
-  onSave?: (content: string) => void
+  onSave?: (content: string, fileName?: string) => void
+  onCancel?: () => void
   onNavigate?: (path: string) => void
 }
 
+type ViewMode = 'edit' | 'preview' | 'split'
+
 export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ 
   filePath, 
+  initialContent = '',
+  isNewDocument = false,
   editable = false,
   onSave,
+  onCancel,
   onNavigate 
 }) => {
-  const [content, setContent] = useState('')
-  const [isEditing, setIsEditing] = useState(false)
-  const [editContent, setEditContent] = useState('')
-  const [loading, setLoading] = useState(true)
+  const [content, setContent] = useState(initialContent)
+  const [isEditing, setIsEditing] = useState(isNewDocument)
+  const [editContent, setEditContent] = useState(initialContent)
+  const [loading, setLoading] = useState(!isNewDocument)
   const [error, setError] = useState<string | null>(null)
+  const [viewMode, setViewMode] = useState<ViewMode>(isNewDocument ? 'split' : 'preview')
+  const [newFileName, setNewFileName] = useState('')
 
   useEffect(() => {
-    loadFile()
-  }, [filePath])
+    if (!isNewDocument && filePath) {
+      loadFile()
+    }
+  }, [filePath, isNewDocument])
+
+  // Auto-focus the filename input when creating a new document
+  useEffect(() => {
+    if (isNewDocument && isEditing) {
+      const input = document.querySelector('.file-name-input') as HTMLInputElement
+      if (input) {
+        input.focus()
+      }
+    }
+  }, [isNewDocument, isEditing])
 
   const loadFile = async () => {
+    if (!filePath) return
     try {
       setLoading(true)
       setError(null)
@@ -50,23 +73,38 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
 
   const handleSave = async () => {
     try {
-      await window.electronAPI.saveKnowledgeFile(filePath, editContent)
-      setContent(editContent)
-      setIsEditing(false)
-      if (onSave) {
-        onSave(editContent)
+      if (isNewDocument && newFileName) {
+        // Save new documents to user vault by default
+        const newPath = newFileName.endsWith('.md') ? newFileName : newFileName + '.md'
+        const result = await window.electronAPI.saveKnowledgeFile(newPath, editContent)
+        if (onSave) {
+          // Return the full path with vault prefix
+          onSave(editContent, `vault/${newPath}`)
+        }
+      } else if (filePath) {
+        await window.electronAPI.saveKnowledgeFile(filePath, editContent)
+        setContent(editContent)
+        if (onSave) {
+          onSave(editContent)
+        }
       }
+      setIsEditing(false)
+      setViewMode('preview')
     } catch (err) {
       setError(`Failed to save file: ${err}`)
     }
   }
 
   const handleCancel = () => {
-    setIsEditing(false)
-    setEditContent(content)
+    if (isNewDocument && onCancel) {
+      onCancel()
+    } else {
+      setIsEditing(false)
+      setEditContent(content)
+    }
   }
 
-  const fileName = filePath.split('/').pop() || filePath
+  const fileName = isNewDocument ? 'New Document' : (filePath?.split('/').pop() || 'Untitled')
 
   if (loading) {
     return (
@@ -88,8 +126,44 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
   return (
     <div className="markdown-viewer">
       <div className="viewer-header">
-        <h2 className="file-name">{fileName}</h2>
+        {isNewDocument && isEditing ? (
+          <input
+            type="text"
+            className="file-name-input"
+            placeholder="Enter file name (e.g., my-notes.md)"
+            value={newFileName}
+            onChange={(e) => setNewFileName(e.target.value)}
+          />
+        ) : (
+          <h2 className="file-name">{fileName}</h2>
+        )}
         <div className="viewer-actions">
+          {isEditing && (
+            <>
+              <button 
+                className={`view-mode-btn ${viewMode === 'edit' ? 'active' : ''}`}
+                onClick={() => setViewMode('edit')}
+                title="Edit only"
+              >
+                📝 Edit
+              </button>
+              <button 
+                className={`view-mode-btn ${viewMode === 'split' ? 'active' : ''}`}
+                onClick={() => setViewMode('split')}
+                title="Split view"
+              >
+                📖 Split
+              </button>
+              <button 
+                className={`view-mode-btn ${viewMode === 'preview' ? 'active' : ''}`}
+                onClick={() => setViewMode('preview')}
+                title="Preview only"
+              >
+                👁️ Preview
+              </button>
+              <span className="divider" />
+            </>
+          )}
           {editable && !isEditing && (
             <button className="edit-button" onClick={handleEdit}>
               ✏️ Edit
@@ -97,7 +171,11 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
           )}
           {isEditing && (
             <>
-              <button className="save-button" onClick={handleSave}>
+              <button 
+                className="save-button" 
+                onClick={handleSave}
+                disabled={isNewDocument && !newFileName}
+              >
                 💾 Save
               </button>
               <button className="cancel-button" onClick={handleCancel}>
@@ -105,34 +183,42 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
               </button>
             </>
           )}
-          <button 
-            className="refresh-button" 
-            onClick={loadFile}
-            disabled={isEditing}
-          >
-            🔄 Refresh
-          </button>
+          {!isNewDocument && (
+            <button 
+              className="refresh-button" 
+              onClick={loadFile}
+              disabled={isEditing}
+            >
+              🔄 Refresh
+            </button>
+          )}
         </div>
       </div>
       
       <div className="viewer-content">
         {isEditing ? (
-          <div className="editor-container">
-            <textarea
-              className="markdown-editor"
-              value={editContent}
-              onChange={(e) => setEditContent(e.target.value)}
-              placeholder="Enter markdown content..."
-              spellCheck={false}
-            />
-            <div className="editor-preview">
-              <ReactMarkdown
-                remarkPlugins={[remarkGfm]}
-                rehypePlugins={[rehypeHighlight]}
-              >
-                {editContent}
-              </ReactMarkdown>
-            </div>
+          <div className={`editor-container ${viewMode}`}>
+            {(viewMode === 'edit' || viewMode === 'split') && (
+              <textarea
+                className="markdown-editor"
+                value={editContent}
+                onChange={(e) => setEditContent(e.target.value)}
+                placeholder="Enter markdown content..."
+                spellCheck={false}
+              />
+            )}
+            {(viewMode === 'preview' || viewMode === 'split') && (
+              <div className="editor-preview">
+                <div className="markdown-content">
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    rehypePlugins={[rehypeHighlight]}
+                  >
+                    {editContent}
+                  </ReactMarkdown>
+                </div>
+              </div>
+            )}
           </div>
         ) : (
           <div className="markdown-content">

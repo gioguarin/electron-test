@@ -244,6 +244,24 @@ const AppContent: React.FC = () => {
                 activeTool={activeTool}
                 onFileSelect={setSelectedKnowledgeFile}
                 selectedFile={selectedKnowledgeFile || undefined}
+                onCreateNewDocument={async () => {
+                  // Check if vault is configured first
+                  try {
+                    const settings = await window.electronAPI.loadSettings()
+                    if (!settings.vaultPath) {
+                      // Vault not configured, the KnowledgePanel will handle showing the setup dialog
+                    }
+                  } catch (error) {
+                    console.error('Error checking vault configuration:', error)
+                  }
+                  
+                  // Immediately switch to new document
+                  setSelectedKnowledgeFile('__new__')
+                  setSelectedActivity('knowledge')
+                  setShowHome(false)
+                  setShowSettings(false)
+                  setActiveTool(null)
+                }}
               />
             </div>
           </Allotment.Pane>

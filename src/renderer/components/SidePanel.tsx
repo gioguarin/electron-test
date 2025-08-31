@@ -10,6 +10,7 @@ interface SidePanelProps {
   activeTool: string | null
   onFileSelect?: (path: string) => void
   selectedFile?: string
+  onCreateNewDocument?: () => void
 }
 
 export const SidePanel: React.FC<SidePanelProps> = ({ 
@@ -18,7 +19,8 @@ export const SidePanel: React.FC<SidePanelProps> = ({
   onToolSelect,
   activeTool,
   onFileSelect,
-  selectedFile
+  selectedFile,
+  onCreateNewDocument
 }) => {
   const [searchQuery, setSearchQuery] = useState('')
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(['networking', 'diagnostics', 'security']))
@@ -128,6 +130,7 @@ export const SidePanel: React.FC<SidePanelProps> = ({
       <KnowledgeExplorer 
         onFileSelect={onFileSelect}
         selectedFile={selectedFile}
+        onCreateNew={onCreateNewDocument}
       />
     )
   }
