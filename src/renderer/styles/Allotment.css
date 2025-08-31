@@ -92,6 +92,15 @@
   width: 100%;
 }
 
+/* Smooth transitions for sidebar */
+.main-horizontal-split .allotment-module_pane__H5oIK {
+  transition: none;
+}
+
+.main-horizontal-split .allotment-module_splitView__L-yRc {
+  transition: none;
+}
+
 .main-vertical-split {
   height: 100%;
   width: 100%;
@@ -100,6 +109,18 @@
 .editor-horizontal-split {
   height: 100%;
   width: 100%;
+}
+
+/* Hide sash in editor split when assistant is hidden */
+.editor-horizontal-split .allotment-module_pane__H5oIK[style*="flex-basis: 0px"] ~ .allotment-module_sash__19rEa {
+  display: none !important;
+  width: 0 !important;
+}
+
+/* Ensure editor takes full width when assistant is hidden */
+.editor-horizontal-split .allotment-module_pane__H5oIK:first-child:not([style*="flex-basis: 0px"]) {
+  flex: 1 1 100% !important;
+  width: 100% !important;
 }
 
 /* Smooth transitions for panel visibility */
@@ -118,6 +139,32 @@
   width: 100% !important;
   height: 100% !important;
   flex: 1 1 100% !important;
+}
+
+/* When a pane has 0 size, hide it and its sash */
+.allotment-module_pane__H5oIK[style*="flex-basis: 0px"] {
+  display: none !important;
+}
+
+/* Ensure remaining pane takes full space when other is hidden */
+.allotment-module_pane__H5oIK:not([style*="flex-basis: 0px"]):last-child {
+  flex: 1 1 100% !important;
+  width: 100% !important;
+}
+
+/* Hide sash when adjacent to a 0-width pane */
+.allotment-module_pane__H5oIK[style*="flex-basis: 0px"] + .allotment-module_sash__19rEa {
+  display: none !important;
+}
+
+/* Hide sash that comes before a 0-width pane */
+.allotment-module_sash__19rEa + .allotment-module_pane__H5oIK[style*="flex-basis: 0px"] {
+  display: none !important;
+}
+
+/* Hide the sash itself when next to 0-width pane */
+.allotment-module_sash__19rEa:has(+ .allotment-module_pane__H5oIK[style*="flex-basis: 0px"]) {
+  display: none !important;
 }
 
 /* Hide sash when there's only one pane */

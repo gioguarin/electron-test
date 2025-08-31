@@ -4,8 +4,11 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  width: 100%;
   background-color: #1e1e1e;
   color: #cccccc;
+  overflow: hidden;
+  position: relative;
 }
 
 .viewer-header {
@@ -15,6 +18,10 @@
   padding: 12px 20px;
   background-color: #2d2d30;
   border-bottom: 1px solid #3c3c3c;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  min-height: 48px;
 }
 
 .file-name {
@@ -22,11 +29,17 @@
   font-size: 14px;
   font-weight: 500;
   color: #cccccc;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  margin-right: 16px;
 }
 
 .viewer-actions {
   display: flex;
   gap: 8px;
+  flex-shrink: 0;
 }
 
 .viewer-actions button {
@@ -41,6 +54,8 @@
   align-items: center;
   gap: 4px;
   transition: background-color 0.1s;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .viewer-actions button:hover:not(:disabled) {
@@ -68,15 +83,24 @@
   flex: 1;
   overflow: hidden;
   display: flex;
+  width: 100%;
 }
 
 /* Markdown Content Styles */
 .markdown-content {
-  padding: 20px 30px;
+  padding: 20px 40px;
   overflow-y: auto;
-  max-width: 900px;
-  margin: 0 auto;
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Ensure all child elements respect the width */
+.markdown-content * {
+  max-width: 100%;
+  box-sizing: border-box;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .markdown-content h1 {
@@ -113,17 +137,23 @@
   margin: 12px 0;
   line-height: 1.6;
   color: #cccccc;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 
 .markdown-content ul,
 .markdown-content ol {
   margin: 12px 0;
   padding-left: 24px;
+  max-width: 100%;
 }
 
 .markdown-content li {
   margin: 4px 0;
   line-height: 1.6;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .markdown-content blockquote {
@@ -138,6 +168,8 @@
   margin: 16px 0;
   border-collapse: collapse;
   width: 100%;
+  max-width: 100%;
+  table-layout: auto;
 }
 
 .markdown-content th,
@@ -173,12 +205,19 @@
   border: 1px solid #3c3c3c;
   border-radius: 4px;
   overflow-x: auto;
+  max-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .markdown-content pre code {
   font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
   font-size: 13px;
   line-height: 1.5;
+  display: block;
+  white-space: pre;
+  word-wrap: normal;
+  overflow-x: auto;
 }
 
 /* Link Styles */

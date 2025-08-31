@@ -110,11 +110,11 @@ const AppContent: React.FC = () => {
   const handleSidePanelSizeChange = useCallback((newSizes: number[] | undefined) => {
     if (!newSizes) return
     
-    // Only process if side panel is visible
-    if (visibility.sidePanel && newSizes[0] !== undefined) {
+    // Save size whenever it changes (even if panel is being hidden)
+    if (newSizes[0] !== undefined && newSizes[0] > 0) {
       setPanelSize('sidePanel', newSizes[0])
     }
-  }, [setPanelSize, visibility.sidePanel])
+  }, [setPanelSize])
 
   const handleTerminalSizeChange = useCallback((newSizes: number[] | undefined) => {
     if (!newSizes) return
@@ -149,12 +149,13 @@ const AppContent: React.FC = () => {
           className="main-horizontal-split"
           onChange={handleSidePanelSizeChange}
         >
-          {visibility.sidePanel && (
-            <Allotment.Pane 
-              minSize={180} 
-              maxSize={600}
-              preferredSize={sizes.sidePanel}
-            >
+          <Allotment.Pane 
+            minSize={visibility.sidePanel ? 180 : 0} 
+            maxSize={visibility.sidePanel ? 600 : 0}
+            preferredSize={visibility.sidePanel ? sizes.sidePanel : 0}
+            snap={false}
+          >
+            <div style={{ display: visibility.sidePanel ? 'block' : 'none', height: '100%' }}>
               <SidePanel
                 activity={selectedActivity}
                 tools={registeredTools}
@@ -163,8 +164,8 @@ const AppContent: React.FC = () => {
                 onFileSelect={setSelectedKnowledgeFile}
                 selectedFile={selectedKnowledgeFile || undefined}
               />
-            </Allotment.Pane>
-          )}
+            </div>
+          </Allotment.Pane>
           
           <Allotment.Pane>
             <Allotment 
