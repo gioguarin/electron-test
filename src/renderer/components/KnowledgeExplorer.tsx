@@ -404,7 +404,7 @@ export const KnowledgeExplorer: React.FC<KnowledgeExplorerProps> = ({
               padding: '10px'
             }}
           >
-            🚀 Set up Vault
+            <RocketIcon size={16} /> Set up Vault
           </button>
         ) : (
           // Show normal actions for configured users

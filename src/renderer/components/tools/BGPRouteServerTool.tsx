@@ -9,14 +9,7 @@ interface RouteServer {
 }
 
 const ROUTE_SERVERS: RouteServer[] = [
-  { name: 'Hurricane Electric', host: 'route-server.he.net', location: 'Global', asn: 'AS6939' },
-  { name: 'HE Fremont', host: 'route-server.fremont.he.net', location: 'Fremont, CA', asn: 'AS6939' },
-  { name: 'HE New York', host: 'route-server.newyork.he.net', location: 'New York, NY', asn: 'AS6939' },
-  { name: 'HE London', host: 'route-server.london.he.net', location: 'London, UK', asn: 'AS6939' },
-  { name: 'HE Frankfurt', host: 'route-server.frankfurt.he.net', location: 'Frankfurt, DE', asn: 'AS6939' },
-  { name: 'HE Singapore', host: 'route-server.singapore.he.net', location: 'Singapore', asn: 'AS6939' },
-  { name: 'HE Tokyo', host: 'route-server.tokyo.he.net', location: 'Tokyo, JP', asn: 'AS6939' },
-  { name: 'HE Sydney', host: 'route-server.sydney.he.net', location: 'Sydney, AU', asn: 'AS6939' },
+  { name: 'Hurricane Electric', host: 'route-server.he.net', location: 'Global', asn: 'AS6939' }
 ]
 
 interface CommandOption {

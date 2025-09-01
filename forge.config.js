@@ -4,17 +4,20 @@ const { FuseV1Options, FuseVersion } = require('@electron/fuses')
 module.exports = {
   packagerConfig: {
     asar: {
-      unpack: '{docs/**/*,settings.default.json}'
+      unpack: '**/{docs/**/*,settings.default.json,node_modules/node-pty/**/*,node_modules/node-pty/build/Release/**/*}'
     },
     name: 'Network Tools Hub',
     executableName: 'network-tools-hub',
     icon: './assets/icon.png', // Use PNG for now
     appBundleId: 'com.gioguarin.networktoolshub',
     appCategoryType: 'public.app-category.developer-tools',
+    osxSign: false, // Disable signing for local testing
+    osxNotarize: false // Disable for now, enable when you have Apple Developer account
   },
   rebuildConfig: {
     force: true,
-    modules: ['node-pty']
+    modules: ['node-pty'],
+    onlyModules: ['node-pty']
   },
   makers: [
     {

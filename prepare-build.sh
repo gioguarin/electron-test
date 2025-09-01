@@ -17,8 +17,15 @@ npm install
 
 # Rebuild native modules for Electron
 echo "🔧 Rebuilding native modules for Electron..."
-npm rebuild
-npx electron-rebuild
+# First clean any existing builds
+rm -rf node_modules/node-pty/build
+# Force rebuild node-pty specifically
+npx electron-rebuild -f -w node-pty
+# Verify the build was successful
+if [ ! -d "node_modules/node-pty/build" ]; then
+    echo "⚠️  node-pty rebuild may have failed, trying alternative method..."
+    npm rebuild node-pty --runtime=electron --target=$(node -p "require('./package.json').devDependencies.electron.replace('^', '')")
+fi
 
 # Clean any previous builds
 echo "🧹 Cleaning previous builds..."

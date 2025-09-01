@@ -137,14 +137,17 @@ function registerIpcHandlers() {
       const trees = []
       
       // Add public docs
-      // In packaged app with asar unpack, docs are in app.asar.unpacked/docs
       const appPath = app.getAppPath()
-      let publicDocsPath = path.join(appPath, 'docs')
+      let publicDocsPath
       
-      // Check if we're in a packaged app with unpacked resources
+      // More robust check for packaged app
       if (appPath.includes('app.asar')) {
-        // Replace app.asar with app.asar.unpacked for unpacked resources
-        publicDocsPath = path.join(appPath.replace('app.asar', 'app.asar.unpacked'), 'docs')
+        // In packaged app, docs are unpacked
+        const resourcesPath = path.dirname(appPath)
+        publicDocsPath = path.join(resourcesPath, 'app.asar.unpacked', 'docs')
+      } else {
+        // In development
+        publicDocsPath = path.join(appPath, 'docs')
       }
       
       try {
@@ -233,11 +236,26 @@ function registerIpcHandlers() {
         fullPath = path.join(userVaultPath, relativePath)
       } else {
         // Legacy support - try docs first, then vault
-        const docsPath = path.join(__dirname, '..', '..', 'docs', filePath)
+        const appPath = app.getAppPath()
+        let docsPath
+        
+        // More robust check for packaged app
+        if (appPath.includes('app.asar')) {
+          // In packaged app, docs are unpacked
+          const resourcesPath = path.dirname(appPath)
+          docsPath = path.join(resourcesPath, 'app.asar.unpacked', 'docs', filePath)
+        } else {
+          // In development
+          docsPath = path.join(appPath, 'docs', filePath)
+        }
+        
+        log.info('Attempting to read docs file from:', docsPath)
+        
         try {
           await fs.access(docsPath)
           fullPath = docsPath
-        } catch {
+        } catch (error) {
+          log.warn('File not found in docs, trying vault:', error.message)
           const userVaultPath = await getUserVaultPath()
           fullPath = path.join(userVaultPath, filePath)
         }
@@ -260,7 +278,17 @@ function registerIpcHandlers() {
       if (forceLocation === 'docs' || filePath.startsWith('docs/')) {
         // Save to public docs (only if explicitly requested)
         const relativePath = filePath.startsWith('docs/') ? filePath.substring(5) : filePath
-        fullPath = path.join(__dirname, '..', '..', 'docs', relativePath)
+        const appPath = app.getAppPath()
+        
+        // More robust check for packaged app
+        if (appPath.includes('app.asar')) {
+          // In packaged app, docs are unpacked
+          const resourcesPath = path.dirname(appPath)
+          fullPath = path.join(resourcesPath, 'app.asar.unpacked', 'docs', relativePath)
+        } else {
+          // In development
+          fullPath = path.join(appPath, 'docs', relativePath)
+        }
       } else if (filePath.startsWith('vault/')) {
         // User vault
         const relativePath = filePath.substring(6) // Remove 'vault/' prefix
@@ -278,7 +306,18 @@ function registerIpcHandlers() {
       log.info('Knowledge file saved:', fullPath)
       
       // Return the location where it was saved
-      if (fullPath.includes(path.join(__dirname, '..', '..', 'docs'))) {
+      const appPath = app.getAppPath()
+      let docsBasePath
+      if (appPath.includes('app.asar')) {
+        // In packaged app, docs are unpacked
+        const resourcesPath = path.dirname(appPath)
+        docsBasePath = path.join(resourcesPath, 'app.asar.unpacked', 'docs')
+      } else {
+        // In development
+        docsBasePath = path.join(appPath, 'docs')
+      }
+      
+      if (fullPath.includes(docsBasePath)) {
         return { success: true, location: 'docs' }
       } else {
         return { success: true, location: 'vault' }
@@ -294,7 +333,16 @@ function registerIpcHandlers() {
     try {
       let folderPath
       if (location === 'docs') {
-        folderPath = path.join(__dirname, '..', '..', 'docs')
+        const appPath = app.getAppPath()
+        // More robust check for packaged app
+        if (appPath.includes('app.asar')) {
+          // In packaged app, docs are unpacked
+          const resourcesPath = path.dirname(appPath)
+          folderPath = path.join(resourcesPath, 'app.asar.unpacked', 'docs')
+        } else {
+          // In development
+          folderPath = path.join(appPath, 'docs')
+        }
       } else {
         // Default to user vault
         folderPath = await getUserVaultPath()

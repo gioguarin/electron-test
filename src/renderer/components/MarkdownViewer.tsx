@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeHighlight from 'rehype-highlight'
+import { InfoIcon } from './Icons'
 import 'highlight.js/styles/vs2015.css'
 import './MarkdownViewer.css'
 
@@ -53,8 +54,7 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
           // Show notice for first-time users viewing public docs
           if (!hasVault) {
             setShowVaultNotice(true)
-            // Auto-hide after 10 seconds
-            setTimeout(() => setShowVaultNotice(false), 10000)
+            // Don't auto-hide - let user dismiss it manually
           }
         } catch (error) {
           console.error('Error checking vault configuration:', error)
@@ -161,7 +161,7 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
           borderBottom: '1px solid rgba(0,0,0,0.2)'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span>💡</span>
+            <InfoIcon size={18} />
             <span>
               <strong>Welcome!</strong> Set up your personal vault to create and save your own documents.
             </span>
