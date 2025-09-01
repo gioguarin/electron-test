@@ -5,35 +5,113 @@ const { contextBridge, ipcRenderer, clipboard } = require('electron')
 contextBridge.exposeInMainWorld('electronAPI', {
   // Subnet calculation API
   calculateSubnet: (ipAddress, cidr) => ipcRenderer.invoke('calculate-subnet', ipAddress, cidr),
-  
+
   // Navigation API
   navigateToTool: (toolName) => ipcRenderer.invoke('navigate-to-tool', toolName),
   navigateToHome: () => ipcRenderer.invoke('navigate-to-home'),
-  
+
   // System information
   getVersions: () => ({
     node: process.versions.node,
     chrome: process.versions.chrome,
-    electron: process.versions.electron
+    electron: process.versions.electron,
   }),
-  
+
+  // Platform information
+  platform: process.platform,
+
   // Logging API for renderer (using console for now due to sandbox restrictions)
   log: {
     info: (...args) => console.log('[INFO]', ...args),
     warn: (...args) => console.warn('[WARN]', ...args),
     error: (...args) => console.error('[ERROR]', ...args),
-    debug: (...args) => console.log('[DEBUG]', ...args)
+    debug: (...args) => console.log('[DEBUG]', ...args),
   },
-  
+
   // Clipboard API
   clipboard: {
     writeText: (text) => {
       clipboard.writeText(text)
       console.log('[INFO] Copied to clipboard:', text.substring(0, 50) + '...')
     },
-    readText: () => clipboard.readText()
+    readText: () => clipboard.readText(),
   },
-  
+
+  // Knowledge Base API
+  getKnowledgeTree: () => ipcRenderer.invoke('get-knowledge-tree'),
+  readKnowledgeFile: (filePath) => ipcRenderer.invoke('read-knowledge-file', filePath),
+  saveKnowledgeFile: (filePath, content) => ipcRenderer.invoke('save-knowledge-file', filePath, content),
+  openKnowledgeFolder: (location) => ipcRenderer.invoke('open-knowledge-folder', location),
+  openExternal: (url) => ipcRenderer.invoke('open-external', url),
+  selectFolder: () => ipcRenderer.invoke('select-folder'),
+  setVaultPath: (path) => ipcRenderer.invoke('set-vault-path', path),
+  getVaultPath: () => ipcRenderer.invoke('get-vault-path'),
+
+  // Window controls
+  minimizeWindow: () => ipcRenderer.invoke('minimize-window'),
+  maximizeWindow: () => ipcRenderer.invoke('maximize-window'),
+  closeWindow: () => ipcRenderer.invoke('close-window'),
+
+  // Settings API
+  loadSettings: () => ipcRenderer.invoke('load-settings'),
+  saveSettings: (settings) => ipcRenderer.invoke('save-settings', settings),
+  resetSettings: () => ipcRenderer.invoke('reset-settings'),
+
+  // Network Tools API
+  networkTools: {
+    ping: (host, count) => ipcRenderer.invoke('network-ping', host, count),
+    traceroute: (host) => ipcRenderer.invoke('network-traceroute', host),
+    asnLookup: (ip) => ipcRenderer.invoke('network-asn-lookup', ip),
+    bgpLookup: (ip) => ipcRenderer.invoke('network-bgp-lookup', ip),
+    dnsLookup: (hostname) => ipcRenderer.invoke('network-dns-lookup', hostname),
+    onPingData: (callback) => {
+      ipcRenderer.on('network-ping-data', (event, data) => callback(data))
+      return () => ipcRenderer.removeAllListeners('network-ping-data')
+    },
+    onTracerouteData: (callback) => {
+      ipcRenderer.on('network-traceroute-data', (event, data) => callback(data))
+      return () => ipcRenderer.removeAllListeners('network-traceroute-data')
+    },
+    onAsnData: (callback) => {
+      ipcRenderer.on('network-asn-data', (event, data) => callback(data))
+      return () => ipcRenderer.removeAllListeners('network-asn-data')
+    },
+    onBgpData: (callback) => {
+      ipcRenderer.on('network-bgp-data', (event, data) => callback(data))
+      return () => ipcRenderer.removeAllListeners('network-bgp-data')
+    },
+    // Route Server API
+    connectRouteServer: (host) => ipcRenderer.invoke('route-server-connect', host),
+    sendRouteServerCommand: (sessionId, command) => ipcRenderer.invoke('route-server-command', sessionId, command),
+    disconnectRouteServer: (sessionId) => ipcRenderer.invoke('route-server-disconnect', sessionId),
+    onRouteServerData: (callback) => {
+      ipcRenderer.on('route-server-data', (event, data) => callback(data))
+      return () => ipcRenderer.removeAllListeners('route-server-data')
+    },
+  },
+
+  // Terminal API
+  terminal: {
+    create: (cols, rows) => ipcRenderer.invoke('terminal-create', cols, rows),
+    write: (id, data) => ipcRenderer.invoke('terminal-write', id, data),
+    resize: (id, cols, rows) => ipcRenderer.invoke('terminal-resize', id, cols, rows),
+    kill: (id) => ipcRenderer.invoke('terminal-kill', id),
+    onData: (id, callback) => {
+      const channel = `terminal-data-${id}`
+      const listener = (event, data) => callback(data)
+      ipcRenderer.on(channel, listener)
+      // Return cleanup function
+      return () => ipcRenderer.removeListener(channel, listener)
+    },
+    onExit: (id, callback) => {
+      const channel = `terminal-exit-${id}`
+      const listener = (event, data) => callback(data)
+      ipcRenderer.on(channel, listener)
+      // Return cleanup function
+      return () => ipcRenderer.removeListener(channel, listener)
+    },
+  },
+
   // Storage API for calculation history
   storage: {
     getHistory: () => {
@@ -49,20 +127,20 @@ contextBridge.exposeInMainWorld('electronAPI', {
       try {
         const history = localStorage.getItem('subnetHistory')
         const historyArray = history ? JSON.parse(history) : []
-        
+
         // Add new calculation with timestamp
         const entry = {
           ...calculation,
           timestamp: new Date().toISOString(),
-          id: Date.now()
+          id: Date.now(),
         }
-        
+
         // Keep only last 50 calculations
         historyArray.unshift(entry)
         if (historyArray.length > 50) {
           historyArray.pop()
         }
-        
+
         localStorage.setItem('subnetHistory', JSON.stringify(historyArray))
         console.log('[INFO] Saved calculation to history')
         return true
@@ -80,6 +158,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
         console.error('[ERROR] Error clearing history:', error)
         return false
       }
-    }
-  }
+    },
+  },
 })

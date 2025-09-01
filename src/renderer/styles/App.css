@@ -1,0 +1,106 @@
+/* Main App Layout */
+
+.app {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  background-color: var(--color-bg-primary, var(--bg-primary));
+  color: var(--color-text-primary, var(--text-primary));
+  overflow: hidden;
+}
+
+.app-main {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  height: 100%;
+  width: calc(100vw - 48px); /* Subtract activity bar width */
+}
+
+.editor-area {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: var(--color-bg-primary, var(--bg-primary));
+  position: relative;
+}
+
+.editor-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+}
+
+.welcome-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  padding: 20px;
+}
+
+.welcome-screen h1 {
+  font-size: 36px;
+  font-weight: 300;
+  margin-bottom: 16px;
+  color: var(--color-text-primary, var(--text-primary));
+}
+
+.welcome-screen p {
+  font-size: 16px;
+  color: var(--color-text-secondary, var(--text-secondary));
+  max-width: 500px;
+  margin-bottom: 32px;
+}
+
+/* Keyboard shortcuts display */
+.keyboard-shortcuts {
+  margin-top: 48px;
+  padding: 24px;
+  background-color: var(--color-bg-elevated, var(--bg-secondary));
+  border-radius: 8px;
+  border: 1px solid var(--color-border, var(--border-color));
+}
+
+.keyboard-shortcuts h3 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary, var(--text-primary));
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.shortcut {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+
+.shortcut:last-child {
+  margin-bottom: 0;
+}
+
+.shortcut kbd {
+  background-color: var(--color-bg-tertiary, var(--bg-tertiary));
+  border: 1px solid var(--hover-bg, var(--border-color));
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 11px;
+  color: var(--color-text-primary, var(--text-primary));
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.shortcut span {
+  color: var(--color-text-secondary, var(--text-secondary));
+  flex: 1;
+}

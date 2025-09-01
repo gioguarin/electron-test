@@ -1,0 +1,209 @@
+/* Dark Theme (default) */
+:root[data-theme="dark"] {
+  /* Legacy variable names for compatibility */
+  --bg-primary: #1e1e1e;
+  --bg-secondary: #252526;
+  --bg-tertiary: #2d2d30;
+  --text-primary: #cccccc;
+  --text-secondary: #8c8c8c;
+  --text-accent: #4ec9b0;
+  --border-color: #3c3c3c;
+  --hover-bg: #2a2a2a;
+  --selection-bg: #094771;
+  --accent-color: #007acc;
+  --accent-hover: #0062a3;
+  --input-bg: #3c3c3c;
+  --editor-bg: #1e1e1e;
+  --error-bg: #5a1d1d;
+  --error-color: #f48771;
+  --error-border: #763030;
+  --warning-color: #ddb700;
+  --success-color: #89d185;
+  --activity-bar-bg: #333333;
+  --sidebar-bg: #252526;
+  --terminal-bg: #1e1e1e;
+  --scrollbar-bg: #424242;
+  --scrollbar-thumb: #4a4a4a;
+  
+  /* New standardized variable names */
+  --color-bg-primary: #1e1e1e;
+  --color-bg-secondary: #2d2d30;
+  --color-bg-tertiary: #3c3c3c;
+  --color-bg-elevated: #252526;
+  --color-border: #3c3c3c;
+  --color-text-primary: #cccccc;
+  --color-text-secondary: #8b8b8b;
+  --color-text-tertiary: #6b6b6b;
+  --color-accent: #007acc;
+  --color-primary: #0e639c;
+  --color-primary-hover: #1177bb;
+  --color-code: #d7ba7d;
+}
+
+/* Light Theme */
+:root[data-theme="light"] {
+  /* Legacy variable names for compatibility */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f3f3f3;
+  --bg-tertiary: #e8e8e8;
+  --text-primary: #333333;
+  --text-secondary: #6c6c6c;
+  --text-accent: #0066cc;
+  --border-color: #e1e1e1;
+  --hover-bg: #f0f0f0;
+  --selection-bg: #add6ff;
+  --accent-color: #0066cc;
+  --accent-hover: #0055aa;
+  --input-bg: #ffffff;
+  --editor-bg: #ffffff;
+  --error-bg: #ffeaea;
+  --error-color: #d73a49;
+  --error-border: #fdbfbf;
+  --warning-color: #e36209;
+  --success-color: #28a745;
+  --activity-bar-bg: #2c2c2c;
+  --sidebar-bg: #f3f3f3;
+  --terminal-bg: #ffffff;
+  --scrollbar-bg: #e1e1e1;
+  --scrollbar-thumb: #c1c1c1;
+  
+  /* New standardized variable names */
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f3f3f3;
+  --color-bg-tertiary: #e1e1e1;
+  --color-bg-elevated: #f8f8f8;
+  --color-border: #e1e1e1;
+  --color-text-primary: #333333;
+  --color-text-secondary: #666666;
+  --color-text-tertiary: #999999;
+  --color-accent: #0066cc;
+  --color-primary: #0066cc;
+  --color-primary-hover: #0052a3;
+  --color-code: #a31515;
+}
+
+/* High Contrast Theme */
+:root[data-theme="high-contrast"] {
+  /* Legacy variable names for compatibility */
+  --bg-primary: #000000;
+  --bg-secondary: #000000;
+  --bg-tertiary: #0c0c0c;
+  --text-primary: #ffffff;
+  --text-secondary: #ffffff;
+  --text-accent: #00ffff;
+  --border-color: #6fc3df;
+  --hover-bg: #094771;
+  --selection-bg: #094771;
+  --accent-color: #00ffff;
+  --accent-hover: #00cccc;
+  --input-bg: #000000;
+  --editor-bg: #000000;
+  --error-bg: #8b0000;
+  --error-color: #ff6b6b;
+  --error-border: #ff0000;
+  --warning-color: #ffff00;
+  --success-color: #00ff00;
+  --activity-bar-bg: #000000;
+  --sidebar-bg: #000000;
+  --terminal-bg: #000000;
+  --scrollbar-bg: #6fc3df;
+  --scrollbar-thumb: #00ffff;
+  
+  /* New standardized variable names */
+  --color-bg-primary: #000000;
+  --color-bg-secondary: #0c0c0c;
+  --color-bg-tertiary: #1a1a1a;
+  --color-bg-elevated: #0c0c0c;
+  --color-border: #6fc3df;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #ffffff;
+  --color-text-tertiary: #cccccc;
+  --color-accent: #00ffff;
+  --color-primary: #00ffff;
+  --color-primary-hover: #00cccc;
+  --color-code: #ffff00;
+}
+
+/* Hacker Orange Theme */
+:root[data-theme="hacker-orange"] {
+  /* Legacy variable names for compatibility */
+  --bg-primary: #000000;
+  --bg-secondary: #0a0a0a;
+  --bg-tertiary: #1a0f00;
+  --text-primary: #ff6600;
+  --text-secondary: #ff9944;
+  --text-accent: #ffaa00;
+  --border-color: #ff6600;
+  --hover-bg: #331100;
+  --selection-bg: #662200;
+  --accent-color: #ff6600;
+  --accent-hover: #ff8833;
+  --input-bg: #0a0500;
+  --editor-bg: #000000;
+  --error-bg: #660000;
+  --error-color: #ff3333;
+  --error-border: #ff0000;
+  --warning-color: #ffcc00;
+  --success-color: #00ff00;
+  --activity-bar-bg: #0a0500;
+  --sidebar-bg: #0a0500;
+  --terminal-bg: #000000;
+  --scrollbar-bg: #ff6600;
+  --scrollbar-thumb: #ff9944;
+  
+  /* New standardized variable names */
+  --color-bg-primary: #000000;
+  --color-bg-secondary: #1a0f00;
+  --color-bg-tertiary: #2a1a00;
+  --color-bg-elevated: #1a0f00;
+  --color-border: #ff6600;
+  --color-text-primary: #ff6600;
+  --color-text-secondary: #ff9944;
+  --color-text-tertiary: #cc6600;
+  --color-accent: #ff6600;
+  --color-primary: #ff6600;
+  --color-primary-hover: #ff8833;
+  --color-code: #ffaa00;
+}
+
+/* Hacker Green Theme */
+:root[data-theme="hacker-green"] {
+  /* Legacy variable names for compatibility */
+  --bg-primary: #000000;
+  --bg-secondary: #020a02;
+  --bg-tertiary: #001a00;
+  --text-primary: #00ff00;
+  --text-secondary: #00cc00;
+  --text-accent: #00ff44;
+  --border-color: #00ff00;
+  --hover-bg: #003300;
+  --selection-bg: #006600;
+  --accent-color: #00ff00;
+  --accent-hover: #00cc00;
+  --input-bg: #001100;
+  --editor-bg: #000000;
+  --error-bg: #660000;
+  --error-color: #ff3333;
+  --error-border: #ff0000;
+  --warning-color: #ffff00;
+  --success-color: #00ff00;
+  --activity-bar-bg: #001100;
+  --sidebar-bg: #001100;
+  --terminal-bg: #000000;
+  --scrollbar-bg: #00ff00;
+  --scrollbar-thumb: #00cc00;
+  
+  /* New standardized variable names */
+  --color-bg-primary: #000000;
+  --color-bg-secondary: #001a00;
+  --color-bg-tertiary: #002a00;
+  --color-bg-elevated: #001a00;
+  --color-border: #00ff00;
+  --color-text-primary: #00ff00;
+  --color-text-secondary: #00cc00;
+  --color-text-tertiary: #009900;
+  --color-accent: #00ff00;
+  --color-primary: #00ff00;
+  --color-primary-hover: #00cc00;
+  --color-code: #00ff44;
+}

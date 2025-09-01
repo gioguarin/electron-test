@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'">
+    <title>Component Test - Network Tools Hub</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../../components/styles/components.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Component System Test</h1>
+            <p>Testing the new component-based architecture</p>
+            <button id="backButton" class="btn btn-secondary">← Back to Home</button>
+        </div>
+
+        <div class="tool-selector">
+            <button id="loadSubnetCalc" class="btn btn-primary">Load Subnet Calculator</button>
+            <button id="unloadTool" class="btn btn-secondary">Unload Tool</button>
+            <button id="getContext" class="btn btn-secondary">Get Context</button>
+            <button id="saveContext" class="btn btn-secondary">Save Context</button>
+            <button id="restoreContext" class="btn btn-secondary">Restore Context</button>
+        </div>
+
+        <div id="toolContainer" class="tool-container"></div>
+
+        <div id="contextDisplay" class="context-display card" style="display: none;">
+            <h3>Current Context</h3>
+            <pre id="contextContent"></pre>
+        </div>
+    </div>
+
+    <style>
+        .tool-selector {
+            margin: 20px 0;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .tool-container {
+            min-height: 400px;
+            margin: 20px 0;
+        }
+
+        .context-display {
+            margin-top: 20px;
+        }
+
+        .context-display pre {
+            background: #f7fafc;
+            padding: 16px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            margin: 0 0 10px 0;
+        }
+
+        .header p {
+            margin: 0 0 20px 0;
+            color: #718096;
+        }
+    </style>
+
+    <!-- Load component framework -->
+    <script src="../../components/base/ToolComponent.js"></script>
+    <script src="../../components/tools/SubnetCalculatorComponent.js"></script>
+
+    <script>
+        let currentTool = null;
+        let savedContext = null;
+
+        // Back button navigation
+        document.getElementById('backButton').addEventListener('click', () => {
+            if (window.electronAPI) {
+                window.electronAPI.navigateToHome();
+            } else {
+                window.location.href = '../landing.html';
+            }
+        });
+
+        // Load Subnet Calculator
+        document.getElementById('loadSubnetCalc').addEventListener('click', () => {
+            if (currentTool) {
+                currentTool.dispose();
+            }
+
+            const container = document.getElementById('toolContainer');
+            currentTool = new SubnetCalculatorComponent(container);
+            currentTool.initialize();
+            currentTool.render();
+            
+            console.log('Subnet Calculator loaded');
+        });
+
+        // Unload current tool
+        document.getElementById('unloadTool').addEventListener('click', () => {
+            if (currentTool) {
+                currentTool.dispose();
+                currentTool = null;
+                console.log('Tool unloaded');
+            }
+        });
+
+        // Get current context
+        document.getElementById('getContext').addEventListener('click', () => {
+            if (currentTool) {
+                const context = currentTool.getContext();
+                const contextDisplay = document.getElementById('contextDisplay');
+                const contextContent = document.getElementById('contextContent');
+                
+                contextContent.textContent = JSON.stringify(context, null, 2);
+                contextDisplay.style.display = 'block';
+                
+                console.log('Context:', context);
+            } else {
+                alert('No tool loaded');
+            }
+        });
+
+        // Save context
+        document.getElementById('saveContext').addEventListener('click', () => {
+            if (currentTool) {
+                savedContext = currentTool.getContext();
+                console.log('Context saved:', savedContext);
+                alert('Context saved successfully');
+            } else {
+                alert('No tool loaded');
+            }
+        });
+
+        // Restore context
+        document.getElementById('restoreContext').addEventListener('click', () => {
+            if (savedContext) {
+                if (!currentTool) {
+                    // Load the tool first
+                    const container = document.getElementById('toolContainer');
+                    currentTool = new SubnetCalculatorComponent(container);
+                    currentTool.initialize();
+                    currentTool.render();
+                }
+                
+                currentTool.setContext(savedContext);
+                console.log('Context restored:', savedContext);
+                alert('Context restored successfully');
+            } else {
+                alert('No saved context');
+            }
+        });
+
+        // Auto-load subnet calculator on page load for testing
+        window.addEventListener('DOMContentLoaded', () => {
+            // Uncomment to auto-load
+            // document.getElementById('loadSubnetCalc').click();
+        });
+    </script>
+</body>
+</html>

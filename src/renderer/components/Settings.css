@@ -1,0 +1,287 @@
+.settings-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.settings-header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.settings-header-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.settings-mode-toggle {
+  padding: 4px 12px;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: 3px;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+
+.settings-mode-toggle:hover {
+  background: var(--hover-bg);
+  color: var(--text-primary);
+}
+
+.settings-mode-toggle.active {
+  background: var(--accent-color);
+  color: white;
+  border-color: var(--accent-color);
+}
+
+.settings-close {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: 3px;
+  font-size: 18px;
+}
+
+.settings-close:hover {
+  background: var(--hover-bg);
+  color: var(--text-primary);
+}
+
+.settings-body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+/* UI Mode Styles */
+.settings-sidebar {
+  width: 200px;
+  background: var(--bg-primary);
+  border-right: 1px solid var(--border-color);
+  overflow-y: auto;
+  padding: 8px 0;
+}
+
+.settings-category {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 16px;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  text-align: left;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+
+.settings-category:hover {
+  background: var(--hover-bg);
+  color: var(--text-primary);
+}
+
+.settings-category.active {
+  background: var(--selection-bg);
+  color: var(--text-primary);
+}
+
+.category-icon {
+  width: 20px;
+  text-align: center;
+  font-size: 16px;
+}
+
+.category-label {
+  flex: 1;
+}
+
+.settings-content {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.settings-group {
+  max-width: 600px;
+}
+
+.settings-group h3 {
+  margin: 0 0 20px 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.setting-item {
+  margin-bottom: 20px;
+}
+
+.setting-item label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+.setting-item input[type="text"],
+.setting-item input[type="number"],
+.setting-item select {
+  width: 100%;
+  padding: 6px 8px;
+  background: var(--input-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border-radius: 3px;
+  font-size: 13px;
+}
+
+.setting-item input[type="text"]:focus,
+.setting-item input[type="number"]:focus,
+.setting-item select:focus {
+  outline: none;
+  border-color: var(--accent-color);
+}
+
+.setting-item.checkbox label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.setting-item.checkbox input[type="checkbox"] {
+  width: auto;
+  cursor: pointer;
+}
+
+.settings-placeholder {
+  color: var(--text-secondary);
+  font-style: italic;
+  font-size: 13px;
+}
+
+/* JSON Mode Styles */
+.settings-json-editor {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+.json-error {
+  padding: 12px 20px;
+  background: var(--error-bg);
+  color: var(--error-color);
+  border-bottom: 1px solid var(--error-border);
+  font-size: 12px;
+  font-family: 'Consolas', 'Monaco', monospace;
+}
+
+.json-textarea {
+  flex: 1;
+  padding: 20px;
+  background: var(--editor-bg);
+  border: none;
+  color: var(--text-primary);
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  resize: none;
+}
+
+.json-textarea:focus {
+  outline: none;
+}
+
+/* Footer Styles */
+.settings-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  background: var(--bg-primary);
+  border-top: 1px solid var(--border-color);
+  flex-shrink: 0;
+  min-height: 52px;
+}
+
+.settings-reset {
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: 3px;
+  font-size: 12px;
+}
+
+.settings-reset:hover {
+  background: var(--hover-bg);
+  color: var(--text-primary);
+}
+
+.settings-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.unsaved-indicator {
+  color: var(--warning-color);
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.settings-save {
+  padding: 6px 16px;
+  background: var(--accent-color);
+  border: none;
+  color: white;
+  cursor: pointer;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.settings-save:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.settings-save:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+

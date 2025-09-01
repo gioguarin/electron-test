@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'">
+    <title>Tool Registry Test - Network Tools Hub</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../../components/styles/components.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Tool Registry System</h1>
+            <p>Dynamic tool loading and management demonstration</p>
+            <button id="backButton" class="btn btn-secondary">← Back to Home</button>
+        </div>
+
+        <div class="registry-controls card">
+            <h3>Registry Controls</h3>
+            <div class="button-group">
+                <button id="registerTools" class="btn btn-primary">Register All Tools</button>
+                <button id="showStats" class="btn btn-secondary">Show Stats</button>
+                <button id="listTools" class="btn btn-secondary">List Tools</button>
+                <button id="searchTools" class="btn btn-secondary">Search Tools</button>
+            </div>
+        </div>
+
+        <div class="tool-launcher card">
+            <h3>Tool Launcher</h3>
+            <div id="toolList" class="tool-list"></div>
+        </div>
+
+        <div id="statsDisplay" class="stats-display card" style="display: none;">
+            <h3>Registry Statistics</h3>
+            <pre id="statsContent"></pre>
+        </div>
+
+        <div id="toolContainer" class="tool-container"></div>
+
+        <div id="activeTools" class="active-tools card">
+            <h3>Active Tool Instances</h3>
+            <div id="activeToolsList"></div>
+        </div>
+    </div>
+
+    <style>
+        .registry-controls,
+        .tool-launcher,
+        .stats-display,
+        .active-tools {
+            margin-bottom: 20px;
+        }
+
+        .tool-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .tool-card {
+            padding: 15px;
+            background: #f7fafc;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            border: 2px solid transparent;
+        }
+
+        .tool-card:hover {
+            background: #edf2f7;
+            border-color: #4299e1;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .tool-card h4 {
+            margin: 0 0 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tool-card .tool-icon {
+            font-size: 20px;
+        }
+
+        .tool-card .tool-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .tool-card .tool-description {
+            font-size: 12px;
+            color: #718096;
+            margin: 0;
+        }
+
+        .tool-card .tool-category {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 2px 8px;
+            background: #e2e8f0;
+            border-radius: 12px;
+            font-size: 11px;
+            color: #4a5568;
+        }
+
+        .tool-container {
+            min-height: 400px;
+            margin: 20px 0;
+        }
+
+        .active-tool-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: #f7fafc;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+
+        .active-tool-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .active-tool-status {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #48bb78;
+            border-radius: 50%;
+        }
+
+        .stats-display pre {
+            background: #f7fafc;
+            padding: 16px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        .search-box {
+            margin-top: 10px;
+            display: none;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+    </style>
+
+    <!-- Load component framework -->
+    <script src="../../components/base/ToolComponent.js"></script>
+    <script src="../../components/tools/SubnetCalculatorComponent.js"></script>
+    <script src="../../components/ToolRegistry.js"></script>
+
+    <script>
+        // Back button navigation
+        document.getElementById('backButton').addEventListener('click', () => {
+            if (window.electronAPI) {
+                window.electronAPI.navigateToHome();
+            } else {
+                window.location.href = '../landing.html';
+            }
+        });
+
+        // Register all available tools
+        document.getElementById('registerTools').addEventListener('click', () => {
+            // Register Subnet Calculator
+            toolRegistry.register('subnet-calculator', {
+                component: SubnetCalculatorComponent,
+                name: 'Subnet Calculator',
+                description: 'Calculate network addresses, broadcast addresses, and host ranges',
+                icon: '🌐',
+                category: 'networking'
+            });
+
+            // Register placeholder tools for demonstration
+
+            toolRegistry.register('ping-tool', {
+                component: ToolComponent,
+                name: 'Ping Tool',
+                description: 'Test network connectivity to hosts',
+                icon: '📡',
+                category: 'diagnostics'
+            });
+
+            toolRegistry.register('port-scanner', {
+                component: ToolComponent,
+                name: 'Port Scanner',
+                description: 'Scan for open ports on target hosts',
+                icon: '🔍',
+                category: 'security'
+            });
+
+            toolRegistry.register('dns-lookup', {
+                component: ToolComponent,
+                name: 'DNS Lookup',
+                description: 'Query DNS records and resolve hostnames',
+                icon: '🔗',
+                category: 'diagnostics'
+            });
+
+            console.log('Tools registered');
+            displayToolList();
+            updateActiveToolsList();
+        });
+
+        // Show registry statistics
+        document.getElementById('showStats').addEventListener('click', () => {
+            const stats = toolRegistry.getStats();
+            const statsDisplay = document.getElementById('statsDisplay');
+            const statsContent = document.getElementById('statsContent');
+            
+            statsContent.textContent = JSON.stringify(stats, null, 2);
+            statsDisplay.style.display = 'block';
+        });
+
+        // List all tools
+        document.getElementById('listTools').addEventListener('click', () => {
+            const tools = toolRegistry.getAllTools();
+            console.log('Registered tools:', tools);
+            alert(`${tools.length} tools registered. Check console for details.`);
+        });
+
+        // Search tools
+        document.getElementById('searchTools').addEventListener('click', () => {
+            const query = prompt('Enter search query:');
+            if (query) {
+                const results = toolRegistry.searchTools(query);
+                console.log(`Search results for "${query}":`, results);
+                alert(`Found ${results.length} matching tools. Check console for details.`);
+            }
+        });
+
+        // Display tool list
+        function displayToolList() {
+            const toolList = document.getElementById('toolList');
+            const tools = toolRegistry.getAllTools();
+            
+            toolList.innerHTML = '';
+            
+            tools.forEach(tool => {
+                const toolCard = document.createElement('div');
+                toolCard.className = 'tool-card';
+                toolCard.innerHTML = `
+                    <h4>
+                        <span class="tool-icon">${tool.icon}</span>
+                        <span class="tool-name">${tool.name}</span>
+                    </h4>
+                    <p class="tool-description">${tool.description}</p>
+                    <span class="tool-category">${tool.category}</span>
+                `;
+                
+                toolCard.addEventListener('click', () => launchTool(tool.id));
+                toolList.appendChild(toolCard);
+            });
+        }
+
+        // Launch a tool
+        function launchTool(toolId) {
+            const container = document.getElementById('toolContainer');
+            
+            // Clear existing content
+            container.innerHTML = '';
+            
+            // Dispose all existing instances first
+            toolRegistry.disposeAllInstances();
+            
+            // Create new instance
+            const instance = toolRegistry.createInstance(toolId, container);
+            
+            if (instance) {
+                instance.initialize();
+                instance.render();
+                console.log(`Launched tool: ${toolId}`);
+                
+                // Scroll to tool container
+                container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                
+                // Update active tools list
+                updateActiveToolsList();
+            } else {
+                alert(`Failed to launch tool: ${toolId}`);
+            }
+        }
+
+        // Update active tools list
+        function updateActiveToolsList() {
+            const activeToolsList = document.getElementById('activeToolsList');
+            const instances = toolRegistry.getAllInstances();
+            
+            if (instances.length === 0) {
+                activeToolsList.innerHTML = '<p style="color: #a0aec0; text-align: center;">No active tools</p>';
+            } else {
+                activeToolsList.innerHTML = '';
+                
+                instances.forEach(({ id, instance }) => {
+                    const tool = toolRegistry.getTool(id);
+                    const item = document.createElement('div');
+                    item.className = 'active-tool-item';
+                    item.innerHTML = `
+                        <div class="active-tool-info">
+                            <span class="active-tool-status"></span>
+                            <span>${tool.icon} ${tool.name}</span>
+                        </div>
+                        <button class="btn btn-small btn-danger" onclick="disposeTool('${id}')">Dispose</button>
+                    `;
+                    activeToolsList.appendChild(item);
+                });
+            }
+        }
+
+        // Dispose a tool
+        window.disposeTool = function(toolId) {
+            toolRegistry.disposeInstance(toolId);
+            document.getElementById('toolContainer').innerHTML = '';
+            updateActiveToolsList();
+            console.log(`Disposed tool: ${toolId}`);
+        };
+
+        // Auto-register tools on load
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('registerTools').click();
+        });
+    </script>
+</body>
+</html>

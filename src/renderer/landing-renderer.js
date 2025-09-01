@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Display version information
   const electronVersion = document.getElementById('electron-version')
   const nodeVersion = document.getElementById('node-version')
-    
+
   if (electronVersion && nodeVersion) {
     const versions = window.electronAPI.getVersions()
     electronVersion.textContent = versions.electron
@@ -15,11 +15,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   searchInput.addEventListener('input', (e) => {
     const searchTerm = e.target.value.toLowerCase()
-        
+
     toolCards.forEach(card => {
       const title = card.querySelector('.tool-title').textContent.toLowerCase()
       const description = card.querySelector('.tool-description').textContent.toLowerCase()
-            
+
       if (title.includes(searchTerm) || description.includes(searchTerm)) {
         card.style.display = 'block'
       } else {
@@ -43,12 +43,12 @@ document.addEventListener('DOMContentLoaded', () => {
     card.addEventListener('click', (event) => {
       // Prevent event bubbling
       event.stopPropagation()
-            
+
       const toolName = card.dataset.tool
       const isAvailable = card.dataset.available === 'true'
-            
+
       console.log('Tool clicked:', toolName, 'Available:', isAvailable)
-            
+
       if (isAvailable && toolName) {
         // Navigate to the tool
         console.log('Navigating to:', toolName)
@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault()
       searchInput.focus()
     }
-        
+
     // Escape to clear search
     if (e.key === 'Escape' && searchInput.value) {
       searchInput.value = ''

@@ -1,0 +1,268 @@
+/* Tool Panel Styles */
+
+.tool-panel {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: #1e1e1e;
+}
+
+.tool-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #8b8b8b;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #3c3c3c;
+  border-top-color: #007acc;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.tool-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 20px;
+  text-align: center;
+}
+
+.tool-error h3 {
+  color: #f48771;
+  margin-bottom: 8px;
+  font-size: 18px;
+}
+
+.tool-error p {
+  color: #8b8b8b;
+  font-size: 14px;
+  max-width: 400px;
+}
+
+.tool-container {
+  flex: 1;
+  overflow: auto;
+  padding: 20px;
+  background-color: #1e1e1e;
+}
+
+.tool-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  color: #8b8b8b;
+}
+
+.tool-placeholder h2 {
+  color: #cccccc;
+  margin-bottom: 12px;
+  font-size: 24px;
+  font-weight: 300;
+}
+
+.tool-placeholder p {
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+/* Override component styles for dark theme */
+.tool-container .subnet-calculator-component {
+  color: #cccccc;
+}
+
+.tool-container .tool-header h2 {
+  color: #cccccc;
+}
+
+.tool-container .tool-description {
+  color: #8b8b8b;
+}
+
+.tool-container .card {
+  background-color: #252526;
+  border: 1px solid #3c3c3c;
+  box-shadow: none;
+}
+
+.tool-container .form-group label {
+  color: #cccccc;
+}
+
+.tool-container .form-input {
+  background-color: #3c3c3c;
+  border: 1px solid #3c3c3c;
+  color: #cccccc;
+}
+
+.tool-container .form-input:focus {
+  border-color: #007acc;
+  box-shadow: none;
+}
+
+.tool-container .form-input::placeholder {
+  color: #6b6b6b;
+}
+
+.tool-container .btn {
+  border: 1px solid transparent;
+}
+
+.tool-container .btn-primary {
+  background: #0e639c;
+  color: #ffffff;
+}
+
+.tool-container .btn-primary:hover:not(:disabled) {
+  background: #1177bb;
+}
+
+.tool-container .btn-secondary {
+  background: #3c3c3c;
+  color: #cccccc;
+  border-color: #3c3c3c;
+}
+
+.tool-container .btn-secondary:hover:not(:disabled) {
+  background: #45494e;
+}
+
+.tool-container .btn-danger {
+  background: #a1260d;
+  color: #ffffff;
+}
+
+.tool-container .btn-danger:hover:not(:disabled) {
+  background: #b82e11;
+}
+
+.tool-container .result-item label {
+  color: #8b8b8b;
+}
+
+.tool-container .value-wrapper span {
+  color: #cccccc;
+}
+
+.tool-container .copy-btn {
+  background: #3c3c3c;
+  border-color: #3c3c3c;
+  color: #cccccc;
+}
+
+.tool-container .copy-btn:hover {
+  background: #45494e;
+}
+
+.tool-container .binary-grid {
+  background: #2d2d30;
+}
+
+.tool-container .binary-item label {
+  color: #8b8b8b;
+}
+
+.tool-container .binary-item code {
+  color: #cccccc;
+}
+
+.tool-container .history-item {
+  background: #2d2d30;
+}
+
+.tool-container .history-item:hover {
+  background: #37373d;
+}
+
+.tool-container .history-timestamp {
+  color: #8b8b8b;
+}
+
+.tool-container .history-ip {
+  color: #cccccc;
+}
+
+/* Subnet Checker Status Styles */
+.tool-container .status-success {
+  color: #4ec9b0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  margin-bottom: 16px;
+}
+
+.tool-container .status-error {
+  color: #f48771;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  margin-bottom: 16px;
+}
+
+.tool-container .status-success span:first-child {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.tool-container .status-error span:first-child {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+/* Mode selector dropdown */
+.tool-container select.form-input {
+  background-color: #3c3c3c;
+  border: 1px solid #3c3c3c;
+  color: #cccccc;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 100%;
+  font-size: 14px;
+}
+
+.tool-container select.form-input:focus {
+  border-color: #007acc;
+  outline: none;
+}
+
+.tool-container select.form-input option {
+  background-color: #3c3c3c;
+  color: #cccccc;
+}
+
+.tool-container .history-cidr {
+  color: #8b8b8b;
+}
+
+.tool-container .no-history {
+  color: #8b8b8b;
+}
+
+.tool-container .error-message {
+  color: #f48771;
+}
+
+.tool-container .form-input.error {
+  border-color: #f48771;
+}

@@ -1,0 +1,66 @@
+{
+  "appearance": {
+    "theme": "dark",
+    "fontSize": 14,
+    "fontFamily": "Consolas, 'Courier New', monospace",
+    "showActivityBarLabels": true,
+    "compactMode": true
+  },
+  "editor": {
+    "wordWrap": "wordWrapColumn",
+    "tabSize": 2,
+    "insertSpaces": true,
+    "formatOnSave": false,
+    "autoSave": "off",
+    "autoSaveDelay": 1000
+  },
+  "terminal": {
+    "fontSize": 12,
+    "fontFamily": "Consolas, 'Courier New', monospace",
+    "cursorStyle": "block",
+    "cursorBlink": true,
+    "scrollback": 1000
+  },
+  "panels": {
+    "defaultLayout": "minimal",
+    "sidebarPosition": "left",
+    "sidebarWidth": 240,
+    "terminalHeight": 200,
+    "assistantWidth": 300,
+    "autoHideSidebar": false,
+    "rememberPanelSizes": true
+  },
+  "network": {
+    "defaultSubnetMask": "255.255.255.0",
+    "showBinaryNotation": true,
+    "copyFormat": "plain",
+    "historyLimit": 50
+  },
+  "knowledge": {
+    "defaultView": "tree",
+    "showHiddenFiles": false,
+    "fileExtensions": [
+      ".md",
+      ".txt"
+    ],
+    "autoRefresh": true,
+    "refreshInterval": 5000
+  },
+  "keyboard": {
+    "shortcuts": {
+      "toggleSidebar": "Ctrl+B",
+      "toggleTerminal": "Ctrl+`",
+      "toggleAssistant": "Ctrl+Shift+A",
+      "openSettings": "Ctrl+,",
+      "openSearch": "Ctrl+Shift+F"
+    }
+  },
+  "advanced": {
+    "developerMode": false,
+    "showDevTools": false,
+    "logLevel": "info",
+    "enableTelemetry": false,
+    "checkForUpdates": true
+  },
+  "vaultPath": "/Users/gguarin/Documents/KnowledgeVault"
+}
