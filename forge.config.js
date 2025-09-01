@@ -20,6 +20,7 @@ module.exports = {
     onlyModules: ['node-pty']
   },
   makers: [
+    // Windows - Squirrel installer (.exe)
     {
       name: '@electron-forge/maker-squirrel',
       config: {
@@ -28,13 +29,16 @@ module.exports = {
         exe: 'network-tools-hub.exe',
         description: 'Network Tools Hub - A comprehensive network utility suite',
         // setupIcon: './assets/icon.ico', // Will add when .ico is available
+        noMsi: false, // Also create MSI installer
       },
       platforms: ['win32'],
     },
+    // Cross-platform ZIP archive
     {
       name: '@electron-forge/maker-zip',
-      platforms: ['darwin', 'linux'],
+      platforms: ['darwin', 'linux', 'win32'],
     },
+    // Linux - Debian/Ubuntu (.deb)
     {
       name: '@electron-forge/maker-deb',
       config: {
@@ -44,10 +48,28 @@ module.exports = {
           icon: './assets/icon.png',
           categories: ['Development', 'Network'],
           description: 'Network Tools Hub - A comprehensive network utility suite',
+          productName: 'Network Tools Hub',
+          genericName: 'Network Tools',
         },
       },
       platforms: ['linux'],
     },
+    // Linux - Red Hat/Fedora (.rpm)
+    {
+      name: '@electron-forge/maker-rpm',
+      config: {
+        options: {
+          homepage: 'https://github.com/gioguarin/electron-test',
+          icon: './assets/icon.png',
+          categories: ['Development', 'Network'],
+          description: 'Network Tools Hub - A comprehensive network utility suite',
+          productName: 'Network Tools Hub',
+          license: 'ISC',
+        },
+      },
+      platforms: ['linux'],
+    },
+    // macOS - DMG installer
     {
       name: '@electron-forge/maker-dmg',
       config: {
@@ -55,6 +77,7 @@ module.exports = {
         // icon: './assets/icon.icns', // Will add when .icns is available
         overwrite: true,
         name: 'Network Tools Hub',
+        background: './assets/dmg-background.png', // Optional: custom DMG background
       },
       platforms: ['darwin'],
     },
