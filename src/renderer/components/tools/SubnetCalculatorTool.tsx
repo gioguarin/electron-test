@@ -429,10 +429,57 @@ Subnet Mask: ${validationResult.targetSubnetMask}`
                 </div>
               )}
               <div className="result-item full-width">
-                <label>IP Binary:</label>
-                <div className="result-value">
-                  <code>{results.ipBinary}</code>
+                <label>IP Address (Binary):</label>
+                <div className="result-value binary-display">
+                  <div className="binary-alignment">
+                    <div className="binary-row">
+                      <span className="binary-label">Decimal:</span>
+                      {results.networkAddress.split('.').map((octet, index) => (
+                        <span key={index} className="octet-decimal">
+                          {octet.padStart(3, ' ')}
+                          {index < 3 && <span className="octet-separator">.</span>}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="binary-row">
+                      <span className="binary-label">Binary:</span>
+                      {results.ipBinary.split('.').map((octet, index) => (
+                        <span key={index} className="octet-binary">
+                          {octet}
+                          {index < 3 && <span className="octet-separator">.</span>}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
                   <button className="copy-icon" onClick={() => copyToClipboard(results.ipBinary)}>📋</button>
+                </div>
+              </div>
+              <div className="result-item full-width">
+                <label>Subnet Mask (Binary):</label>
+                <div className="result-value binary-display">
+                  <div className="binary-alignment">
+                    <div className="binary-row">
+                      <span className="binary-label">Decimal:</span>
+                      {results.subnetMask.split('.').map((octet, index) => (
+                        <span key={index} className="octet-decimal">
+                          {octet.padStart(3, ' ')}
+                          {index < 3 && <span className="octet-separator">.</span>}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="binary-row">
+                      <span className="binary-label">Binary:</span>
+                      {results.subnetMask.split('.').map((octet) => parseInt(octet, 10).toString(2).padStart(8, '0')).map((binary, index) => (
+                        <span key={index} className="octet-binary">
+                          {binary}
+                          {index < 3 && <span className="octet-separator">.</span>}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <button className="copy-icon" onClick={() => copyToClipboard(
+                    results.subnetMask.split('.').map((octet) => parseInt(octet, 10).toString(2).padStart(8, '0')).join('.')
+                  )}>📋</button>
                 </div>
               </div>
             </div>
@@ -441,18 +488,108 @@ Subnet Mask: ${validationResult.targetSubnetMask}`
       )}
 
       <div className="info-section">
-        <h4>Quick Reference</h4>
-        <ul>
-          <li><code>/24</code> = 255.255.255.0 = 256 addresses (254 usable hosts)</li>
-          <li><code>/16</code> = 255.255.0.0 = 65,536 addresses (65,534 usable hosts)</li>
-          <li><code>/30</code> = 255.255.255.252 = 4 addresses (2 usable hosts, point-to-point)</li>
-          <li><code>/32</code> = 255.255.255.255 = 1 address (single host)</li>
-        </ul>
+        <h4>Quick Reference Guide</h4>
+        <div className="reference-table">
+          <table>
+            <thead>
+              <tr>
+                <th>CIDR</th>
+                <th>Subnet Mask</th>
+                <th>Binary Mask</th>
+                <th>Hosts</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>/8</code></td>
+                <td>255.0.0.0</td>
+                <td className="binary-cell">11111111.00000000.00000000.00000000</td>
+                <td>16,777,214</td>
+              </tr>
+              <tr>
+                <td><code>/16</code></td>
+                <td>255.255.0.0</td>
+                <td className="binary-cell">11111111.11111111.00000000.00000000</td>
+                <td>65,534</td>
+              </tr>
+              <tr>
+                <td><code>/24</code></td>
+                <td>255.255.255.0</td>
+                <td className="binary-cell">11111111.11111111.11111111.00000000</td>
+                <td>254</td>
+              </tr>
+              <tr>
+                <td><code>/25</code></td>
+                <td>255.255.255.128</td>
+                <td className="binary-cell">11111111.11111111.11111111.10000000</td>
+                <td>126</td>
+              </tr>
+              <tr>
+                <td><code>/26</code></td>
+                <td>255.255.255.192</td>
+                <td className="binary-cell">11111111.11111111.11111111.11000000</td>
+                <td>62</td>
+              </tr>
+              <tr>
+                <td><code>/27</code></td>
+                <td>255.255.255.224</td>
+                <td className="binary-cell">11111111.11111111.11111111.11100000</td>
+                <td>30</td>
+              </tr>
+              <tr>
+                <td><code>/28</code></td>
+                <td>255.255.255.240</td>
+                <td className="binary-cell">11111111.11111111.11111111.11110000</td>
+                <td>14</td>
+              </tr>
+              <tr>
+                <td><code>/29</code></td>
+                <td>255.255.255.248</td>
+                <td className="binary-cell">11111111.11111111.11111111.11111000</td>
+                <td>6</td>
+              </tr>
+              <tr>
+                <td><code>/30</code></td>
+                <td>255.255.255.252</td>
+                <td className="binary-cell">11111111.11111111.11111111.11111100</td>
+                <td>2</td>
+              </tr>
+              <tr>
+                <td><code>/31</code></td>
+                <td>255.255.255.254</td>
+                <td className="binary-cell">11111111.11111111.11111111.11111110</td>
+                <td>0*</td>
+              </tr>
+              <tr>
+                <td><code>/32</code></td>
+                <td>255.255.255.255</td>
+                <td className="binary-cell">11111111.11111111.11111111.11111111</td>
+                <td>1</td>
+              </tr>
+            </tbody>
+          </table>
+          <p className="note">* /31 is used for point-to-point links (RFC 3021)</p>
+        </div>
+        
+        <h4>Binary IP Address Example</h4>
+        <div className="binary-example">
+          <code>
+            192.168.1.100 = 11000000.10101000.00000001.01100100
+          </code>
+          <div className="binary-breakdown">
+            <span>192 = 11000000</span>
+            <span>168 = 10101000</span>
+            <span>1 = 00000001</span>
+            <span>100 = 01100100</span>
+          </div>
+        </div>
+        
         <h4>Tips</h4>
         <ul>
           <li>Use Subnet Checker mode to quickly validate if an IP belongs to a subnet</li>
           <li>Use Subnet Calculator mode for detailed network planning</li>
-          <li>Both CIDR notation (/24) and subnet masks (255.255.255.0) are supported</li>
+          <li>Binary representation helps understand subnet boundaries</li>
+          <li>Network bits are 1s, host bits are 0s in subnet mask</li>
         </ul>
       </div>
     </div>
