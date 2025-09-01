@@ -51,8 +51,7 @@ module.exports = {
           description: 'Network Tools Hub - A comprehensive network utility suite',
           productName: 'Network Tools Hub',
           genericName: 'Network Tools',
-          name: 'network-tools-hub',
-          bin: 'network-tools-hub',
+          // Remove bin and name - use global executableName
         },
       },
       platforms: ['linux'],
@@ -68,8 +67,7 @@ module.exports = {
           description: 'Network Tools Hub - A comprehensive network utility suite',
           productName: 'Network Tools Hub',
           license: 'ISC',
-          name: 'network-tools-hub',
-          bin: 'network-tools-hub',
+          // Remove bin and name - use global executableName
         },
       },
       platforms: ['linux'],
