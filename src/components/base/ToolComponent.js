@@ -39,7 +39,7 @@ class ToolComponent {
       toolName: this.getToolName(),
       state: this.state,
       isActive: this.isActive,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     }
   }
 
@@ -187,7 +187,7 @@ class ToolComponent {
    */
   createElement(tag, attributes = {}, children = []) {
     const element = document.createElement(tag)
-    
+
     // Set attributes
     Object.entries(attributes).forEach(([key, value]) => {
       if (key === 'className') {
@@ -201,7 +201,7 @@ class ToolComponent {
         element.setAttribute(key, value)
       }
     })
-    
+
     // Add children
     if (typeof children === 'string') {
       element.textContent = children
@@ -214,7 +214,7 @@ class ToolComponent {
         }
       })
     }
-    
+
     return element
   }
 
@@ -239,7 +239,7 @@ class ToolComponent {
    */
   log(level, message, data = null) {
     const logMessage = `[${this.getToolName()}] ${message}`
-    
+
     if (window.electronAPI && window.electronAPI.log) {
       window.electronAPI.log[level](logMessage, data)
     } else {

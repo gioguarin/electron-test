@@ -20,7 +20,7 @@ app.on('web-contents-created', (event, contents) => {
 
 function createWindow () {
   log.info('Creating main window...')
-  
+
   // Platform-specific window options
   const windowOptions = {
     width: 1000,
@@ -32,10 +32,10 @@ function createWindow () {
       nodeIntegration: false,  // Security: Disable node integration
       sandbox: true,           // Security: Enable sandbox
       webSecurity: true,       // Security: Enable web security
-      preload: path.join(__dirname, '..', '..', 'dist', 'preload.js')
+      preload: path.join(__dirname, '..', '..', 'dist', 'preload.js'),
     },
     icon: path.join(__dirname, '..', '..', 'assets', 'icon.png'), // Add app icon
-    show: false // Don't show until ready
+    show: false, // Don't show until ready
   }
 
   // macOS specific options for native title bar

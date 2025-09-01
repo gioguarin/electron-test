@@ -18,12 +18,12 @@ class NetworkTools {
   ping(host, count = 4, onData, onComplete) {
     const isWindows = process.platform === 'win32'
     const pingCmd = isWindows ? 'ping' : 'ping'
-    const args = isWindows 
+    const args = isWindows
       ? [`-n`, count.toString(), host]
       : [`-c`, count.toString(), host]
 
     log.info(`Starting ping to ${host} with count ${count}`)
-    
+
     const pingProcess = spawn(pingCmd, args)
     let output = ''
 
@@ -45,7 +45,7 @@ class NetworkTools {
         onComplete({
           success: code === 0,
           output,
-          code
+          code,
         })
       }
     })
@@ -65,7 +65,7 @@ class NetworkTools {
     const args = [host]
 
     log.info(`Starting traceroute to ${host}`)
-    
+
     const traceProcess = spawn(traceCmd, args)
     let output = ''
 
@@ -87,7 +87,7 @@ class NetworkTools {
         onComplete({
           success: code === 0,
           output,
-          code
+          code,
         })
       }
     })
@@ -103,7 +103,7 @@ class NetworkTools {
    */
   lookupASN(ip, onData, onComplete) {
     log.info(`Looking up ASN for IP: ${ip}`)
-    
+
     const client = new net.Socket()
     let output = ''
     let error = null
@@ -119,7 +119,7 @@ class NetworkTools {
     client.on('data', (data) => {
       const chunk = data.toString()
       output += chunk
-      
+
       // Parse ASN information from the response
       const lines = chunk.split('\n')
       for (const line of lines) {
@@ -141,7 +141,7 @@ class NetworkTools {
         onComplete({
           success: !error,
           output,
-          error: error?.message
+          error: error?.message,
         })
       }
     })
@@ -165,7 +165,7 @@ class NetworkTools {
    */
   lookupBGPInfo(ip, onData, onComplete) {
     log.info(`Looking up BGP info for IP: ${ip}`)
-    
+
     const client = new net.Socket()
     let output = ''
     let parsedInfo = {
@@ -176,7 +176,7 @@ class NetworkTools {
       country: null,
       registry: null,
       allocated: null,
-      bgpPrefix: null
+      bgpPrefix: null,
     }
 
     // Alternative: Use route-views.routeviews.org telnet service
@@ -194,7 +194,7 @@ class NetworkTools {
     client.on('data', (data) => {
       const chunk = data.toString()
       output += chunk
-      
+
       // Parse BGP information
       const lines = chunk.split('\n')
       for (const line of lines) {
@@ -212,7 +212,7 @@ class NetworkTools {
             parsedInfo.bgpPrefix = prefixMatch[0]
           }
         }
-        
+
         if (onData) onData(line + '\n')
       }
     })
@@ -228,7 +228,7 @@ class NetworkTools {
         onComplete({
           success: true,
           output,
-          parsed: parsedInfo
+          parsed: parsedInfo,
         })
       }
     })
@@ -249,13 +249,13 @@ class NetworkTools {
    */
   dnsLookup(hostname, callback) {
     const dns = require('dns').promises
-    
+
     Promise.all([
       dns.resolve4(hostname).catch(() => []),
       dns.resolve6(hostname).catch(() => []),
       dns.resolveMx(hostname).catch(() => []),
       dns.resolveTxt(hostname).catch(() => []),
-      dns.resolveNs(hostname).catch(() => [])
+      dns.resolveNs(hostname).catch(() => []),
     ]).then(([ipv4, ipv6, mx, txt, ns]) => {
       callback({
         success: true,
@@ -263,12 +263,12 @@ class NetworkTools {
         ipv6,
         mx,
         txt,
-        ns
+        ns,
       })
     }).catch(error => {
       callback({
         success: false,
-        error: error.message
+        error: error.message,
       })
     })
   }
@@ -277,34 +277,34 @@ class NetworkTools {
   async connectRouteServer(host, port = 23, eventSender) {
     const sessionId = `telnet-${Date.now()}`
     const connection = new Telnet()
-    
+
     let outputBuffer = ''
-    
+
     // Capture all output events
     connection.on('data', (data) => {
       outputBuffer += data.toString()
       if (eventSender) {
         eventSender.send('route-server-data', {
           sessionId,
-          data: data.toString()
+          data: data.toString(),
         })
       }
     })
-    
+
     connection.on('writedone', () => {
       log.debug('Write completed')
     })
-    
+
     connection.on('timeout', () => {
       log.warn('Connection timeout')
       if (eventSender) {
         eventSender.send('route-server-data', {
           sessionId,
-          data: '\n[Connection timeout]\n'
+          data: '\n[Connection timeout]\n',
         })
       }
     })
-    
+
     const params = {
       host: host,
       port: port,
@@ -318,88 +318,88 @@ class NetworkTools {
       sendTimeout: 5000,
       execTimeout: 30000,
       verbose: true,  // Enable verbose output
-      initialLFCR: false  // Don't send initial line feed
+      initialLFCR: false,  // Don't send initial line feed
     }
-    
+
     try {
       // Send initial connection message
       if (eventSender) {
         eventSender.send('route-server-data', {
           sessionId,
-          data: `Connecting to ${host}:${port}...\n`
+          data: `Connecting to ${host}:${port}...\n`,
         })
       }
-      
+
       await connection.connect(params)
       this.telnetSessions.set(sessionId, { connection, eventSender })
-      
+
       // Send success message
       if (eventSender) {
         eventSender.send('route-server-data', {
           sessionId,
-          data: '\n[Connection established]\n'
+          data: '\n[Connection established]\n',
         })
       }
-      
+
       return {
         success: true,
-        sessionId
+        sessionId,
       }
     } catch (error) {
       log.error('Route server connection error:', error)
       if (eventSender) {
         eventSender.send('route-server-data', {
           sessionId,
-          data: `\n[Connection failed: ${error.message}]\n`
+          data: `\n[Connection failed: ${error.message}]\n`,
         })
       }
       return {
         success: false,
-        error: error.message
+        error: error.message,
       }
     }
   }
-  
+
   async sendRouteServerCommand(sessionId, command) {
     const session = this.telnetSessions.get(sessionId)
     if (!session) {
       throw new Error('Session not found')
     }
-    
+
     const { connection, eventSender } = session
-    
+
     try {
       // Send the command
       if (eventSender) {
         eventSender.send('route-server-data', {
           sessionId,
-          data: `\n> ${command}\n`
+          data: `\n> ${command}\n`,
         })
       }
-      
+
       // Execute command and get response
       const response = await connection.exec(command, { timeout: 30000 })
-      
+
       // Send response back to renderer
       if (eventSender && response) {
         eventSender.send('route-server-data', {
           sessionId,
-          data: response
+          data: response,
         })
       }
-      
+
       return { success: true }
     } catch (error) {
       if (eventSender) {
         eventSender.send('route-server-data', {
           sessionId,
-          data: `\n[Error: ${error.message}]\n`
+          data: `\n[Error: ${error.message}]\n`,
         })
       }
       return { success: false, error: error.message }
     }
   }
-  
+
   async disconnectRouteServer(sessionId) {
     const session = this.telnetSessions.get(sessionId)
     if (session) {
@@ -408,7 +408,7 @@ class NetworkTools {
         if (eventSender) {
           eventSender.send('route-server-data', {
             sessionId,
-            data: '\n[Disconnecting...]\n'
+            data: '\n[Disconnecting...]\n',
           })
         }
         await connection.end()

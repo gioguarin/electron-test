@@ -38,14 +38,14 @@ class TerminalManager {
 
   findAvailableShell() {
     const platform = os.platform()
-    
+
     if (platform === 'win32') {
       // Windows shells
       const shells = [
         { shell: 'powershell.exe', args: [] },
-        { shell: 'cmd.exe', args: [] }
+        { shell: 'cmd.exe', args: [] },
       ]
-      
+
       for (const { shell, args } of shells) {
         // On Windows, just try the shell names as they should be in PATH
         log.info(`Trying Windows shell: ${shell}`)
@@ -60,9 +60,9 @@ class TerminalManager {
         '/bin/bash',
         '/usr/bin/bash',
         '/bin/sh',
-        '/usr/bin/sh'
+        '/usr/bin/sh',
       ]
-      
+
       // First try without arguments for better compatibility
       for (const shellPath of shellPaths) {
         if (shellPath && fs.existsSync(shellPath)) {
@@ -71,17 +71,17 @@ class TerminalManager {
           return { shell: shellPath, args: [] }
         }
       }
-      
+
       // If no shell found, try with basic sh
       log.warn('No preferred shell found, falling back to /bin/sh')
       return { shell: '/bin/sh', args: [] }
     }
-    
+
     // Final fallback
-    const fallback = platform === 'win32' 
+    const fallback = platform === 'win32'
       ? { shell: 'cmd.exe', args: [] }
       : { shell: '/bin/sh', args: [] }
-    
+
     log.warn(`Using final fallback shell: ${fallback.shell}`)
     return fallback
   }
@@ -89,17 +89,17 @@ class TerminalManager {
   createTerminal(cols = 80, rows = 24) {
     // Check if node-pty is available
     this.checkPtyAvailable()
-    
+
     // Find an available shell
     const { shell, args: shellArgs } = this.findAvailableShell()
     const platform = os.platform()
-    
+
     const id = `terminal-${this.nextId++}`
-    
+
     try {
       // Set up environment variables
       const env = { ...process.env }
-      
+
       // Fix PATH for macOS apps (they often have limited PATH)
       if (platform === 'darwin') {
         // Add common paths for macOS
@@ -110,9 +110,9 @@ class TerminalManager {
           '/usr/bin',
           '/bin',
           '/usr/sbin',
-          '/sbin'
+          '/sbin',
         ]
-        
+
         // Only add HOME paths if HOME is defined
         if (process.env.HOME) {
           additionalPaths.push(
@@ -120,23 +120,23 @@ class TerminalManager {
             `${process.env.HOME}/bin`
           )
         }
-        
+
         const currentPath = env.PATH || ''
         const pathSet = new Set(currentPath.split(':').filter(Boolean))
         additionalPaths.forEach(p => {
           if (p) pathSet.add(p)
         })
         env.PATH = Array.from(pathSet).filter(Boolean).join(':')
-        
+
         // Ensure TERM is set for proper terminal emulation
         env.TERM = env.TERM || 'xterm-256color'
-        
+
         // Set LANG for proper character encoding if not set
         if (!env.LANG) {
           env.LANG = 'en_US.UTF-8'
         }
       }
-      
+
       // Verify shell exists before trying to spawn (skip on Windows)
       if (platform !== 'win32' && !fs.existsSync(shell)) {
         log.error(`Shell not found at path: ${shell}`)
@@ -148,21 +148,21 @@ class TerminalManager {
         }
         throw new Error(`Shell not found at path: ${shell}`)
       }
-      
+
       // Determine the working directory
       let cwd = process.env.HOME || process.env.USERPROFILE || '/'
-      
+
       // In packaged app, we might need to use a different directory
       if (app.isPackaged && !fs.existsSync(cwd)) {
         cwd = app.getPath('home') || '/'
       }
-      
+
       log.info(`Spawning terminal:`)
       log.info(`  Shell: ${shell}`)
       log.info(`  Args: ${shellArgs.join(' ')}`)
       log.info(`  CWD: ${cwd}`)
       log.info(`  PATH: ${env.PATH}`)
-      
+
       // Create terminal with proper options
       const terminal = pty.spawn(shell, shellArgs, {
         name: 'xterm-256color',
@@ -172,7 +172,7 @@ class TerminalManager {
         env,
         encoding: 'utf8',
         // Add handling for M1 Macs and different architectures
-        handleFlowControl: true
+        handleFlowControl: true,
       })
 
       // Verify the terminal was created successfully
@@ -181,10 +181,10 @@ class TerminalManager {
       }
 
       this.terminals.set(id, terminal)
-      
+
       // Log terminal creation
       log.info(`Terminal created successfully: ${id} with shell: ${shell}, PID: ${terminal.pid}`)
-      
+
       return { id, pid: terminal.pid }
     } catch (error) {
       log.error('Failed to create terminal:', error)
@@ -197,16 +197,16 @@ class TerminalManager {
       log.error('Electron version:', process.versions.electron)
       log.error('Environment HOME:', process.env.HOME)
       log.error('Environment PATH:', process.env.PATH)
-      
+
       // Provide more helpful error message
       let errorMessage = `Terminal creation failed: ${error.message}`
-      
+
       if (error.message.includes('posix_spawnp')) {
         errorMessage += '. This usually indicates node-pty needs to be rebuilt for your Electron version. Try running: npx electron-rebuild -f -w node-pty'
       } else if (error.message.includes('not found')) {
         errorMessage += '. Shell executable not found. Please check your system configuration.'
       }
-      
+
       throw new Error(errorMessage)
     }
   }
@@ -262,18 +262,18 @@ function registerTerminalHandlers() {
     try {
       const result = terminalManager.createTerminal(cols, rows)
       const terminal = terminalManager.getTerminal(result.id)
-      
+
       // Set up data listener for this terminal
       terminal.onData((data) => {
         event.sender.send(`terminal-data-${result.id}`, data)
       })
-      
+
       // Set up exit listener
       terminal.onExit(({ exitCode, signal }) => {
         event.sender.send(`terminal-exit-${result.id}`, { exitCode, signal })
         terminalManager.killTerminal(result.id)
       })
-      
+
       return result
     } catch (error) {
       log.error('Error creating terminal:', error)

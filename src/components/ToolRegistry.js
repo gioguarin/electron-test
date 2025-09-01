@@ -30,7 +30,7 @@ class ToolRegistry {
       description: config.description || '',
       icon: config.icon || '🔧',
       category: config.category || 'general',
-      metadata: config.metadata || {}
+      metadata: config.metadata || {},
     })
 
     console.log(`Registered tool: ${id}`)
@@ -45,7 +45,7 @@ class ToolRegistry {
     if (this.instances.has(id)) {
       this.disposeInstance(id)
     }
-    
+
     this.tools.delete(id)
     console.log(`Unregistered tool: ${id}`)
   }
@@ -97,7 +97,7 @@ class ToolRegistry {
    */
   createInstance(id, container, options = {}) {
     const toolConfig = this.getTool(id)
-    
+
     if (!toolConfig) {
       console.error(`Tool ${id} not found`)
       return null
@@ -114,12 +114,12 @@ class ToolRegistry {
         ...options,
         id,
         name: toolConfig.name,
-        description: toolConfig.description
+        description: toolConfig.description,
       })
 
       this.instances.set(id, instance)
       console.log(`Created instance of tool: ${id}`)
-      
+
       return instance
     } catch (error) {
       console.error(`Failed to create instance of tool ${id}:`, error)
@@ -154,7 +154,7 @@ class ToolRegistry {
    */
   disposeInstance(id) {
     const instance = this.instances.get(id)
-    
+
     if (instance) {
       if (typeof instance.dispose === 'function') {
         instance.dispose()
@@ -180,7 +180,7 @@ class ToolRegistry {
    */
   searchTools(query) {
     const lowerQuery = query.toLowerCase()
-    
+
     return this.getAllTools().filter(tool => {
       return tool.name.toLowerCase().includes(lowerQuery) ||
              tool.description.toLowerCase().includes(lowerQuery) ||
@@ -194,20 +194,20 @@ class ToolRegistry {
    */
   toJSON() {
     const tools = {}
-    
+
     this.tools.forEach((config, id) => {
       tools[id] = {
         name: config.name,
         description: config.description,
         icon: config.icon,
         category: config.category,
-        metadata: config.metadata
+        metadata: config.metadata,
       }
     })
-    
+
     return {
       version: '1.0.0',
-      tools
+      tools,
     }
   }
 
@@ -218,16 +218,16 @@ class ToolRegistry {
   getStats() {
     const categories = this.getCategories()
     const categoryStats = {}
-    
+
     categories.forEach(category => {
       categoryStats[category] = this.getToolsByCategory(category).length
     })
-    
+
     return {
       totalTools: this.tools.size,
       activeInstances: this.instances.size,
       categories: categories.length,
-      categoryBreakdown: categoryStats
+      categoryBreakdown: categoryStats,
     }
   }
 }

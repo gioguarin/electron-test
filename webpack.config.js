@@ -17,26 +17,26 @@ module.exports = [
           use: {
             loader: 'ts-loader',
             options: {
-              transpileOnly: true
-            }
-          }
-        }
-      ]
+              transpileOnly: true,
+            },
+          },
+        },
+      ],
     },
     resolve: {
-      extensions: ['.ts', '.js']
+      extensions: ['.ts', '.js'],
     },
     output: {
       path: path.resolve(__dirname, 'dist'),
-      filename: 'main.js'
+      filename: 'main.js',
     },
     node: {
       __dirname: false,
-      __filename: false
+      __filename: false,
     },
     externals: {
-      'node-pty': 'commonjs2 node-pty'
-    }
+      'node-pty': 'commonjs2 node-pty',
+    },
   },
   // Preload script configuration
   {
@@ -51,19 +51,19 @@ module.exports = [
           use: {
             loader: 'ts-loader',
             options: {
-              transpileOnly: true
-            }
-          }
-        }
-      ]
+              transpileOnly: true,
+            },
+          },
+        },
+      ],
     },
     resolve: {
-      extensions: ['.ts', '.js']
+      extensions: ['.ts', '.js'],
     },
     output: {
       path: path.resolve(__dirname, 'dist'),
-      filename: 'preload.js'
-    }
+      filename: 'preload.js',
+    },
   },
   // Renderer process configuration (React app)
   {
@@ -79,19 +79,19 @@ module.exports = [
           use: {
             loader: 'ts-loader',
             options: {
-              transpileOnly: true
-            }
-          }
+              transpileOnly: true,
+            },
+          },
         },
         {
           test: /\.css$/,
-          use: ['style-loader', 'css-loader']
+          use: ['style-loader', 'css-loader'],
         },
         {
           test: /\.(png|jpe?g|gif|svg)$/i,
-          type: 'asset/resource'
-        }
-      ]
+          type: 'asset/resource',
+        },
+      ],
     },
     resolve: {
       extensions: ['.ts', '.tsx', '.js', '.jsx'],
@@ -99,34 +99,34 @@ module.exports = [
         '@': path.resolve(__dirname, 'src'),
         '@components': path.resolve(__dirname, 'src/components'),
         '@utils': path.resolve(__dirname, 'src/utils'),
-        '@styles': path.resolve(__dirname, 'src/styles')
+        '@styles': path.resolve(__dirname, 'src/styles'),
       },
       fallback: {
         // Provide empty modules for Node.js core modules used by react-markdown
-        "path": false,
-        "fs": false,
-        "stream": false,
-        "util": false,
-        "buffer": false,
-        "process": false,
-        "events": false,
-        "url": false,
-        "assert": false,
-        "crypto": false,
-        "http": false,
-        "https": false,
-        "os": false,
-        "zlib": false
-      }
+        'path': false,
+        'fs': false,
+        'stream': false,
+        'util': false,
+        'buffer': false,
+        'process': false,
+        'events': false,
+        'url': false,
+        'assert': false,
+        'crypto': false,
+        'http': false,
+        'https': false,
+        'os': false,
+        'zlib': false,
+      },
     },
     output: {
       path: path.resolve(__dirname, 'dist'),
-      filename: 'renderer.js'
+      filename: 'renderer.js',
     },
     plugins: [
       new HtmlWebpackPlugin({
-        template: './src/renderer/index.html'
-      })
-    ]
-  }
+        template: './src/renderer/index.html',
+      }),
+    ],
+  },
 ]

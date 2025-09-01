@@ -9,8 +9,8 @@ function createMenu() {
     {
       label: 'File',
       submenu: [
-        { role: 'quit' }
-      ]
+        { role: 'quit' },
+      ],
     },
     {
       label: 'Edit',
@@ -20,8 +20,8 @@ function createMenu() {
         { type: 'separator' },
         { role: 'cut' },
         { role: 'copy' },
-        { role: 'paste' }
-      ]
+        { role: 'paste' },
+      ],
     },
     {
       label: 'View',
@@ -34,8 +34,8 @@ function createMenu() {
         { role: 'zoomIn' },
         { role: 'zoomOut' },
         { type: 'separator' },
-        { role: 'togglefullscreen' }
-      ]
+        { role: 'togglefullscreen' },
+      ],
     },
     {
       label: 'Help',
@@ -48,12 +48,12 @@ function createMenu() {
               title: 'About Subnet Calculator',
               message: 'Subnet Calculator',
               detail: 'A simple subnet calculator built with Electron.\nVersion: 1.0.0',
-              buttons: ['OK']
+              buttons: ['OK'],
             })
-          }
-        }
-      ]
-    }
+          },
+        },
+      ],
+    },
   ]
 
   const menu = Menu.buildFromTemplate(template)

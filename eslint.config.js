@@ -1,0 +1,65 @@
+module.exports = [
+  {
+    files: ['**/*.js'],
+    languageOptions: {
+      ecmaVersion: 2021,
+      sourceType: 'commonjs',
+      globals: {
+        // Node.js globals
+        require: 'readonly',
+        module: 'readonly',
+        exports: 'readonly',
+        process: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+        Buffer: 'readonly',
+        console: 'readonly',
+        global: 'readonly',
+        // Browser globals
+        window: 'readonly',
+        document: 'readonly',
+        localStorage: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
+        alert: 'readonly',
+        confirm: 'readonly',
+        navigator: 'readonly',
+        HTMLElement: 'readonly',
+        Event: 'readonly',
+        IntersectionObserver: 'readonly',
+        // Electron globals
+        electronAPI: 'readonly',
+      },
+    },
+    rules: {
+      'indent': ['error', 2],
+      'linebreak-style': ['error', 'unix'],
+      'quotes': ['error', 'single', { 'allowTemplateLiterals': true }],
+      'semi': ['error', 'never'],
+      'no-unused-vars': ['warn', { 'argsIgnorePattern': '^_' }],
+      'no-console': ['warn', { 'allow': ['warn', 'error', 'info', 'log'] }],
+      'no-undef': 'error',
+      'no-trailing-spaces': 'error',
+      'comma-dangle': ['error', {
+        'arrays': 'always-multiline',
+        'objects': 'always-multiline',
+        'imports': 'always-multiline',
+        'exports': 'always-multiline',
+        'functions': 'never',
+      }],
+    },
+  },
+  {
+    ignores: [
+      'node_modules/**',
+      'dist/**',
+      'out/**',
+      '*.min.js',
+      '.github/**',
+      'build/**',
+      'docs/**',
+    ],
+  },
+]

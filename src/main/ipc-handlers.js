@@ -14,9 +14,9 @@ function registerIpcHandlers() {
   log.info('App paths:', {
     userData: app.getPath('userData'),
     appData: app.getPath('appData'),
-    temp: app.getPath('temp')
+    temp: app.getPath('temp'),
   })
-  
+
   // IPC Handler for subnet calculations
   ipcMain.handle('calculate-subnet', async (event, ipAddress, cidr) => {
     try {
@@ -77,12 +77,12 @@ function registerIpcHandlers() {
   })
 
   // Knowledge Base IPC Handlers
-  
+
   // Define settings paths for use in multiple handlers
   // Use app.getPath('userData') for user-specific writable directory
   const userDataPath = app.getPath('userData')
   const settingsPath = path.join(userDataPath, 'settings.json')
-  
+
   // Default settings path - handle unpacked resources
   const appPath = app.getAppPath()
   let defaultSettingsPath
@@ -91,7 +91,7 @@ function registerIpcHandlers() {
   } else {
     defaultSettingsPath = path.join(appPath, 'settings.default.json')
   }
-  
+
   // Ensure user data directory exists
   const ensureUserDataDir = async () => {
     try {
@@ -100,7 +100,7 @@ function registerIpcHandlers() {
       log.error('Error creating user data directory:', error)
     }
   }
-  
+
   // Helper to get user's vault path from settings
   async function getUserVaultPath() {
     try {
@@ -135,11 +135,11 @@ function registerIpcHandlers() {
   ipcMain.handle('get-knowledge-tree', async () => {
     try {
       const trees = []
-      
+
       // Add public docs
       const appPath = app.getAppPath()
       let publicDocsPath
-      
+
       // More robust check for packaged app
       if (appPath.includes('app.asar')) {
         // In packaged app, docs are unpacked
@@ -149,7 +149,7 @@ function registerIpcHandlers() {
         // In development
         publicDocsPath = path.join(appPath, 'docs')
       }
-      
+
       try {
         await fs.access(publicDocsPath)
         const publicTree = await buildFileTree(publicDocsPath, publicDocsPath)
@@ -158,7 +158,7 @@ function registerIpcHandlers() {
           path: 'docs',
           type: 'directory',
           isPublic: true,
-          children: publicTree
+          children: publicTree,
         })
         log.info('Public docs loaded from:', publicDocsPath)
       } catch (error) {
@@ -167,12 +167,12 @@ function registerIpcHandlers() {
         log.warn('App path:', appPath)
         log.warn('Looking for docs at:', publicDocsPath)
       }
-      
+
       // Add user vault only if configured
       try {
         const settingsData = await fs.readFile(settingsPath, 'utf-8')
         const parsedSettings = JSON.parse(settingsData)
-        
+
         if (parsedSettings.vaultPath) {
           // Vault is configured, add it to the tree
           const userVaultPath = parsedSettings.vaultPath
@@ -184,7 +184,7 @@ function registerIpcHandlers() {
               path: 'vault',
               type: 'directory',
               isUserVault: true,
-              children: userTree
+              children: userTree,
             })
           } catch (error) {
             // User vault folder doesn't exist or not accessible
@@ -195,7 +195,7 @@ function registerIpcHandlers() {
               path: 'vault',
               type: 'directory',
               isUserVault: true,
-              children: []
+              children: [],
             })
           }
         }
@@ -204,7 +204,7 @@ function registerIpcHandlers() {
         // Settings file doesn't exist, vault not configured
         log.info('No vault configured yet - settings file not found')
       }
-      
+
       return trees
     } catch (error) {
       log.error('Error getting knowledge tree:', error)
@@ -216,13 +216,13 @@ function registerIpcHandlers() {
   ipcMain.handle('read-knowledge-file', async (event, filePath) => {
     try {
       let fullPath
-      
+
       // Determine if it's a public doc or user vault file
       if (filePath.startsWith('docs/')) {
         // Public docs - handle unpacked resources
         const relativePath = filePath.substring(5) // Remove 'docs/' prefix
         const appPath = app.getAppPath()
-        
+
         // Check if we're in a packaged app with unpacked resources
         if (appPath.includes('app.asar')) {
           fullPath = path.join(appPath.replace('app.asar', 'app.asar.unpacked'), 'docs', relativePath)
@@ -238,7 +238,7 @@ function registerIpcHandlers() {
         // Legacy support - try docs first, then vault
         const appPath = app.getAppPath()
         let docsPath
-        
+
         // More robust check for packaged app
         if (appPath.includes('app.asar')) {
           // In packaged app, docs are unpacked
@@ -248,9 +248,9 @@ function registerIpcHandlers() {
           // In development
           docsPath = path.join(appPath, 'docs', filePath)
         }
-        
+
         log.info('Attempting to read docs file from:', docsPath)
-        
+
         try {
           await fs.access(docsPath)
           fullPath = docsPath
@@ -260,7 +260,7 @@ function registerIpcHandlers() {
           fullPath = path.join(userVaultPath, filePath)
         }
       }
-      
+
       const content = await fs.readFile(fullPath, 'utf-8')
       return content
     } catch (error) {
@@ -273,13 +273,13 @@ function registerIpcHandlers() {
   ipcMain.handle('save-knowledge-file', async (event, filePath, content, forceLocation) => {
     try {
       let fullPath
-      
+
       // Determine save location
       if (forceLocation === 'docs' || filePath.startsWith('docs/')) {
         // Save to public docs (only if explicitly requested)
         const relativePath = filePath.startsWith('docs/') ? filePath.substring(5) : filePath
         const appPath = app.getAppPath()
-        
+
         // More robust check for packaged app
         if (appPath.includes('app.asar')) {
           // In packaged app, docs are unpacked
@@ -299,12 +299,12 @@ function registerIpcHandlers() {
         const userVaultPath = await getUserVaultPath()
         fullPath = path.join(userVaultPath, filePath)
       }
-      
+
       // Ensure the directory exists
       await fs.mkdir(path.dirname(fullPath), { recursive: true })
       await fs.writeFile(fullPath, content, 'utf-8')
       log.info('Knowledge file saved:', fullPath)
-      
+
       // Return the location where it was saved
       const appPath = app.getAppPath()
       let docsBasePath
@@ -316,7 +316,7 @@ function registerIpcHandlers() {
         // In development
         docsBasePath = path.join(appPath, 'docs')
       }
-      
+
       if (fullPath.includes(docsBasePath)) {
         return { success: true, location: 'docs' }
       } else {
@@ -399,7 +399,7 @@ function registerIpcHandlers() {
   })
 
   // Settings handlers - removed duplicate, using the one declared above
-  
+
   ipcMain.handle('load-settings', async () => {
     try {
       const data = await fs.readFile(settingsPath, 'utf-8')
@@ -413,14 +413,14 @@ function registerIpcHandlers() {
         log.error('Error loading default settings:', defaultError)
         // Return hardcoded defaults as fallback
         return {
-          appearance: { theme: 'dark', fontSize: 14, fontFamily: "Consolas, 'Courier New', monospace" },
+          appearance: { theme: 'dark', fontSize: 14, fontFamily: 'Consolas, \'Courier New\', monospace' },
           editor: { tabSize: 2, insertSpaces: true },
           terminal: { fontSize: 12, scrollback: 1000 },
           panels: { sidebarWidth: 240, terminalHeight: 200, assistantWidth: 300 },
           network: { defaultSubnetMask: '255.255.255.0', showBinaryNotation: false },
           knowledge: { defaultView: 'tree', showHiddenFiles: false },
           keyboard: { shortcuts: {} },
-          advanced: { developerMode: false, showDevTools: false, logLevel: 'info' }
+          advanced: { developerMode: false, showDevTools: false, logLevel: 'info' },
         }
       }
     }
@@ -456,7 +456,7 @@ function registerIpcHandlers() {
   ipcMain.handle('network-ping', (event, host, count) => {
     return new Promise((resolve) => {
       const results = []
-      networkTools.ping(host, count, 
+      networkTools.ping(host, count,
         (data) => {
           event.sender.send('network-ping-data', data)
         },
@@ -525,7 +525,7 @@ function registerIpcHandlers() {
       return { success: false, error: error.message }
     }
   })
-  
+
   ipcMain.handle('route-server-command', async (event, sessionId, command) => {
     try {
       const result = await networkTools.sendRouteServerCommand(sessionId, command)
@@ -535,7 +535,7 @@ function registerIpcHandlers() {
       return { success: false, error: error.message }
     }
   })
-  
+
   ipcMain.handle('route-server-disconnect', async (event, sessionId) => {
     try {
       const result = await networkTools.disconnectRouteServer(sessionId)
@@ -550,10 +550,10 @@ function registerIpcHandlers() {
   ipcMain.handle('set-vault-path', async (event, newPath) => {
     try {
       log.info('Setting vault path to:', newPath)
-      
+
       // Ensure user data directory exists first
       await ensureUserDataDir()
-      
+
       // Load current settings or use defaults
       let settings = {}
       try {
@@ -571,18 +571,18 @@ function registerIpcHandlers() {
           settings = {}
         }
       }
-      
+
       // Update vault path
       settings.vaultPath = newPath
-      
+
       // Save settings to user data directory
       await fs.writeFile(settingsPath, JSON.stringify(settings, null, 2), 'utf-8')
       log.info('Settings saved successfully to:', settingsPath)
-      
+
       // Create the vault folder if it doesn't exist
       await fs.mkdir(newPath, { recursive: true })
       log.info('Vault directory created/verified:', newPath)
-      
+
       log.info('Vault path updated successfully:', newPath)
       return true
     } catch (error) {
@@ -603,9 +603,9 @@ function registerIpcHandlers() {
       properties: ['openDirectory', 'createDirectory'],
       title: 'Select Your Knowledge Vault Location',
       buttonLabel: 'Select Folder',
-      message: 'Choose where to store your personal knowledge vault'
+      message: 'Choose where to store your personal knowledge vault',
     })
-    
+
     if (!result.canceled && result.filePaths.length > 0) {
       return result.filePaths[0]
     }
@@ -622,30 +622,30 @@ function registerIpcHandlers() {
 async function buildFileTree(dir, baseDir) {
   const items = []
   const files = await fs.readdir(dir)
-  
+
   for (const file of files) {
     const filePath = path.join(dir, file)
     const stat = await fs.stat(filePath)
     const relativePath = path.relative(baseDir, filePath)
-    
+
     if (stat.isDirectory()) {
       const children = await buildFileTree(filePath, baseDir)
       items.push({
         name: file,
         path: relativePath,
         type: 'directory',
-        children
+        children,
       })
     } else if (file.endsWith('.md')) {
       items.push({
         name: file,
         path: relativePath,
         type: 'file',
-        lastModified: stat.mtime.toISOString()
+        lastModified: stat.mtime.toISOString(),
       })
     }
   }
-  
+
   return items.sort((a, b) => {
     // Directories first, then files
     if (a.type !== b.type) {
