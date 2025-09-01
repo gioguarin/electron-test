@@ -15,6 +15,7 @@
     "compile:watch": "tsc --watch",
     "rebuild": "electron-rebuild -f -w node-pty",
     "rebuild:all": "./rebuild-native.sh",
+    "rebuild:windows": "electron-rebuild -f -w node-pty || npm rebuild node-pty",
     "package": "npm run rebuild && npm run build && electron-forge package",
     "make": "npm run rebuild && npm run build && electron-forge make",
     "make:mac": "npm run rebuild && npm run build && electron-forge make --platform=darwin",
