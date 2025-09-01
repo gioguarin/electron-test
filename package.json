@@ -1,7 +1,8 @@
 {
   "name": "electron-test",
+  "productName": "Network Tools Hub",
   "version": "1.0.0",
-  "description": "trying out electron, starting out with a subnet checker",
+  "description": "Network Tools Hub - A comprehensive network utility suite",
   "main": "src/main/main.js",
   "scripts": {
     "start": "npm run build:dev && electron-forge start",

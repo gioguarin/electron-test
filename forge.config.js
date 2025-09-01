@@ -7,7 +7,8 @@ module.exports = {
       unpack: '**/{docs/**/*,settings.default.json,node_modules/node-pty/**/*,node_modules/node-pty/build/Release/**/*}',
     },
     name: 'Network Tools Hub',
-    executableName: 'network-tools-hub',
+    productName: 'Network Tools Hub',
+    executableName: 'electron-test', // Must match package.json name for Linux compatibility
     icon: './assets/icon.png', // Use PNG for now
     appBundleId: 'com.gioguarin.networktoolshub',
     appCategoryType: 'public.app-category.developer-tools',
@@ -26,7 +27,7 @@ module.exports = {
       config: {
         name: 'NetworkToolsHub',
         authors: 'Giovanny Guarin',
-        exe: 'network-tools-hub.exe',
+        exe: 'electron-test.exe',
         description: 'Network Tools Hub - A comprehensive network utility suite',
         // setupIcon: './assets/icon.ico', // Will add when .ico is available
         noMsi: false, // Also create MSI installer
@@ -50,6 +51,8 @@ module.exports = {
           description: 'Network Tools Hub - A comprehensive network utility suite',
           productName: 'Network Tools Hub',
           genericName: 'Network Tools',
+          name: 'network-tools-hub',
+          bin: 'network-tools-hub',
         },
       },
       platforms: ['linux'],
@@ -65,6 +68,8 @@ module.exports = {
           description: 'Network Tools Hub - A comprehensive network utility suite',
           productName: 'Network Tools Hub',
           license: 'ISC',
+          name: 'network-tools-hub',
+          bin: 'network-tools-hub',
         },
       },
       platforms: ['linux'],
