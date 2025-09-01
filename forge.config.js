@@ -76,8 +76,7 @@ module.exports = {
         format: 'ULFO',
         // icon: './assets/icon.icns', // Will add when .icns is available
         overwrite: true,
-        name: 'Network Tools Hub',
-        background: './assets/dmg-background.png', // Optional: custom DMG background
+        name: 'Network Tools Hub'
       },
       platforms: ['darwin'],
     },
